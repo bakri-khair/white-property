@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>REMS — Payments</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0D0F14;--surface:#13161E;--surface2:#1A1E29;--surface3:#21263A;
+  --border:#ffffff0f;--border2:#ffffff18;
+  --gold:#C9A84C;--gold2:#E8C87A;--gold-dim:#C9A84C22;
+  --teal:#2DD4BF;--teal-dim:#2DD4BF18;
+  --coral:#F87171;--coral-dim:#F8717118;
+  --blue:#60A5FA;--blue-dim:#60A5FA18;
+  --green:#4ADE80;--green-dim:#4ADE8018;
+  --amber:#FBBF24;--purple:#A78BFA;--purple-dim:#A78BFA18;
+  --text:#F1F0EC;--text2:#9B9A94;--text3:#5C5B57;
+  --radius:14px;--radius-sm:8px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+.layout{display:flex;min-height:100vh;position:relative;z-index:1}
+.sidebar{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 0;position:sticky;top:0;height:100vh}
+[dir="rtl"] .sidebar{border-right:none;border-left:1px solid var(--border)}
+.logo{padding:0 20px 28px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.logo-mark{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;letter-spacing:-0.5px;color:var(--gold2)}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+.nav-section{padding:0 12px;margin-bottom:6px}
+.nav-label{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);font-size:13.5px;color:var(--text2);cursor:pointer;transition:all .15s;border:1px solid transparent;margin-bottom:2px;text-decoration:none;font-weight:400}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--gold-dim);border-color:var(--gold)33;color:var(--gold2);font-weight:500}
+.nav-icon{font-size:15px;width:18px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--coral);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px}
+[dir="rtl"] .nav-badge{margin-left:0;margin-right:auto}
+.sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
+.user-pill{display:flex;align-items:center;gap:10px}
+.av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--teal));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0}
+.main{flex:1;padding:28px 32px;overflow-y:auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;letter-spacing:-0.5px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.lang-toggle{display:flex;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden}
+.lang-btn{padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;color:var(--text2);border:none;background:none;font-family:'DM Sans',sans-serif}
+.lang-btn.active{background:var(--gold);color:#000}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .15s}
+.btn-primary{background:var(--gold);color:#000}.btn-primary:hover{background:var(--gold2)}
+.btn-ghost{background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}.btn-ghost:hover{color:var(--text)}
+
+/* KPI row */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;position:relative;overflow:hidden;transition:all .2s}
+.kpi-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi-card.green::after{background:var(--green)}
+.kpi-card.coral::after{background:var(--coral)}
+.kpi-card.amber::after{background:var(--amber)}
+.kpi-card.blue::after{background:var(--blue)}
+.kpi-label{font-size:10px;letter-spacing:.7px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.kpi-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:var(--text3)}
+
+/* tabs */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px}
+.tab{padding:10px 20px;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tab:hover{color:var(--text2)}
+.tab.active{color:var(--gold2);border-bottom-color:var(--gold)}
+.tab-count{display:inline-block;background:var(--surface3);color:var(--text3);font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;margin-inline-start:6px}
+.tab.active .tab-count{background:var(--gold-dim);color:var(--gold)}
+
+/* filter bar */
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.search-wrap{flex:1;min-width:180px;position:relative}
+.search-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 14px 9px 36px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s}
+[dir="rtl"] .search-input{padding:9px 36px 9px 14px}
+.search-input:focus{border-color:var(--gold)66}
+.search-input::placeholder{color:var(--text3)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none}
+[dir="rtl"] .search-icon{left:auto;right:12px}
+.filter-select{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text2);font-family:'DM Sans',sans-serif;outline:none;cursor:pointer}
+.filter-select option{background:var(--surface2)}
+
+/* overdue banner */
+.overdue-banner{background:var(--coral-dim);border:1px solid var(--coral)33;border-radius:var(--radius-sm);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px}
+
+/* table */
+.table-wrap{border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);overflow-x:auto}
+.pay-table{width:100%;border-collapse:collapse}
+.pay-table th{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);padding:12px 16px;text-align:left;border-bottom:1px solid var(--border);font-weight:400;white-space:nowrap}
+[dir="rtl"] .pay-table th{text-align:right}
+.pay-table td{padding:13px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);vertical-align:middle}
+.pay-table tr:last-child td{border-bottom:none}
+.pay-table tr:hover td{background:var(--surface2);cursor:pointer}
+.pay-table tr.overdue td{background:#F8717108}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px}
+.pill-paid{background:var(--green-dim);color:var(--green)}
+.pill-overdue{background:var(--coral-dim);color:var(--coral)}
+.pill-upcoming{background:var(--amber)18;color:var(--amber)}
+.pill-received{background:var(--teal-dim);color:var(--teal)}
+.amount-cell{font-family:'Syne',sans-serif;font-size:13px;font-weight:600}
+.record-modal{position:fixed;inset:0;background:#00000070;z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
+.record-modal.open{opacity:1;pointer-events:all}
+.record-box{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:28px;width:400px;max-width:90vw}
+.record-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px}
+.record-sub{font-size:12px;color:var(--text3);margin-bottom:20px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:11px;color:var(--text3);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.6px}
+.form-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none}
+.form-input:focus{border-color:var(--gold)66}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.pay-table tr{animation:fadeUp .2s ease both}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
+@media(max-width:768px){.sidebar{display:none}.main{padding:16px}.kpi-row{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">White Property</div>
+    <div class="logo-sub" data-en="Real Estate System" data-ar="نظام العقارات">نظام العقارات</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label" data-en="Main" data-ar="رئيسي">رئيسي</div>
+    <a class="nav-item" href="REMS_Manager_Dashboard.html"><span class="nav-icon">⬛</span><span data-en="Dashboard" data-ar="لوحة التحكم">لوحة التحكم</span></a>
+    <a class="nav-item" href="REMS_Properties.html"><span class="nav-icon">🏠</span><span data-en="Properties" data-ar="العقارات">العقارات</span></a>
+    <a class="nav-item" href="REMS_Clients_Leads.html"><span class="nav-icon">👥</span><span data-en="Clients & Leads" data-ar="العملاء والعملاء المحتملون">العملاء والعملاء المحتملون</span><span class="nav-badge">7</span></a>
+    <a class="nav-item" href="REMS_Contracts.html"><span class="nav-icon">📄</span><span data-en="Contracts" data-ar="العقود">العقود</span></a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label" data-en="Team" data-ar="الفريق">الفريق</div>
+    <a class="nav-item" href="REMS_Agents.html"><span class="nav-icon">🧑‍💼</span><span data-en="Agents" data-ar="الوكلاء">الوكلاء</span></a>
+    <div class="nav-item active"><span class="nav-icon">💰</span><span data-en="Commissions" data-ar="العمولات">العمولات</span></div>
+    <a class="nav-item" href="REMS_Reports.html"><span class="nav-icon">📊</span><span data-en="Reports" data-ar="التقارير">التقارير</span></a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label" data-en="Finance" data-ar="المالية">المالية</div>
+    <div class="nav-item active"><span class="nav-icon">💳</span><span data-en="Payments" data-ar="المدفوعات">المدفوعات</span><span class="nav-badge">3</span></div>
+    <a class="nav-item" href="#"><span class="nav-icon">📁</span><span data-en="Documents" data-ar="المستندات">المستندات</span></a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="av">RA</div>
+      <div>
+        <div style="font-size:13px;font-weight:500" data-en="Reem Ashraf" data-ar="ريم أشرف">ريم أشرف</div>
+        <div style="font-size:11px;color:var(--text3)" data-en="Manager" data-ar="مديرة">مديرة</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="page-title" data-en="Payments" data-ar="المدفوعات">المدفوعات</div>
+    <div class="topbar-right">
+      <div class="lang-toggle">
+        <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+        <button class="lang-btn active" id="btnAR" onclick="setLang('ar')">AR</button>
+      </div>
+      <button class="btn btn-ghost" onclick="alert('Export coming soon')">↓ <span data-en="Export" data-ar="تصدير">تصدير</span></button>
+      <button class="btn btn-primary" onclick="openRecordModal()">+ <span data-en="Record Payment" data-ar="تسجيل دفعة">تسجيل دفعة</span></button>
+    </div>
+  </div>
+
+  <!-- OVERDUE BANNER -->
+  <div class="overdue-banner">
+    <div style="font-size:13px;color:var(--text)">
+      <strong style="color:var(--coral)" data-en="3 payments overdue" data-ar="3 مدفوعات متأخرة">3 مدفوعات متأخرة</strong>
+      <span data-en=" — total EGP 680,000 past due. Follow up with clients immediately." data-ar=" — إجمالي 680,000 ج.م متأخرة. تابع مع العملاء فوراً."> — إجمالي 680,000 ج.م متأخرة. تابع مع العملاء فوراً.</span>
+    </div>
+    <button class="btn btn-ghost" style="border-color:var(--coral)33;color:var(--coral)" onclick="filterByStatus('overdue')">
+      <span data-en="View Overdue" data-ar="عرض المتأخرة">عرض المتأخرة</span>
+    </button>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-row">
+    <div class="kpi-card green"><div class="kpi-label" data-en="Collected This Month" data-ar="محصّل هذا الشهر">محصّل هذا الشهر</div><div class="kpi-val" style="color:var(--green)">3.6M</div><div class="kpi-sub">EGP</div></div>
+    <div class="kpi-card coral"><div class="kpi-label" data-en="Overdue Total" data-ar="إجمالي المتأخرات">إجمالي المتأخرات</div><div class="kpi-val" style="color:var(--coral)">680K</div><div class="kpi-sub">EGP</div></div>
+    <div class="kpi-card amber"><div class="kpi-label" data-en="Due This Week" data-ar="مستحق هذا الأسبوع">مستحق هذا الأسبوع</div><div class="kpi-val" style="color:var(--amber)">320K</div><div class="kpi-sub">EGP</div></div>
+    <div class="kpi-card blue"><div class="kpi-label" data-en="Expected This Month" data-ar="متوقع هذا الشهر">متوقع هذا الشهر</div><div class="kpi-val" style="color:var(--blue)">5.1M</div><div class="kpi-sub">EGP</div></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" id="tabAll" onclick="switchTab('all')"><span data-en="All Payments" data-ar="كل المدفوعات">كل المدفوعات</span><span class="tab-count">18</span></div>
+    <div class="tab" id="tabOverdue" onclick="switchTab('overdue')"><span data-en="Overdue" data-ar="متأخرة">متأخرة</span><span class="tab-count" style="background:var(--coral-dim);color:var(--coral)">3</span></div>
+    <div class="tab" id="tabUpcoming" onclick="switchTab('upcoming')"><span data-en="Upcoming" data-ar="قادمة">قادمة</span><span class="tab-count">8</span></div>
+    <div class="tab" id="tabPaid" onclick="switchTab('paid')"><span data-en="Paid" data-ar="مدفوعة">مدفوعة</span><span class="tab-count">7</span></div>
+  </div>
+
+  <!-- FILTER -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="searchInput" type="text" oninput="renderTable()" placeholder="Search client or contract..." data-placeholder-en="Search client or contract..." data-placeholder-ar="ابحث عن عميل أو عقد..."/>
+    </div>
+    <select class="filter-select" id="typeFilter" onchange="renderTable()">
+      <option value="all" data-en="All Types" data-ar="كل الأنواع">كل الأنواع</option>
+      <option value="sale" data-en="Sale" data-ar="بيع">بيع</option>
+      <option value="rental" data-en="Rental" data-ar="إيجار">إيجار</option>
+    </select>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table class="pay-table">
+      <thead><tr>
+        <th data-en="Contract" data-ar="العقد">العقد</th>
+        <th data-en="Client" data-ar="العميل">العميل</th>
+        <th data-en="Type" data-ar="النوع">النوع</th>
+        <th data-en="Installment" data-ar="الدفعة">الدفعة</th>
+        <th data-en="Amount" data-ar="المبلغ">المبلغ</th>
+        <th data-en="Due Date" data-ar="تاريخ الاستحقاق">تاريخ الاستحقاق</th>
+        <th data-en="Status" data-ar="الحالة">الحالة</th>
+        <th data-en="Paid Date" data-ar="تاريخ الدفع">تاريخ الدفع</th>
+        <th></th>
+      </tr></thead>
+      <tbody id="payTbody"></tbody>
+    </table>
+  </div>
+</main>
+</div>
+
+<!-- RECORD PAYMENT MODAL -->
+<div class="record-modal" id="recordModal" onclick="if(event.target===this)closeRecordModal()">
+  <div class="record-box">
+    <div class="record-title" data-en="Record Payment" data-ar="تسجيل دفعة">تسجيل دفعة</div>
+    <div class="record-sub" data-en="Log a received payment against a contract installment." data-ar="سجّل دفعة مستلمة مقابل دفعة عقد.">سجّل دفعة مستلمة مقابل دفعة عقد.</div>
+    <div class="form-group"><label class="form-label" data-en="Contract" data-ar="العقد">العقد</label>
+      <select class="form-input"><option>C-0041 — Omar Farouk</option><option>C-0039 — Layla Hassan</option><option>C-0038 — Hana Sami</option><option>R-0018 — Dina Mostafa</option></select></div>
+    <div class="form-group"><label class="form-label" data-en="Installment #" data-ar="رقم الدفعة">رقم الدفعة</label>
+      <select class="form-input"><option>#1</option><option>#2</option><option>#3</option><option>#4</option></select></div>
+    <div class="form-group"><label class="form-label" data-en="Amount Received (EGP)" data-ar="المبلغ المستلم (ج.م)">المبلغ المستلم (ج.م)</label>
+      <input class="form-input" type="number" placeholder="0"/></div>
+    <div class="form-group"><label class="form-label" data-en="Payment Date" data-ar="تاريخ الدفع">تاريخ الدفع</label>
+      <input class="form-input" type="date"/></div>
+    <div class="form-group"><label class="form-label" data-en="Payment Method" data-ar="طريقة الدفع">طريقة الدفع</label>
+      <select class="form-input">
+        <option data-en="Bank Transfer" data-ar="تحويل بنكي">تحويل بنكي</option>
+        <option data-en="Cash" data-ar="نقداً">نقداً</option>
+        <option data-en="Cheque" data-ar="شيك">شيك</option>
+      </select></div>
+    <div style="display:flex;gap:8px;margin-top:20px">
+      <button class="btn btn-primary" style="flex:1" onclick="alert('Payment recorded! (Backend coming soon)')">✓ <span data-en="Save" data-ar="حفظ">حفظ</span></button>
+      <button class="btn btn-ghost" onclick="closeRecordModal()" data-en="Cancel" data-ar="إلغاء">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PAYMENTS = [
+  {contract:'C-0041',client:'Omar Farouk',clientAr:'عمر فاروق',type:'sale',typeAr:'بيع',n:'2/4',amount:'2,350,000',due:'2026-06-15',status:'upcoming',paid:'—'},
+  {contract:'C-0041',client:'Omar Farouk',clientAr:'عمر فاروق',type:'sale',typeAr:'بيع',n:'1/4',amount:'2,350,000',due:'2026-03-15',status:'paid',paid:'2026-03-14'},
+  {contract:'C-0039',client:'Layla Hassan',clientAr:'ليلى حسن',type:'sale',typeAr:'بيع',n:'2/4',amount:'3,125,000',due:'2026-03-10',status:'overdue',paid:'—'},
+  {contract:'C-0039',client:'Layla Hassan',clientAr:'ليلى حسن',type:'sale',typeAr:'بيع',n:'1/4',amount:'3,125,000',due:'2026-03-10',status:'paid',paid:'2026-03-10'},
+  {contract:'C-0038',client:'Hana Sami',clientAr:'هناء سامي',type:'rental',typeAr:'إيجار',n:'3/4',amount:'60,000',due:'2026-04-01',status:'upcoming',paid:'—'},
+  {contract:'C-0038',client:'Hana Sami',clientAr:'هناء سامي',type:'rental',typeAr:'إيجار',n:'2/4',amount:'60,000',due:'2026-01-01',status:'paid',paid:'2025-12-31'},
+  {contract:'C-0038',client:'Hana Sami',clientAr:'هناء سامي',type:'rental',typeAr:'إيجار',n:'1/4',amount:'60,000',due:'2025-10-01',status:'paid',paid:'2025-09-30'},
+  {contract:'R-0018',client:'Dina Mostafa',clientAr:'دينا مصطفى',type:'rental',typeAr:'إيجار',n:'3/3',amount:'25,000',due:'2026-03-01',status:'paid',paid:'2026-03-01'},
+  {contract:'R-0018',client:'Dina Mostafa',clientAr:'دينا مصطفى',type:'rental',typeAr:'إيجار',n:'2/3',amount:'25,000',due:'2026-02-01',status:'paid',paid:'2026-02-01'},
+  {contract:'C-0040',client:'Karim Nabil',clientAr:'كريم نبيل',type:'rental',typeAr:'إيجار',n:'1/2',amount:'90,000',due:'2026-04-01',status:'upcoming',paid:'—'},
+  {contract:'C-0035',client:'Bassem Lotfy',clientAr:'باسم لطفي',type:'sale',typeAr:'بيع',n:'2/2',amount:'1,900,000',due:'2025-11-01',status:'paid',paid:'2025-10-30'},
+  {contract:'C-0035',client:'Bassem Lotfy',clientAr:'باسم لطفي',type:'sale',typeAr:'بيع',n:'1/2',amount:'1,900,000',due:'2025-08-01',status:'paid',paid:'2025-08-01'},
+];
+
+let currentLang='ar', currentTab='all';
+function getLang(){return localStorage.getItem('rems_lang')||'ar';}
+
+function renderTable(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const type=document.getElementById('typeFilter').value;
+  const list=PAYMENTS.filter(p=>{
+    if(currentTab!=='all'&&p.status!==currentTab) return false;
+    if(q&&!p.contract.toLowerCase().includes(q)&&!p.client.toLowerCase().includes(q)) return false;
+    if(type!=='all'&&p.type!==type) return false;
+    return true;
+  });
+  const statusLabel=(s)=>{
+    if(s==='paid') return `<span class="pill pill-paid">${currentLang==='ar'?'مدفوعة':'Paid'}</span>`;
+    if(s==='overdue') return `<span class="pill pill-overdue">${currentLang==='ar'?'متأخرة':'Overdue'}</span>`;
+    return `<span class="pill pill-upcoming">${currentLang==='ar'?'قادمة':'Upcoming'}</span>`;
+  };
+  document.getElementById('payTbody').innerHTML=list.map(p=>`
+    <tr class="${p.status==='overdue'?'overdue':''}">
+      <td style="font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:var(--text3)">${p.contract}</td>
+      <td style="font-weight:500;color:var(--text)">${currentLang==='ar'?p.clientAr:p.client}</td>
+      <td><span style="font-size:10px;color:var(--text3);background:var(--surface2);padding:2px 8px;border-radius:10px">${currentLang==='ar'?p.typeAr:p.type}</span></td>
+      <td style="color:var(--text3)">${p.n}</td>
+      <td class="amount-cell" style="color:${p.status==='overdue'?'var(--coral)':p.status==='paid'?'var(--green)':'var(--text)'}">EGP ${p.amount}</td>
+      <td style="color:${p.status==='overdue'?'var(--coral)':'var(--text2)'}">${p.due}</td>
+      <td>${statusLabel(p.status)}</td>
+      <td style="color:var(--text3)">${p.paid}</td>
+      <td>${p.status!=='paid'?`<button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="markPaid(this)">${currentLang==='ar'?'تسجيل':'Record'}</button>`:''}</td>
+    </tr>`).join('');
+}
+
+function markPaid(btn){
+  const row=btn.closest('tr');
+  row.querySelectorAll('td')[6].innerHTML=`<span class="pill pill-paid">${currentLang==='ar'?'مدفوعة':'Paid'}</span>`;
+  row.querySelectorAll('td')[7].textContent=new Date().toISOString().split('T')[0];
+  btn.remove(); row.classList.remove('overdue');
+}
+
+function switchTab(t){
+  currentTab=t;
+  ['All','Overdue','Upcoming','Paid'].forEach(n=>{
+    document.getElementById('tab'+n).classList.toggle('active',n.toLowerCase()===t);
+  });
+  renderTable();
+}
+function filterByStatus(s){switchTab(s);}
+function openRecordModal(){document.getElementById('recordModal').classList.add('open');}
+function closeRecordModal(){document.getElementById('recordModal').classList.remove('open');}
+
+function applyLangToDOM(lang){
+  const isAR=lang==='ar';
+  document.documentElement.setAttribute('dir',isAR?'rtl':'ltr');
+  document.documentElement.setAttribute('lang',lang);
+  document.getElementById('btnEN').classList.toggle('active',!isAR);
+  document.getElementById('btnAR').classList.toggle('active',isAR);
+  document.querySelectorAll('[data-en]').forEach(el=>{const v=isAR?el.getAttribute('data-ar'):el.getAttribute('data-en');if(v)el.innerHTML=v;});
+  document.querySelectorAll('[data-placeholder-en]').forEach(el=>{el.placeholder=isAR?el.getAttribute('data-placeholder-ar'):el.getAttribute('data-placeholder-en');});
+}
+function setLang(lang){currentLang=lang;localStorage.setItem('rems_lang',lang);applyLangToDOM(lang);renderTable();}
+currentLang=getLang();applyLangToDOM(currentLang);renderTable();
+</script>
+</body>
+</html>

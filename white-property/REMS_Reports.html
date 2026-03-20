@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>REMS — Reports</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0D0F14;--surface:#13161E;--surface2:#1A1E29;--surface3:#21263A;
+  --border:#ffffff0f;--border2:#ffffff18;
+  --gold:#C9A84C;--gold2:#E8C87A;--gold-dim:#C9A84C22;
+  --teal:#2DD4BF;--teal-dim:#2DD4BF18;
+  --coral:#F87171;--coral-dim:#F8717118;
+  --blue:#60A5FA;--blue-dim:#60A5FA18;
+  --green:#4ADE80;--green-dim:#4ADE8018;
+  --amber:#FBBF24;--purple:#A78BFA;
+  --text:#F1F0EC;--text2:#9B9A94;--text3:#5C5B57;
+  --radius:14px;--radius-sm:8px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+.layout{display:flex;min-height:100vh;position:relative;z-index:1}
+.sidebar{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 0;position:sticky;top:0;height:100vh}
+[dir="rtl"] .sidebar{border-right:none;border-left:1px solid var(--border)}
+.logo{padding:0 20px 28px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.logo-mark{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;letter-spacing:-0.5px;color:var(--gold2)}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+.nav-section{padding:0 12px;margin-bottom:6px}
+.nav-label{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);font-size:13.5px;color:var(--text2);cursor:pointer;transition:all .15s;border:1px solid transparent;margin-bottom:2px;text-decoration:none;font-weight:400}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--gold-dim);border-color:var(--gold)33;color:var(--gold2);font-weight:500}
+.nav-icon{font-size:15px;width:18px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--coral);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px}
+[dir="rtl"] .nav-badge{margin-left:0;margin-right:auto}
+.sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
+.user-pill{display:flex;align-items:center;gap:10px}
+.av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--teal));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0}
+.main{flex:1;padding:28px 32px;overflow-y:auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;letter-spacing:-0.5px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.lang-toggle{display:flex;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden}
+.lang-btn{padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;color:var(--text2);border:none;background:none;font-family:'DM Sans',sans-serif}
+.lang-btn.active{background:var(--gold);color:#000}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .15s}
+.btn-primary{background:var(--gold);color:#000}.btn-primary:hover{background:var(--gold2)}
+.btn-ghost{background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}.btn-ghost:hover{color:var(--text)}
+
+/* period selector */
+.period-bar{display:flex;align-items:center;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+.period-btn{padding:7px 16px;border-radius:var(--radius-sm);font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text2);transition:all .15s;font-family:'DM Sans',sans-serif}
+.period-btn.active{background:var(--gold);color:#000;border-color:var(--gold)}
+.period-btn:hover:not(.active){color:var(--text);border-color:var(--border2)}
+
+/* summary row */
+.summary-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.sum-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;text-align:center;position:relative;overflow:hidden;transition:all .2s}
+.sum-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.sum-card::before{content:'';position:absolute;inset:0;opacity:.04;pointer-events:none}
+.sum-icon{font-size:24px;margin-bottom:10px}
+.sum-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:4px}
+.sum-label{font-size:11px;color:var(--text3);margin-bottom:6px}
+.sum-change{font-size:11px}
+.up{color:var(--green)}.dn{color:var(--coral)}
+
+/* two col layout */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.panel-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:600}
+.panel-action{font-size:11px;color:var(--gold);cursor:pointer;border:1px solid var(--gold)33;padding:4px 10px;border-radius:20px;transition:background .15s}
+.panel-action:hover{background:var(--gold-dim)}
+
+/* bar chart */
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;padding-top:8px}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height .6s ease,opacity .2s}
+.bar:hover{opacity:.8;cursor:pointer}
+.bar-label{font-size:10px;color:var(--text3);text-align:center}
+.bar-val{font-size:9px;color:var(--text2);text-align:center}
+
+/* donut chart */
+.donut-wrap{display:flex;align-items:center;gap:20px}
+.donut-svg{flex-shrink:0}
+.donut-legend{display:flex;flex-direction:column;gap:8px;flex:1}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.legend-val{margin-inline-start:auto;font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:var(--text)}
+
+/* agent leaderboard */
+.leaderboard{display:flex;flex-direction:column;gap:8px}
+.lb-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.lb-row:last-child{border-bottom:none}
+.lb-rank{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;width:20px;flex-shrink:0;color:var(--text3)}
+.lb-rank.gold-rank{color:var(--gold)}
+.lb-rank.silver-rank{color:var(--text2)}
+.lb-rank.bronze-rank{color:var(--amber)}
+.lb-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.lb-name{flex:1;font-size:13px;font-weight:500;color:var(--text)}
+.lb-bar-wrap{width:80px;height:4px;background:var(--surface3);border-radius:2px}
+.lb-bar{height:100%;border-radius:2px}
+.lb-val{font-family:'Syne',sans-serif;font-size:12px;font-weight:600;min-width:36px;text-align:end}
+
+/* activity list */
+.activity-list{display:flex;flex-direction:column;gap:0}
+.act-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.act-item:last-child{border-bottom:none}
+.act-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.act-text{font-size:12.5px;color:var(--text2);line-height:1.4;flex:1}
+.act-text strong{color:var(--text);font-weight:500}
+.act-time{font-size:10px;color:var(--text3);white-space:nowrap}
+
+/* source breakdown */
+.source-list{display:flex;flex-direction:column;gap:10px}
+.source-row{display:flex;align-items:center;gap:10px}
+.source-label{width:100px;font-size:12px;color:var(--text2);flex-shrink:0}
+.source-bar-wrap{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.source-bar{height:100%;border-radius:3px;transition:width .8s ease}
+.source-pct{font-family:'Syne',sans-serif;font-size:11px;font-weight:600;min-width:32px;text-align:end}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.sum-card{animation:fadeUp .3s ease both}
+.sum-card:nth-child(1){animation-delay:.05s}.sum-card:nth-child(2){animation-delay:.1s}
+.sum-card:nth-child(3){animation-delay:.15s}.sum-card:nth-child(4){animation-delay:.2s}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
+@media(max-width:1100px){.two-col{grid-template-columns:1fr}}
+@media(max-width:768px){.sidebar{display:none}.main{padding:16px}.summary-row{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">White Property</div>
+    <div class="logo-sub" data-en="Real Estate System" data-ar="نظام العقارات">نظام العقارات</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label" data-en="Main" data-ar="رئيسي">رئيسي</div>
+    <a class="nav-item" href="REMS_Manager_Dashboard.html"><span class="nav-icon">⬛</span><span data-en="Dashboard" data-ar="لوحة التحكم">لوحة التحكم</span></a>
+    <a class="nav-item" href="REMS_Properties.html"><span class="nav-icon">🏠</span><span data-en="Properties" data-ar="العقارات">العقارات</span></a>
+    <a class="nav-item" href="REMS_Clients_Leads.html"><span class="nav-icon">👥</span><span data-en="Clients & Leads" data-ar="العملاء والعملاء المحتملون">العملاء والعملاء المحتملون</span><span class="nav-badge">7</span></a>
+    <a class="nav-item" href="REMS_Contracts.html"><span class="nav-icon">📄</span><span data-en="Contracts" data-ar="العقود">العقود</span></a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label" data-en="Team" data-ar="الفريق">الفريق</div>
+    <a class="nav-item" href="REMS_Agents.html"><span class="nav-icon">🧑‍💼</span><span data-en="Agents" data-ar="الوكلاء">الوكلاء</span></a>
+    <a class="nav-item" href="REMS_Payments.html"><span class="nav-icon">💰</span><span data-en="Commissions" data-ar="العمولات">العمولات</span></a>
+    <div class="nav-item active"><span class="nav-icon">📊</span><span data-en="Reports" data-ar="التقارير">التقارير</span></div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label" data-en="Finance" data-ar="المالية">المالية</div>
+    <a class="nav-item" href="REMS_Payments.html"><span class="nav-icon">💳</span><span data-en="Payments" data-ar="المدفوعات">المدفوعات</span><span class="nav-badge">3</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">📁</span><span data-en="Documents" data-ar="المستندات">المستندات</span></a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="av">RA</div>
+      <div>
+        <div style="font-size:13px;font-weight:500" data-en="Reem Ashraf" data-ar="ريم أشرف">ريم أشرف</div>
+        <div style="font-size:11px;color:var(--text3)" data-en="Manager" data-ar="مديرة">مديرة</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="page-title" data-en="Reports" data-ar="التقارير">التقارير</div>
+    <div class="topbar-right">
+      <div class="lang-toggle">
+        <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+        <button class="lang-btn active" id="btnAR" onclick="setLang('ar')">AR</button>
+      </div>
+      <button class="btn btn-ghost" onclick="alert('PDF export coming soon')">↓ <span data-en="Export PDF" data-ar="تصدير PDF">تصدير PDF</span></button>
+    </div>
+  </div>
+
+  <!-- PERIOD SELECTOR -->
+  <div class="period-bar">
+    <span style="font-size:12px;color:var(--text3)" data-en="Period:" data-ar="الفترة:">الفترة:</span>
+    <button class="period-btn" onclick="setPeriod(this,'week')" data-en="This Week" data-ar="هذا الأسبوع">هذا الأسبوع</button>
+    <button class="period-btn active" onclick="setPeriod(this,'month')" data-en="This Month" data-ar="هذا الشهر">هذا الشهر</button>
+    <button class="period-btn" onclick="setPeriod(this,'quarter')" data-en="This Quarter" data-ar="هذا الربع">هذا الربع</button>
+    <button class="period-btn" onclick="setPeriod(this,'year')" data-en="This Year" data-ar="هذا العام">هذا العام</button>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="summary-row">
+    <div class="sum-card">
+      <div class="sum-icon">💰</div>
+      <div class="sum-val" style="color:var(--gold2)" id="sumRevenue">4.2M</div>
+      <div class="sum-label" data-en="Revenue (EGP)" data-ar="الإيرادات (ج.م)">الإيرادات (ج.م)</div>
+      <div class="sum-change"><span class="up">↑ 12%</span> <span data-en="vs last month" data-ar="مقارنة بالشهر الماضي">مقارنة بالشهر الماضي</span></div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-icon">🤝</div>
+      <div class="sum-val" style="color:var(--teal)" id="sumDeals">8</div>
+      <div class="sum-label" data-en="Deals Closed" data-ar="الصفقات المغلقة">الصفقات المغلقة</div>
+      <div class="sum-change"><span class="up">↑ 2</span> <span data-en="vs last month" data-ar="مقارنة بالشهر الماضي">مقارنة بالشهر الماضي</span></div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-icon">👥</div>
+      <div class="sum-val" style="color:var(--blue)" id="sumLeads">31</div>
+      <div class="sum-label" data-en="New Leads" data-ar="عملاء محتملون جدد">عملاء محتملون جدد</div>
+      <div class="sum-change"><span class="up">↑ 4</span> <span data-en="this week" data-ar="هذا الأسبوع">هذا الأسبوع</span></div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-icon">📈</div>
+      <div class="sum-val" style="color:var(--green)" id="sumConv">26%</div>
+      <div class="sum-label" data-en="Conversion Rate" data-ar="معدل التحويل">معدل التحويل</div>
+      <div class="sum-change"><span class="up">↑ 3%</span> <span data-en="vs last month" data-ar="مقارنة بالشهر الماضي">مقارنة بالشهر الماضي</span></div>
+    </div>
+  </div>
+
+  <!-- ROW 2: REVENUE CHART + PROPERTY TYPES -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title" data-en="Revenue — Last 6 Months" data-ar="الإيرادات — آخر 6 أشهر">الإيرادات — آخر 6 أشهر</div>
+        <div class="panel-action" data-en="Details" data-ar="التفاصيل">التفاصيل</div>
+      </div>
+      <div class="bar-chart" id="revenueChart"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title" data-en="Revenue by Property Type" data-ar="الإيرادات حسب نوع العقار">الإيرادات حسب نوع العقار</div>
+      </div>
+      <div class="donut-wrap">
+        <svg class="donut-svg" width="100" height="100" viewBox="0 0 100 100">
+          <!-- Residential 58% -->
+          <circle cx="50" cy="50" r="35" fill="none" stroke="var(--surface3)" stroke-width="14"/>
+          <circle cx="50" cy="50" r="35" fill="none" stroke="#C9A84C" stroke-width="14"
+            stroke-dasharray="127 92" stroke-dashoffset="0" transform="rotate(-90 50 50)"/>
+          <!-- Commercial 28% -->
+          <circle cx="50" cy="50" r="35" fill="none" stroke="#2DD4BF" stroke-width="14"
+            stroke-dasharray="61 158" stroke-dashoffset="-127" transform="rotate(-90 50 50)"/>
+          <!-- Short-term 14% -->
+          <circle cx="50" cy="50" r="35" fill="none" stroke="#A78BFA" stroke-width="14"
+            stroke-dasharray="31 188" stroke-dashoffset="-188" transform="rotate(-90 50 50)"/>
+          <text x="50" y="46" text-anchor="middle" fill="#F1F0EC" font-size="11" font-family="Syne,sans-serif" font-weight="700">58%</text>
+          <text x="50" y="58" text-anchor="middle" fill="#9B9A94" font-size="7" font-family="DM Sans,sans-serif">Residential</text>
+        </svg>
+        <div class="donut-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div><span data-en="Residential" data-ar="سكني">سكني</span><span class="legend-val" style="color:var(--gold)">58%</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div><span data-en="Commercial" data-ar="تجاري">تجاري</span><span class="legend-val" style="color:var(--teal)">28%</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div><span data-en="Short-term" data-ar="إيجار قصير">إيجار قصير</span><span class="legend-val" style="color:var(--purple)">14%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 3: AGENT LEADERBOARD + LEAD SOURCES -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title" data-en="Agent Leaderboard" data-ar="ترتيب الوكلاء">ترتيب الوكلاء</div>
+        <div class="panel-action" onclick="window.location='REMS_Agents.html'" data-en="View All" data-ar="عرض الكل">عرض الكل</div>
+      </div>
+      <div class="leaderboard">
+        <div class="lb-row">
+          <div class="lb-rank gold-rank">1</div>
+          <div class="lb-av" style="background:var(--teal)22;color:var(--teal)">SM</div>
+          <div class="lb-name" data-en="Sara M." data-ar="سارة م.">سارة م.</div>
+          <div class="lb-bar-wrap"><div class="lb-bar" style="width:100%;background:var(--teal)"></div></div>
+          <div class="lb-val" style="color:var(--teal)">8 <span style="font-size:9px;color:var(--text3)" data-en="deals" data-ar="صفقات">صفقات</span></div>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank silver-rank">2</div>
+          <div class="lb-av" style="background:var(--gold)22;color:var(--gold)">KH</div>
+          <div class="lb-name" data-en="Khaled H." data-ar="خالد ح.">خالد ح.</div>
+          <div class="lb-bar-wrap"><div class="lb-bar" style="width:75%;background:var(--gold)"></div></div>
+          <div class="lb-val" style="color:var(--gold)">6 <span style="font-size:9px;color:var(--text3)" data-en="deals" data-ar="صفقات">صفقات</span></div>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank bronze-rank">3</div>
+          <div class="lb-av" style="background:var(--blue)22;color:var(--blue)">RA</div>
+          <div class="lb-name" data-en="Rania A." data-ar="رانيا أ.">رانيا أ.</div>
+          <div class="lb-bar-wrap"><div class="lb-bar" style="width:60%;background:var(--blue)"></div></div>
+          <div class="lb-val" style="color:var(--blue)">5 <span style="font-size:9px;color:var(--text3)" data-en="deals" data-ar="صفقات">صفقات</span></div>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank" style="color:var(--text3)">4</div>
+          <div class="lb-av" style="background:var(--green)22;color:var(--green)">MY</div>
+          <div class="lb-name" data-en="May Y." data-ar="مي ي.">مي ي.</div>
+          <div class="lb-bar-wrap"><div class="lb-bar" style="width:48%;background:var(--green)"></div></div>
+          <div class="lb-val" style="color:var(--green)">4 <span style="font-size:9px;color:var(--text3)" data-en="deals" data-ar="صفقات">صفقات</span></div>
+        </div>
+        <div class="lb-row">
+          <div class="lb-rank" style="color:var(--text3)">5</div>
+          <div class="lb-av" style="background:var(--coral)22;color:var(--coral)">AS</div>
+          <div class="lb-name" data-en="Ahmed S." data-ar="أحمد س.">أحمد س.</div>
+          <div class="lb-bar-wrap"><div class="lb-bar" style="width:24%;background:var(--coral)"></div></div>
+          <div class="lb-val" style="color:var(--coral)">2 <span style="font-size:9px;color:var(--text3)" data-en="deals" data-ar="صفقات">صفقات</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title" data-en="Lead Sources" data-ar="مصادر العملاء">مصادر العملاء</div>
+      </div>
+      <div class="source-list" style="margin-bottom:24px">
+        <div class="source-row"><div class="source-label" data-en="Referral" data-ar="إحالة">إحالة</div><div class="source-bar-wrap"><div class="source-bar" style="width:42%;background:var(--gold)"></div></div><div class="source-pct" style="color:var(--gold)">42%</div></div>
+        <div class="source-row"><div class="source-label" data-en="Phone Call" data-ar="اتصال هاتفي">اتصال هاتفي</div><div class="source-bar-wrap"><div class="source-bar" style="width:28%;background:var(--teal)"></div></div><div class="source-pct" style="color:var(--teal)">28%</div></div>
+        <div class="source-row"><div class="source-label" data-en="Social Media" data-ar="سوشيال ميديا">سوشيال ميديا</div><div class="source-bar-wrap"><div class="source-bar" style="width:20%;background:var(--purple)"></div></div><div class="source-pct" style="color:var(--purple)">20%</div></div>
+        <div class="source-row"><div class="source-label" data-en="Walk-in" data-ar="زيارة مباشرة">زيارة مباشرة</div><div class="source-bar-wrap"><div class="source-bar" style="width:10%;background:var(--blue)"></div></div><div class="source-pct" style="color:var(--blue)">10%</div></div>
+      </div>
+
+      <div class="panel-header" style="margin-bottom:12px;padding-bottom:0;border-top:1px solid var(--border);padding-top:16px">
+        <div class="panel-title" data-en="Recent Activity" data-ar="النشاط الأخير">النشاط الأخير</div>
+      </div>
+      <div class="activity-list">
+        <div class="act-item"><div class="act-dot" style="background:var(--green)"></div><div class="act-text"><strong data-en="Contract C-0041 approved" data-ar="تمت الموافقة على عقد C-0041">تمت الموافقة على عقد C-0041</strong> — <span data-en="Penthouse Maadi" data-ar="بنتهاوس المعادي">بنتهاوس المعادي</span></div><div class="act-time" data-en="2h ago" data-ar="منذ ساعتين">منذ ساعتين</div></div>
+        <div class="act-item"><div class="act-dot" style="background:var(--blue)"></div><div class="act-text"><strong data-en="New lead added" data-ar="تم إضافة عميل جديد">تم إضافة عميل جديد</strong> — <span data-en="Mohamed Tarek, 3BR in Rehab" data-ar="محمد طارق، شقة 3 غرف الرحاب">محمد طارق، شقة 3 غرف الرحاب</span></div><div class="act-time" data-en="4h ago" data-ar="منذ 4 ساعات">منذ 4 ساعات</div></div>
+        <div class="act-item"><div class="act-dot" style="background:var(--gold)"></div><div class="act-text"><strong data-en="Payment received" data-ar="تم استلام دفعة">تم استلام دفعة</strong> — <span data-en="EGP 2,350,000 from Omar Farouk" data-ar="2,350,000 ج.م من عمر فاروق">2,350,000 ج.م من عمر فاروق</span></div><div class="act-time" data-en="1d ago" data-ar="منذ يوم">منذ يوم</div></div>
+        <div class="act-item"><div class="act-dot" style="background:var(--amber)"></div><div class="act-text"><strong data-en="Viewing scheduled" data-ar="تم جدولة معاينة">تم جدولة معاينة</strong> — <span data-en="Sara El-Din, Office Downtown" data-ar="سارة الدين، مكتب وسط البلد">سارة الدين، مكتب وسط البلد</span></div><div class="act-time" data-en="2d ago" data-ar="منذ يومين">منذ يومين</div></div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+const MONTHS_EN = ['Oct','Nov','Dec','Jan','Feb','Mar'];
+const MONTHS_AR = ['أكت','نوف','ديس','يناير','فبراير','مارس'];
+const REVENUE   = [1800000,2200000,1950000,2800000,3100000,4200000];
+const PERIODS = {
+  week: {revenue:'820K',deals:'2',leads:'7',conv:'22%'},
+  month:{revenue:'4.2M',deals:'8',leads:'31',conv:'26%'},
+  quarter:{revenue:'10.1M',deals:'18',leads:'74',conv:'24%'},
+  year:{revenue:'28.4M',deals:'52',leads:'210',conv:'25%'},
+};
+let currentLang='ar';
+function getLang(){return localStorage.getItem('rems_lang')||'ar';}
+
+function renderRevenueChart(){
+  const max=Math.max(...REVENUE);
+  const months = currentLang==='ar'?MONTHS_AR:MONTHS_EN;
+  document.getElementById('revenueChart').innerHTML = REVENUE.map((v,i)=>`
+    <div class="bar-wrap">
+      <div class="bar-val">${v>=1000000?(v/1000000).toFixed(1)+'M':(v/1000).toFixed(0)+'K'}</div>
+      <div class="bar" style="height:${Math.round((v/max)*100)}%;background:${i===5?'var(--gold)':'var(--surface3)'}" title="${months[i]}"></div>
+      <div class="bar-label" style="color:${i===5?'var(--gold)':'var(--text3)'}">${months[i]}</div>
+    </div>`).join('');
+}
+
+function setPeriod(btn, key){
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const d=PERIODS[key];
+  document.getElementById('sumRevenue').textContent=d.revenue;
+  document.getElementById('sumDeals').textContent=d.deals;
+  document.getElementById('sumLeads').textContent=d.leads;
+  document.getElementById('sumConv').textContent=d.conv;
+}
+
+function applyLangToDOM(lang){
+  const isAR=lang==='ar';
+  document.documentElement.setAttribute('dir',isAR?'rtl':'ltr');
+  document.documentElement.setAttribute('lang',lang);
+  document.getElementById('btnEN').classList.toggle('active',!isAR);
+  document.getElementById('btnAR').classList.toggle('active',isAR);
+  document.querySelectorAll('[data-en]').forEach(el=>{const v=isAR?el.getAttribute('data-ar'):el.getAttribute('data-en');if(v)el.innerHTML=v;});
+}
+function setLang(lang){currentLang=lang;localStorage.setItem('rems_lang',lang);applyLangToDOM(lang);renderRevenueChart();}
+currentLang=getLang();applyLangToDOM(currentLang);renderRevenueChart();
+</script>
+</body>
+</html>

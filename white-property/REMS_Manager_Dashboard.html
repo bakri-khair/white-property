@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>REMS — Manager Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0D0F14;
+  --surface:#13161E;
+  --surface2:#1A1E29;
+  --surface3:#21263A;
+  --border:#ffffff0f;
+  --border2:#ffffff18;
+  --gold:#C9A84C;
+  --gold2:#E8C87A;
+  --gold-dim:#C9A84C22;
+  --teal:#2DD4BF;
+  --teal-dim:#2DD4BF18;
+  --coral:#F87171;
+  --coral-dim:#F8717118;
+  --blue:#60A5FA;
+  --blue-dim:#60A5FA18;
+  --green:#4ADE80;
+  --green-dim:#4ADE8018;
+  --amber:#FBBF24;
+  --text:#F1F0EC;
+  --text2:#9B9A94;
+  --text3:#5C5B57;
+  --radius:14px;
+  --radius-sm:8px;
+}
+
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* subtle grid background */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(var(--border) 1px,transparent 1px),
+    linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;
+  z-index:0;
+}
+
+.layout{display:flex;min-height:100vh;position:relative;z-index:1}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:220px;min-width:220px;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  padding:24px 0;
+  position:sticky;top:0;height:100vh;
+}
+
+.logo{
+  padding:0 20px 28px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:20px;
+}
+.logo-mark{
+  font-family:'Syne',sans-serif;
+  font-weight:800;font-size:22px;
+  letter-spacing:-0.5px;
+  color:var(--gold2);
+}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+
+.nav-section{padding:0 12px;margin-bottom:6px}
+.nav-label{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);padding:0 8px;margin-bottom:6px}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 10px;border-radius:var(--radius-sm);
+  font-size:13.5px;font-weight:400;color:var(--text2);
+  cursor:pointer;transition:all .15s;
+  border:1px solid transparent;
+  margin-bottom:2px;
+}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{
+  background:var(--gold-dim);
+  border-color:var(--gold)33;
+  color:var(--gold2);font-weight:500;
+}
+.nav-icon{font-size:15px;width:18px;text-align:center}
+.nav-badge{
+  margin-left:auto;background:var(--coral);
+  color:#fff;font-size:10px;font-weight:600;
+  padding:1px 6px;border-radius:20px;
+}
+
+.sidebar-footer{
+  margin-top:auto;padding:16px 20px;
+  border-top:1px solid var(--border);
+}
+.user-pill{
+  display:flex;align-items:center;gap:10px;
+}
+.avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--teal));
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:#000;flex-shrink:0;
+}
+.user-name{font-size:13px;font-weight:500;color:var(--text)}
+.user-role{font-size:11px;color:var(--text3)}
+
+/* ── MAIN ── */
+.main{flex:1;padding:28px 32px;overflow-y:auto}
+
+/* ── TOPBAR ── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:28px;
+}
+.page-title{
+  font-family:'Syne',sans-serif;
+  font-size:24px;font-weight:700;
+  letter-spacing:-0.5px;
+}
+.page-title span{color:var(--gold)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.lang-toggle{
+  display:flex;background:var(--surface2);
+  border:1px solid var(--border2);border-radius:var(--radius-sm);
+  overflow:hidden;
+}
+.lang-btn{
+  padding:6px 14px;font-size:12px;font-weight:500;
+  cursor:pointer;transition:all .15s;color:var(--text2);
+  border:none;background:none;font-family:'DM Sans',sans-serif;
+}
+.lang-btn.active{background:var(--gold);color:#000}
+.date-chip{
+  font-size:12px;color:var(--text2);
+  background:var(--surface2);border:1px solid var(--border2);
+  padding:6px 14px;border-radius:var(--radius-sm);
+}
+
+/* ── KPI CARDS ── */
+.kpi-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:14px;margin-bottom:24px;
+}
+.kpi-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+  position:relative;overflow:hidden;
+  transition:border-color .2s,transform .2s;
+  cursor:default;
+}
+.kpi-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.kpi-card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+}
+.kpi-card.gold::after{background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.kpi-card.teal::after{background:var(--teal)}
+.kpi-card.coral::after{background:var(--coral)}
+.kpi-card.blue::after{background:var(--blue)}
+
+.kpi-label{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+.kpi-value{
+  font-family:'Syne',sans-serif;font-size:36px;font-weight:700;
+  letter-spacing:-1px;line-height:1;margin-bottom:8px;
+}
+.kpi-card.gold .kpi-value{color:var(--gold2)}
+.kpi-card.teal .kpi-value{color:var(--teal)}
+.kpi-card.coral .kpi-value{color:var(--coral)}
+.kpi-card.blue .kpi-value{color:var(--blue)}
+.kpi-change{font-size:12px;color:var(--text2)}
+.kpi-change .up{color:var(--green)}
+.kpi-change .dn{color:var(--coral)}
+.kpi-icon{
+  position:absolute;bottom:16px;right:16px;
+  font-size:28px;opacity:.12;
+}
+
+/* ── TWO-COL ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px}
+
+/* ── PANEL ── */
+.panel{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+}
+.panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:18px;
+}
+.panel-title{
+  font-family:'Syne',sans-serif;font-size:14px;font-weight:600;
+  letter-spacing:-.2px;
+}
+.panel-action{
+  font-size:11px;color:var(--gold);cursor:pointer;
+  border:1px solid var(--gold)33;padding:4px 10px;
+  border-radius:20px;transition:background .15s;
+}
+.panel-action:hover{background:var(--gold-dim)}
+
+/* ── PIPELINE ── */
+.pipeline{display:flex;gap:8px}
+.pipe-stage{flex:1;text-align:center}
+.pipe-label{font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.pipe-bar-wrap{height:6px;background:var(--surface3);border-radius:3px;margin-bottom:6px;overflow:hidden}
+.pipe-bar{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.pipe-count{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--text)}
+.pipe-sub{font-size:10px;color:var(--text3)}
+
+/* ── AGENT TABLE ── */
+.agent-table{width:100%;border-collapse:collapse}
+.agent-table th{
+  font-size:10px;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--text3);padding:0 0 10px;text-align:left;
+  border-bottom:1px solid var(--border);font-weight:400;
+}
+.agent-table td{
+  padding:11px 0;border-bottom:1px solid var(--border);
+  font-size:13px;color:var(--text2);vertical-align:middle;
+}
+.agent-table tr:last-child td{border-bottom:none}
+.agent-table tr:hover td{color:var(--text)}
+.agent-name{display:flex;align-items:center;gap:8px}
+.agent-av{
+  width:26px;height:26px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;flex-shrink:0;
+}
+.perf-bar-wrap{width:80px;height:4px;background:var(--surface3);border-radius:2px;display:inline-block;vertical-align:middle}
+.perf-bar{height:100%;border-radius:2px;background:var(--teal)}
+.status-dot{
+  display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;
+}
+
+/* ── ALERTS ── */
+.alert-list{display:flex;flex-direction:column;gap:8px}
+.alert-item{
+  display:flex;align-items:flex-start;gap:10px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:12px;
+  transition:border-color .15s;cursor:pointer;
+}
+.alert-item:hover{border-color:var(--border2)}
+.alert-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;
+}
+.alert-text{font-size:12.5px;color:var(--text2);line-height:1.4}
+.alert-text strong{color:var(--text);font-weight:500}
+.alert-time{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ── ACTIVITY FEED ── */
+.activity-list{display:flex;flex-direction:column;gap:0}
+.activity-item{
+  display:flex;gap:12px;padding:10px 0;
+  border-bottom:1px solid var(--border);
+}
+.activity-item:last-child{border-bottom:none}
+.act-line{
+  display:flex;flex-direction:column;align-items:center;gap:0;
+}
+.act-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;
+}
+.act-connector{flex:1;width:1px;background:var(--border);margin-top:2px}
+.activity-item:last-child .act-connector{display:none}
+.act-content{flex:1}
+.act-text{font-size:12.5px;color:var(--text2);line-height:1.4}
+.act-text strong{color:var(--text);font-weight:500}
+.act-time{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ── PROPERTIES ── */
+.prop-list{display:flex;flex-direction:column;gap:8px}
+.prop-item{
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:12px;
+  transition:border-color .15s;cursor:pointer;
+}
+.prop-item:hover{border-color:var(--border2)}
+.prop-thumb{
+  width:40px;height:40px;border-radius:6px;
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+}
+.prop-info{flex:1;min-width:0}
+.prop-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prop-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.prop-price{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--gold2);white-space:nowrap}
+.prop-badge{
+  font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;
+  white-space:nowrap;
+}
+
+/* ── CHART MINI ── */
+.mini-chart{display:flex;align-items:flex-end;gap:4px;height:48px;margin-top:4px}
+.bar-col{flex:1;border-radius:3px 3px 0 0;min-height:4px;transition:opacity .15s;cursor:pointer}
+.bar-col:hover{opacity:.75}
+
+/* ── PAYMENT ROWS ── */
+.payment-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 0;border-bottom:1px solid var(--border);
+}
+.payment-item:last-child{border-bottom:none}
+.pay-icon{
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+  flex-shrink:0;
+}
+.pay-info{flex:1}
+.pay-name{font-size:13px;font-weight:500;color:var(--text)}
+.pay-sub{font-size:11px;color:var(--text3);margin-top:1px}
+.pay-amount{font-family:'Syne',sans-serif;font-size:14px;font-weight:600}
+.pay-status{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;margin-top:3px;text-align:right}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.kpi-card{animation:fadeUp .4s ease both}
+.kpi-card:nth-child(1){animation-delay:.05s}
+.kpi-card:nth-child(2){animation-delay:.1s}
+.kpi-card:nth-child(3){animation-delay:.15s}
+.kpi-card:nth-child(4){animation-delay:.2s}
+.panel{animation:fadeUp .4s ease both;animation-delay:.25s}
+
+/* ── ARABIC ── */
+[dir="rtl"] .sidebar{border-right:none;border-left:1px solid var(--border)}
+[dir="rtl"] .nav-badge{margin-left:0;margin-right:auto}
+[dir="rtl"] .kpi-icon{right:auto;left:16px}
+[dir="rtl"] .agent-name{flex-direction:row-reverse}
+
+@media(max-width:1100px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .three-col{grid-template-columns:1fr 1fr}
+}
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{padding:16px}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .two-col,.three-col{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">White Property</div>
+    <div class="logo-sub" data-en="Real Estate System" data-ar="نظام العقارات">Real Estate System</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label" data-en="Main" data-ar="رئيسي">Main</div>
+    <div class="nav-item active">
+      <span class="nav-icon">⬛</span>
+      <span data-en="Dashboard" data-ar="لوحة التحكم">Dashboard</span>
+    </div>
+    <a class="nav-item" href="REMS_Properties.html" style="text-decoration:none">
+      <span class="nav-icon">🏠</span>
+      <span data-en="Properties" data-ar="العقارات">Properties</span>
+    </a>
+    <a class="nav-item" href="REMS_Clients_Leads.html" style="text-decoration:none">
+      <span class="nav-icon">👥</span>
+      <span data-en="Clients & Leads" data-ar="العملاء والعملاء المحتملون">Clients & Leads</span>
+      <span class="nav-badge">7</span>
+    </a>
+    <a class="nav-item" href="REMS_Contracts.html" style="text-decoration:none">
+      <span class="nav-icon">📄</span>
+      <span data-en="Contracts" data-ar="العقود">Contracts</span>
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label" data-en="Team" data-ar="الفريق">Team</div>
+    <a class="nav-item" href="REMS_Agents.html" style="text-decoration:none">
+      <span class="nav-icon">🧑‍💼</span>
+      <span data-en="Agents" data-ar="الوكلاء">Agents</span>
+    </a>
+    <a class="nav-item" href="REMS_Payments.html" style="text-decoration:none">
+      <span class="nav-icon">💰</span>
+      <span data-en="Commissions" data-ar="العمولات">Commissions</span>
+    </a>
+    <a class="nav-item" href="REMS_Reports.html" style="text-decoration:none">
+      <span class="nav-icon">📊</span>
+      <span data-en="Reports" data-ar="التقارير">Reports</span>
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label" data-en="Finance" data-ar="المالية">Finance</div>
+    <a class="nav-item" href="REMS_Payments.html" style="text-decoration:none">
+      <span class="nav-icon">💳</span>
+      <span data-en="Payments" data-ar="المدفوعات">Payments</span>
+      <span class="nav-badge">3</span>
+    </a>
+    <div class="nav-item">
+      <span class="nav-icon">📁</span>
+      <span data-en="Documents" data-ar="المستندات">Documents</span>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="avatar">RA</div>
+      <div>
+        <div class="user-name" data-en="Reem Ashraf" data-ar="ريم أشرف">Reem Ashraf</div>
+        <div class="user-role" data-en="Manager" data-ar="مديرة">Manager</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="page-title" data-en="Good morning, <span style='color:var(--gold)'>Reem</span> 👋" data-ar="صباح الخير، <span style='color:var(--gold)'>ريم</span> 👋">
+      Good morning, <span style="color:var(--gold)">Reem</span> 👋
+    </div>
+    <div class="topbar-right">
+      <div class="date-chip" id="dateChip"></div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="btnAR" onclick="setLang('ar')">AR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid">
+    <div class="kpi-card gold">
+      <div class="kpi-label" data-en="Active Listings" data-ar="العقارات النشطة">Active Listings</div>
+      <div class="kpi-value">47</div>
+      <div class="kpi-change"><span class="up">↑ 6</span> <span data-en="from last month" data-ar="من الشهر الماضي">from last month</span></div>
+      <div class="kpi-icon">🏠</div>
+    </div>
+    <div class="kpi-card teal">
+      <div class="kpi-label" data-en="Open Leads" data-ar="العملاء المحتملون">Open Leads</div>
+      <div class="kpi-value">31</div>
+      <div class="kpi-change"><span class="up">↑ 4</span> <span data-en="new this week" data-ar="جديد هذا الأسبوع">new this week</span></div>
+      <div class="kpi-icon">👥</div>
+    </div>
+    <div class="kpi-card coral">
+      <div class="kpi-label" data-en="Pending Approvals" data-ar="في انتظار الموافقة">Pending Approvals</div>
+      <div class="kpi-value">5</div>
+      <div class="kpi-change"><span class="dn">3 contracts</span>, <span data-en="2 documents" data-ar="وثيقتان">2 documents</span></div>
+      <div class="kpi-icon">⏳</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-label" data-en="Revenue — March" data-ar="الإيرادات — مارس">Revenue — March</div>
+      <div class="kpi-value">4.2M</div>
+      <div class="kpi-change"><span data-en="EGP" data-ar="ج.م">EGP</span> &nbsp;<span class="up">↑ 12%</span></div>
+      <div class="kpi-icon">💰</div>
+    </div>
+  </div>
+
+  <!-- ROW 2: PIPELINE + ALERTS -->
+  <div class="two-col">
+
+    <!-- PIPELINE -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title" data-en="Sales Pipeline" data-ar="خط المبيعات">Sales Pipeline</div>
+        <div class="panel-action" data-en="View all" data-ar="عرض الكل">View all</div>
+      </div>
+      <div class="pipeline">
+        <div class="pipe-stage">
+          <div class="pipe-label" data-en="New" data-ar="جديد">New</div>
+          <div class="pipe-bar-wrap"><div class="pipe-bar" style="width:100%;background:var(--blue)"></div></div>
+          <div class="pipe-count" style="color:var(--blue)">12</div>
+          <div class="pipe-sub" data-en="leads" data-ar="عميل">leads</div>
+        </div>
+        <div class="pipe-stage">
+          <div class="pipe-label" data-en="Contacted" data-ar="تم التواصل">Contacted</div>
+          <div class="pipe-bar-wrap"><div class="pipe-bar" style="width:75%;background:var(--teal)"></div></div>
+          <div class="pipe-count" style="color:var(--teal)">9</div>
+          <div class="pipe-sub" data-en="leads" data-ar="عميل">leads</div>
+        </div>
+        <div class="pipe-stage">
+          <div class="pipe-label" data-en="Viewing" data-ar="معاينة">Viewing</div>
+          <div class="pipe-bar-wrap"><div class="pipe-bar" style="width:50%;background:var(--amber)"></div></div>
+          <div class="pipe-count" style="color:var(--amber)">6</div>
+          <div class="pipe-sub" data-en="scheduled" data-ar="مجدول">scheduled</div>
+        </div>
+        <div class="pipe-stage">
+          <div class="pipe-label" data-en="Offer" data-ar="عرض">Offer</div>
+          <div class="pipe-bar-wrap"><div class="pipe-bar" style="width:33%;background:var(--gold)"></div></div>
+          <div class="pipe-count" style="color:var(--gold)">4</div>
+          <div class="pipe-sub" data-en="made" data-ar="مقدم">made</div>
+        </div>
+        <div class="pipe-stage">
+          <div class="pipe-label" data-en="Closed" data-ar="مغلق">Closed</div>
+          <div class="pipe-bar-wrap"><div class="pipe-bar" style="width:20%;background:var(--green)"></div></div>
+          <div class="pipe-count" style="color:var(--green)">2</div>
+          <div class="pipe-sub" data-en="this month" data-ar="هذا الشهر">this month</div>
+        </div>
+      </div>
+
+      <!-- mini bar chart -->
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px;letter-spacing:.6px;text-transform:uppercase" data-en="Deals closed — last 6 months" data-ar="الصفقات المغلقة — آخر 6 أشهر">Deals closed — last 6 months</div>
+        <div class="mini-chart">
+          <div class="bar-col" style="height:40%;background:var(--surface3)" title="Oct: 3"></div>
+          <div class="bar-col" style="height:55%;background:var(--surface3)" title="Nov: 4"></div>
+          <div class="bar-col" style="height:45%;background:var(--surface3)" title="Dec: 5"></div>
+          <div class="bar-col" style="height:70%;background:var(--surface3)" title="Jan: 6"></div>
+          <div class="bar-col" style="height:60%;background:var(--surface3)" title="Feb: 7"></div>
+          <div class="bar-col" style="height:85%;background:var(--gold);opacity:.8" title="Mar: 8"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+          <span style="font-size:10px;color:var(--text3)">Oct</span>
+          <span style="font-size:10px;color:var(--text3)">Nov</span>
+          <span style="font-size:10px;color:var(--text3)">Dec</span>
+          <span style="font-size:10px;color:var(--text3)">Jan</span>
+          <span style="font-size:10px;color:var(--text3)">Feb</span>
+          <span style="font-size:10px;color:var(--gold)">Mar</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title" data-en="Alerts & Actions" data-ar="التنبيهات والإجراءات">Alerts & Actions</div>
+        <div class="panel-action" data-en="Mark all read" data-ar="تعيين كمقروء">Mark all read</div>
+      </div>
+      <div class="alert-list">
+        <div class="alert-item">
+          <div class="alert-dot" style="background:var(--coral)"></div>
+          <div>
+            <div class="alert-text"><strong data-en="Contract #C-0041" data-ar="عقد رقم #C-0041">Contract #C-0041</strong> <span data-en="awaiting your approval — Maadi villa sale" data-ar="في انتظار موافقتك — بيع فيلا المعادي">awaiting your approval — Maadi villa sale</span></div>
+            <div class="alert-time" data-en="2 hours ago" data-ar="منذ ساعتين">2 hours ago</div>
+          </div>
+        </div>
+        <div class="alert-item">
+          <div class="alert-dot" style="background:var(--amber)"></div>
+          <div>
+            <div class="alert-text"><strong data-en="Lead unassigned" data-ar="عميل محتمل غير مخصص">Lead unassigned</strong> — <span data-en="Mohamed Tarek enquired about 3BR in Rehab" data-ar="محمد طارق استفسر عن شقة 3 غرف في الرحاب">Mohamed Tarek enquired about 3BR in Rehab</span></div>
+            <div class="alert-time" data-en="4 hours ago" data-ar="منذ 4 ساعات">4 hours ago</div>
+          </div>
+        </div>
+        <div class="alert-item">
+          <div class="alert-dot" style="background:var(--coral)"></div>
+          <div>
+            <div class="alert-text"><strong data-en="Payment overdue" data-ar="دفعة متأخرة">Payment overdue</strong> — <span data-en="EGP 180,000 from Layla Hassan, 5 days late" data-ar="١٨٠,٠٠٠ ج.م من ليلى حسن، متأخرة 5 أيام">EGP 180,000 from Layla Hassan, 5 days late</span></div>
+            <div class="alert-time" data-en="Yesterday" data-ar="أمس">Yesterday</div>
+          </div>
+        </div>
+        <div class="alert-item">
+          <div class="alert-dot" style="background:var(--blue)"></div>
+          <div>
+            <div class="alert-text"><strong data-en="Contract expiring" data-ar="عقد ينتهي قريباً">Contract expiring</strong> — <span data-en="Rental #R-0018 in New Cairo expires in 14 days" data-ar="عقد إيجار #R-0018 في القاهرة الجديدة ينتهي خلال 14 يوماً">Rental #R-0018 in New Cairo expires in 14 days</span></div>
+            <div class="alert-time" data-en="2 days ago" data-ar="منذ يومين">2 days ago</div>
+          </div>
+        </div>
+        <div class="alert-item">
+          <div class="alert-dot" style="background:var(--teal)"></div>
+          <div>
+            <div class="alert-text"><strong data-en="Agent Ahmed Salem" data-ar="الوكيل أحمد سالم">Agent Ahmed Salem</strong> <span data-en="has 3 leads with no follow-up for 7+ days" data-ar="لديه 3 عملاء محتملين بدون متابعة منذ أكثر من 7 أيام">has 3 leads with no follow-up for 7+ days</span></div>
+            <div class="alert-time" data-en="3 days ago" data-ar="منذ 3 أيام">3 days ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 3: AGENTS + RECENT PROPS + PAYMENTS -->
+  <div class="three-col">
+
+    <!-- AGENT PERFORMANCE -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title" data-en="Agent Performance" data-ar="أداء الوكلاء">Agent Performance</div>
+        <div class="panel-action" data-en="Full report" data-ar="تقرير كامل">Full report</div>
+      </div>
+      <table class="agent-table">
+        <thead>
+          <tr>
+            <th data-en="Agent" data-ar="الوكيل">Agent</th>
+            <th data-en="Deals" data-ar="صفقات">Deals</th>
+            <th data-en="Score" data-ar="النتيجة">Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="agent-name"><div class="agent-av" style="background:#2DD4BF22;color:var(--teal)">SM</div><span data-en="Sara M." data-ar="سارة م.">Sara M.</span></div></td>
+            <td style="color:var(--green);font-family:'Syne',sans-serif;font-weight:600">8</td>
+            <td><div class="perf-bar-wrap"><div class="perf-bar" style="width:88%;background:var(--teal)"></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="agent-name"><div class="agent-av" style="background:#C9A84C22;color:var(--gold)">KH</div><span data-en="Khaled H." data-ar="خالد ح.">Khaled H.</span></div></td>
+            <td style="color:var(--green);font-family:'Syne',sans-serif;font-weight:600">6</td>
+            <td><div class="perf-bar-wrap"><div class="perf-bar" style="width:72%;background:var(--gold)"></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="agent-name"><div class="agent-av" style="background:#60A5FA22;color:var(--blue)">RA</div><span data-en="Rania A." data-ar="رانيا أ.">Rania A.</span></div></td>
+            <td style="color:var(--green);font-family:'Syne',sans-serif;font-weight:600">5</td>
+            <td><div class="perf-bar-wrap"><div class="perf-bar" style="width:60%;background:var(--blue)"></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="agent-name"><div class="agent-av" style="background:#F8717122;color:var(--coral)">AS</div><span data-en="Ahmed S." data-ar="أحمد س.">Ahmed S.</span></div></td>
+            <td style="color:var(--amber);font-family:'Syne',sans-serif;font-weight:600">2</td>
+            <td><div class="perf-bar-wrap"><div class="perf-bar" style="width:28%;background:var(--coral)"></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="agent-name"><div class="agent-av" style="background:#4ADE8022;color:var(--green)">MY</div><span data-en="May Y." data-ar="مي ي.">May Y.</span></div></td>
+            <td style="color:var(--green);font-family:'Syne',sans-serif;font-weight:600">4</td>
+            <td><div class="perf-bar-wrap"><div class="perf-bar" style="width:50%;background:var(--green)"></div></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- RECENT PROPERTIES -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title" data-en="Recent Listings" data-ar="أحدث العقارات">Recent Listings</div>
+        <div class="panel-action" data-en="View all" data-ar="عرض الكل">View all</div>
+      </div>
+      <div class="prop-list">
+        <div class="prop-item">
+          <div class="prop-thumb" style="background:#C9A84C18">🏢</div>
+          <div class="prop-info">
+            <div class="prop-name" data-en="Office — Downtown Cairo" data-ar="مكتب — وسط القاهرة">Office — Downtown Cairo</div>
+            <div class="prop-meta" data-en="120 m² · Commercial" data-ar="١٢٠ م² · تجاري">120 m² · Commercial</div>
+          </div>
+          <div style="text-align:right">
+            <div class="prop-price">4.8M</div>
+            <div class="prop-badge" style="background:var(--teal-dim);color:var(--teal)" data-en="Available" data-ar="متاح">Available</div>
+          </div>
+        </div>
+        <div class="prop-item">
+          <div class="prop-thumb" style="background:#60A5FA18">🏠</div>
+          <div class="prop-info">
+            <div class="prop-name" data-en="Villa — New Cairo, 5th Settlement" data-ar="فيلا — القاهرة الجديدة">Villa — New Cairo, 5th Settlement</div>
+            <div class="prop-meta" data-en="380 m² · Residential" data-ar="٣٨٠ م² · سكني">380 m² · Residential</div>
+          </div>
+          <div style="text-align:right">
+            <div class="prop-price">12.5M</div>
+            <div class="prop-badge" style="background:var(--amber)18;color:var(--amber)" data-en="Reserved" data-ar="محجوز">Reserved</div>
+          </div>
+        </div>
+        <div class="prop-item">
+          <div class="prop-thumb" style="background:#4ADE8018">🛋️</div>
+          <div class="prop-info">
+            <div class="prop-name" data-en="Furnished Apt — Zamalek" data-ar="شقة مفروشة — الزمالك">Furnished Apt — Zamalek</div>
+            <div class="prop-meta" data-en="90 m² · Short-term rental" data-ar="٩٠ م² · إيجار قصير">90 m² · Short-term rental</div>
+          </div>
+          <div style="text-align:right">
+            <div class="prop-price">25K/mo</div>
+            <div class="prop-badge" style="background:var(--teal-dim);color:var(--teal)" data-en="Available" data-ar="متاح">Available</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYMENTS -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title" data-en="Upcoming Payments" data-ar="المدفوعات القادمة">Upcoming Payments</div>
+        <div class="panel-action" data-en="View all" data-ar="عرض الكل">View all</div>
+      </div>
+      <div>
+        <div class="payment-item">
+          <div class="pay-icon" style="background:var(--green-dim)">💵</div>
+          <div class="pay-info">
+            <div class="pay-name" data-en="Layla Hassan" data-ar="ليلى حسن">Layla Hassan</div>
+            <div class="pay-sub" data-en="Installment 3 of 6 · Contract C-0038" data-ar="دفعة 3 من 6 · عقد C-0038">Installment 3 of 6 · Contract C-0038</div>
+          </div>
+          <div style="text-align:right">
+            <div class="pay-amount" style="color:var(--coral)">180K</div>
+            <div class="pay-status" style="background:var(--coral-dim);color:var(--coral)" data-en="Overdue" data-ar="متأخرة">Overdue</div>
+          </div>
+        </div>
+        <div class="payment-item">
+          <div class="pay-icon" style="background:var(--amber)18">📅</div>
+          <div class="pay-info">
+            <div class="pay-name" data-en="Omar Farouk" data-ar="عمر فاروق">Omar Farouk</div>
+            <div class="pay-sub" data-en="Installment 1 of 4 · Contract C-0041" data-ar="دفعة 1 من 4 · عقد C-0041">Installment 1 of 4 · Contract C-0041</div>
+          </div>
+          <div style="text-align:right">
+            <div class="pay-amount" style="color:var(--amber)">320K</div>
+            <div class="pay-status" style="background:var(--amber)18;color:var(--amber)" data-en="Due in 3 days" data-ar="خلال 3 أيام">Due in 3 days</div>
+          </div>
+        </div>
+        <div class="payment-item">
+          <div class="pay-icon" style="background:var(--blue-dim)">🏦</div>
+          <div class="pay-info">
+            <div class="pay-name" data-en="Dina Mostafa" data-ar="دينا مصطفى">Dina Mostafa</div>
+            <div class="pay-sub" data-en="Monthly rent · Contract R-0018" data-ar="إيجار شهري · عقد R-0018">Monthly rent · Contract R-0018</div>
+          </div>
+          <div style="text-align:right">
+            <div class="pay-amount" style="color:var(--blue)">25K</div>
+            <div class="pay-status" style="background:var(--blue-dim);color:var(--blue)" data-en="Due in 8 days" data-ar="خلال 8 أيام">Due in 8 days</div>
+          </div>
+        </div>
+        <div class="payment-item">
+          <div class="pay-icon" style="background:var(--green-dim)">✅</div>
+          <div class="pay-info">
+            <div class="pay-name" data-en="Hana Sami" data-ar="هناء سامي">Hana Sami</div>
+            <div class="pay-sub" data-en="Final payment · Contract C-0037" data-ar="الدفعة الأخيرة · عقد C-0037">Final payment · Contract C-0037</div>
+          </div>
+          <div style="text-align:right">
+            <div class="pay-amount" style="color:var(--green)">500K</div>
+            <div class="pay-status" style="background:var(--green-dim);color:var(--green)" data-en="Received" data-ar="تم الاستلام">Received</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+</div>
+
+<script>
+const d = new Date();
+
+// ── LANGUAGE PERSISTENCE ──────────────────────────────────────────────────
+function getLang(){ return localStorage.getItem('rems_lang') || 'ar'; }
+let currentLang = getLang();
+
+function applyLangToDOM(lang){
+  const isAR = lang === 'ar';
+  document.documentElement.setAttribute('dir', isAR ? 'rtl' : 'ltr');
+  document.documentElement.setAttribute('lang', lang);
+  const btnEN = document.getElementById('btnEN');
+  const btnAR = document.getElementById('btnAR');
+  if(btnEN) btnEN.classList.toggle('active', !isAR);
+  if(btnAR) btnAR.classList.toggle('active', isAR);
+  document.querySelectorAll('[data-en]').forEach(el => {
+    const v = isAR ? el.getAttribute('data-ar') : el.getAttribute('data-en');
+    if(v) el.innerHTML = v;
+  });
+  document.getElementById('dateChip').textContent = isAR
+    ? d.toLocaleDateString('ar-EG',{weekday:'short',day:'numeric',month:'short',year:'numeric'})
+    : d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+}
+
+function setLang(lang){
+  currentLang = lang;
+  localStorage.setItem('rems_lang', lang);
+  applyLangToDOM(lang);
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────
+applyLangToDOM(currentLang);
+</script>
+</body>
+</html>

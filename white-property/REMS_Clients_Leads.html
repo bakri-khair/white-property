@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>REMS — Clients & Leads</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0D0F14;--surface:#13161E;--surface2:#1A1E29;--surface3:#21263A;
+  --border:#ffffff0f;--border2:#ffffff18;
+  --gold:#C9A84C;--gold2:#E8C87A;--gold-dim:#C9A84C22;
+  --teal:#2DD4BF;--teal-dim:#2DD4BF18;
+  --coral:#F87171;--coral-dim:#F8717118;
+  --blue:#60A5FA;--blue-dim:#60A5FA18;
+  --green:#4ADE80;--green-dim:#4ADE8018;
+  --amber:#FBBF24;--purple:#A78BFA;--purple-dim:#A78BFA18;
+  --text:#F1F0EC;--text2:#9B9A94;--text3:#5C5B57;
+  --radius:14px;--radius-sm:8px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+.layout{display:flex;min-height:100vh;position:relative;z-index:1}
+
+/* ── SIDEBAR ── */
+.sidebar{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 0;position:sticky;top:0;height:100vh}
+.logo{padding:0 20px 28px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.logo-mark{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.5px;color:var(--gold2)}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+.nav-section{padding:0 12px;margin-bottom:6px}
+.nav-label{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);font-size:13.5px;color:var(--text2);cursor:pointer;transition:all .15s;border:1px solid transparent;margin-bottom:2px;text-decoration:none;font-weight:400}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--gold-dim);border-color:var(--gold)33;color:var(--gold2);font-weight:500}
+.nav-icon{font-size:15px;width:18px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--coral);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px}
+.sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
+.user-pill{display:flex;align-items:center;gap:10px}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--teal));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0}
+.user-name{font-size:13px;font-weight:500}
+.user-role{font-size:11px;color:var(--text3)}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;height:100vh}
+.main-top{padding:28px 32px 0;flex-shrink:0}
+.main-body{flex:1;overflow-y:auto;padding:0 32px 28px}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;letter-spacing:-0.5px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.lang-toggle{display:flex;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden}
+.lang-btn{padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;color:var(--text2);border:none;background:none;font-family:'DM Sans',sans-serif}
+.lang-btn.active{background:var(--gold);color:#000}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .15s}
+.btn-primary{background:var(--gold);color:#000}
+.btn-primary:hover{background:var(--gold2)}
+.btn-ghost{background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}
+.btn-ghost:hover{color:var(--text)}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px}
+.tab{padding:10px 20px;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tab:hover{color:var(--text2)}
+.tab.active{color:var(--gold2);border-bottom-color:var(--gold)}
+.tab-count{display:inline-block;background:var(--surface3);color:var(--text3);font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;margin-left:6px}
+.tab.active .tab-count{background:var(--gold-dim);color:var(--gold)}
+
+/* ── STATS ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.stat-chip{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;cursor:pointer;transition:all .15s}
+.stat-chip:hover{border-color:var(--border2)}
+.stat-chip-label{font-size:10px;letter-spacing:.7px;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.stat-chip-value{font-family:'Syne',sans-serif;font-size:22px;font-weight:700}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.search-wrap{flex:1;min-width:180px;position:relative}
+.search-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 14px 9px 36px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s}
+.search-input:focus{border-color:var(--gold)66}
+.search-input::placeholder{color:var(--text3)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none}
+.filter-select{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text2);font-family:'DM Sans',sans-serif;outline:none;cursor:pointer}
+.filter-select option{background:var(--surface2)}
+
+/* ── PIPELINE VIEW ── */
+.pipeline-board{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;min-height:500px}
+.pipeline-board::-webkit-scrollbar{height:4px}
+.pipeline-board::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
+.pipe-col{min-width:220px;width:220px;flex-shrink:0;display:flex;flex-direction:column;gap:8px}
+.pipe-col-header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:4px}
+.pipe-col-label{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.pipe-col-count{font-size:11px;color:var(--text3);background:var(--surface2);padding:2px 7px;border-radius:10px}
+.lead-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;cursor:pointer;transition:all .15s;position:relative}
+.lead-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 4px 20px #00000030}
+.lead-card-accent{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.lead-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px}
+.lead-prop{font-size:11px;color:var(--text3);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lead-meta{display:flex;align-items:center;justify-content:space-between}
+.lead-source{font-size:10px;color:var(--text3);background:var(--surface2);padding:2px 7px;border-radius:10px}
+.lead-date{font-size:10px;color:var(--text3)}
+.lead-agent-row{display:flex;align-items:center;gap:5px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.mini-av{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;flex-shrink:0}
+.lead-overdue{background:var(--coral-dim);border-color:var(--coral)22}
+.overdue-tag{font-size:9px;font-weight:600;color:var(--coral);background:var(--coral-dim);padding:2px 6px;border-radius:10px;margin-left:auto}
+
+/* ── TABLE VIEW ── */
+.clients-table-wrap{overflow-x:auto}
+.clients-table{width:100%;border-collapse:collapse}
+.clients-table th{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);padding:0 12px 10px;text-align:left;border-bottom:1px solid var(--border);font-weight:400;white-space:nowrap}
+.clients-table td{padding:12px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);vertical-align:middle}
+.clients-table tr:last-child td{border-bottom:none}
+.clients-table tr:hover td{background:var(--surface2);color:var(--text);cursor:pointer}
+.client-name-cell{display:flex;align-items:center;gap:8px}
+.client-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.stage-pill{display:inline-block;font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.source-tag{display:inline-block;font-size:10px;color:var(--text3);background:var(--surface2);padding:2px 7px;border-radius:10px}
+
+/* ── DETAIL PANEL ── */
+.detail-overlay{position:fixed;inset:0;background:#00000070;z-index:100;display:flex;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
+.detail-overlay.open{opacity:1;pointer-events:all}
+.detail-panel{width:440px;height:100%;background:var(--surface);border-left:1px solid var(--border2);overflow-y:auto;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+.detail-overlay.open .detail-panel{transform:translateX(0)}
+.dp-header{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0}
+.dp-close{background:var(--surface2);border:1px solid var(--border2);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:16px;transition:all .15s;flex-shrink:0}
+.dp-close:hover{background:var(--surface3);color:var(--text)}
+.dp-body{padding:20px;flex:1;overflow-y:auto}
+.dp-section{margin-bottom:20px}
+.dp-section-title{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.dp-row{display:flex;gap:8px;margin-bottom:8px}
+.dp-field{flex:1;background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px}
+.dp-field-label{font-size:10px;color:var(--text3);margin-bottom:3px}
+.dp-field-value{font-size:13px;font-weight:500;color:var(--text)}
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:10px;padding-bottom:14px;position:relative}
+.tl-item:last-child{padding-bottom:0}
+.tl-left{display:flex;flex-direction:column;align-items:center;width:16px;flex-shrink:0}
+.tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.tl-line{flex:1;width:1px;background:var(--border);margin-top:3px}
+.tl-item:last-child .tl-line{display:none}
+.tl-content{flex:1;padding-bottom:2px}
+.tl-text{font-size:12.5px;color:var(--text2);line-height:1.4}
+.tl-text strong{color:var(--text);font-weight:500}
+.tl-time{font-size:11px;color:var(--text3);margin-top:2px}
+.note-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;resize:vertical;min-height:72px}
+.note-input::placeholder{color:var(--text3)}
+.note-input:focus{border-color:var(--gold)66}
+.dp-actions{display:flex;gap:8px;padding:16px 20px;border-top:1px solid var(--border);flex-shrink:0}
+
+/* ── ADD LEAD PANEL ── */
+.add-overlay{position:fixed;inset:0;background:#00000070;z-index:100;display:flex;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
+.add-overlay.open{opacity:1;pointer-events:all}
+.add-panel{width:440px;height:100%;background:var(--surface);border-left:1px solid var(--border2);overflow-y:auto;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.add-overlay.open .add-panel{transform:translateX(0)}
+.form-group{margin-bottom:14px}
+.form-label{font-size:11px;color:var(--text3);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.6px}
+.form-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s}
+.form-input:focus{border-color:var(--gold)66}
+.form-input::placeholder{color:var(--text3)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.lead-card{animation:fadeUp .25s ease both}
+.clients-table tr{animation:fadeUp .2s ease both}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
+
+[dir="rtl"] .sidebar{border-right:none;border-left:1px solid var(--border)}
+[dir="rtl"] .nav-badge{margin-left:0;margin-right:auto}
+[dir="rtl"] .search-icon{left:auto;right:12px}
+[dir="rtl"] .search-input{padding:9px 36px 9px 14px}
+[dir="rtl"] .detail-panel,[dir="rtl"] .add-panel{border-left:none;border-right:1px solid var(--border2);transform:translateX(-100%)}
+[dir="rtl"] .detail-overlay.open .detail-panel,[dir="rtl"] .add-overlay.open .add-panel{transform:translateX(0)}
+[dir="rtl"] .lead-card-accent{left:auto;right:0;border-radius:0 3px 3px 0}
+
+@media(max-width:768px){.sidebar{display:none}.main-top{padding:16px 16px 0}.main-body{padding:0 16px 16px}.stats-row{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">White Property</div>
+    <div class="logo-sub" data-en="Real Estate System" data-ar="نظام العقارات">Real Estate System</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label" data-en="Main" data-ar="رئيسي">Main</div>
+    <a class="nav-item" href="REMS_Manager_Dashboard.html"><span class="nav-icon">⬛</span><span data-en="Dashboard" data-ar="لوحة التحكم">Dashboard</span></a>
+    <a class="nav-item" href="REMS_Properties.html"><span class="nav-icon">🏠</span><span data-en="Properties" data-ar="العقارات">Properties</span></a>
+    <div class="nav-item active"><span class="nav-icon">👥</span><span data-en="Clients & Leads" data-ar="العملاء والعملاء المحتملون">Clients & Leads</span><span class="nav-badge">7</span></div>
+    <a class="nav-item" href="REMS_Contracts.html"><span class="nav-icon">📄</span><span data-en="Contracts" data-ar="العقود">Contracts</span></a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label" data-en="Team" data-ar="الفريق">Team</div>
+    <a class="nav-item" href="REMS_Agents.html"><span class="nav-icon">🧑‍💼</span><span data-en="Agents" data-ar="الوكلاء">Agents</span></a>
+    <a class="nav-item" href="REMS_Payments.html"><span class="nav-icon">💰</span><span data-en="Commissions" data-ar="العمولات">Commissions</span></a>
+    <a class="nav-item" href="REMS_Reports.html"><span class="nav-icon">📊</span><span data-en="Reports" data-ar="التقارير">Reports</span></a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label" data-en="Finance" data-ar="المالية">Finance</div>
+    <a class="nav-item" href="REMS_Payments.html"><span class="nav-icon">💳</span><span data-en="Payments" data-ar="المدفوعات">Payments</span><span class="nav-badge">3</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">📁</span><span data-en="Documents" data-ar="المستندات">Documents</span></a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="avatar">RA</div>
+      <div>
+        <div class="user-name" data-en="Reem Ashraf" data-ar="ريم أشرف">Reem Ashraf</div>
+        <div class="user-role" data-en="Manager" data-ar="مديرة">Manager</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main">
+  <div class="main-top">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="page-title" data-en="Clients & Leads" data-ar="العملاء والعملاء المحتملون">Clients & Leads</div>
+      <div class="topbar-right">
+        <div class="lang-toggle">
+          <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+          <button class="lang-btn" id="btnAR" onclick="setLang('ar')">AR</button>
+        </div>
+        <button class="btn btn-ghost" onclick="alert('Export coming soon')">↓ <span data-en="Export" data-ar="تصدير">Export</span></button>
+        <button class="btn btn-primary" onclick="openAddLead()">+ <span data-en="Add Lead" data-ar="إضافة عميل">Add Lead</span></button>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-chip"><div class="stat-chip-label" data-en="Total Clients" data-ar="إجمالي العملاء">Total Clients</div><div class="stat-chip-value" style="color:var(--text)">84</div></div>
+      <div class="stat-chip"><div class="stat-chip-label" data-en="Active Leads" data-ar="عملاء نشطون">Active Leads</div><div class="stat-chip-value" style="color:var(--teal)">31</div></div>
+      <div class="stat-chip"><div class="stat-chip-label" data-en="Viewings This Week" data-ar="معاينات هذا الأسبوع">Viewings This Week</div><div class="stat-chip-value" style="color:var(--blue)">9</div></div>
+      <div class="stat-chip"><div class="stat-chip-label" data-en="Offers Made" data-ar="عروض مقدمة">Offers Made</div><div class="stat-chip-value" style="color:var(--amber)">4</div></div>
+      <div class="stat-chip"><div class="stat-chip-label" data-en="Overdue Follow-ups" data-ar="متابعات متأخرة">Overdue Follow-ups</div><div class="stat-chip-value" style="color:var(--coral)">7</div></div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <div class="tab active" id="tabPipeline" onclick="switchTab('pipeline')">
+        <span data-en="Pipeline View" data-ar="عرض خط الأنابيب">Pipeline View</span>
+        <span class="tab-count">31</span>
+      </div>
+      <div class="tab" id="tabClients" onclick="switchTab('clients')">
+        <span data-en="All Clients" data-ar="كل العملاء">All Clients</span>
+        <span class="tab-count">84</span>
+      </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" id="searchInput" type="text" placeholder="Search by name, phone, or property..." oninput="applyFilters()" data-placeholder-en="Search by name, phone, or property..." data-placeholder-ar="ابحث بالاسم أو الهاتف أو العقار..."/>
+      </div>
+      <select class="filter-select" id="agentFilter" onchange="applyFilters()">
+        <option value="all" data-en="All Agents" data-ar="كل الوكلاء">All Agents</option>
+        <option value="sara">Sara M.</option>
+        <option value="khaled">Khaled H.</option>
+        <option value="rania">Rania A.</option>
+        <option value="ahmed">Ahmed S.</option>
+        <option value="may">May Y.</option>
+      </select>
+      <select class="filter-select" id="sourceFilter" onchange="applyFilters()">
+        <option value="all" data-en="All Sources" data-ar="كل المصادر">All Sources</option>
+        <option value="phone" data-en="Phone" data-ar="هاتف">Phone</option>
+        <option value="referral" data-en="Referral" data-ar="إحالة">Referral</option>
+        <option value="social" data-en="Social Media" data-ar="سوشيال ميديا">Social Media</option>
+        <option value="walkin" data-en="Walk-in" data-ar="زيارة مباشرة">Walk-in</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="main-body">
+    <!-- PIPELINE BOARD -->
+    <div id="pipelineView">
+      <div class="pipeline-board" id="pipelineBoard"></div>
+    </div>
+
+    <!-- CLIENTS TABLE -->
+    <div id="clientsView" style="display:none">
+      <div class="clients-table-wrap">
+        <table class="clients-table" id="clientsTable">
+          <thead>
+            <tr>
+              <th data-en="Client" data-ar="العميل">Client</th>
+              <th data-en="Phone" data-ar="الهاتف">Phone</th>
+              <th data-en="Interested In" data-ar="مهتم بـ">Interested In</th>
+              <th data-en="Stage" data-ar="المرحلة">Stage</th>
+              <th data-en="Source" data-ar="المصدر">Source</th>
+              <th data-en="Agent" data-ar="الوكيل">Agent</th>
+              <th data-en="Next Follow-up" data-ar="التابعة القادمة">Next Follow-up</th>
+            </tr>
+          </thead>
+          <tbody id="clientsTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- ── LEAD DETAIL PANEL ── -->
+<div class="detail-overlay" id="detailOverlay" onclick="closeDetailOuter(event)">
+  <div class="detail-panel" id="detailPanel">
+    <div class="dp-header">
+      <div>
+        <div style="font-size:11px;color:var(--text3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px" id="dpRef">LEAD #L-0007</div>
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700" id="dpName">Mohamed Tarek</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px" id="dpPhone">+20 100 000 0000</div>
+      </div>
+      <div class="dp-close" onclick="closeDetail()">✕</div>
+    </div>
+    <div class="dp-body">
+      <div class="dp-section">
+        <div class="dp-section-title" data-en="Lead Details" data-ar="تفاصيل العميل">Lead Details</div>
+        <div class="dp-row">
+          <div class="dp-field"><div class="dp-field-label" data-en="Stage" data-ar="المرحلة">Stage</div><div class="dp-field-value" id="dpStage">—</div></div>
+          <div class="dp-field"><div class="dp-field-label" data-en="Source" data-ar="المصدر">Source</div><div class="dp-field-value" id="dpSource">—</div></div>
+        </div>
+        <div class="dp-row">
+          <div class="dp-field"><div class="dp-field-label" data-en="Assigned Agent" data-ar="الوكيل">Assigned Agent</div><div class="dp-field-value" id="dpAgent">—</div></div>
+          <div class="dp-field"><div class="dp-field-label" data-en="Next Follow-up" data-ar="التابعة">Next Follow-up</div><div class="dp-field-value" id="dpFollowup">—</div></div>
+        </div>
+        <div class="dp-row">
+          <div class="dp-field" style="flex:unset;width:100%"><div class="dp-field-label" data-en="Interested In" data-ar="مهتم بـ">Interested In</div><div class="dp-field-value" id="dpProp">—</div></div>
+        </div>
+      </div>
+
+      <!-- STAGE CHANGER -->
+      <div class="dp-section">
+        <div class="dp-section-title" data-en="Move to Stage" data-ar="نقل إلى مرحلة">Move to Stage</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap" id="stageButtons"></div>
+      </div>
+
+      <!-- TIMELINE -->
+      <div class="dp-section">
+        <div class="dp-section-title" data-en="Activity Timeline" data-ar="سجل النشاط">Activity Timeline</div>
+        <div class="timeline" id="dpTimeline"></div>
+      </div>
+
+      <!-- ADD NOTE -->
+      <div class="dp-section">
+        <div class="dp-section-title" data-en="Add Note / Log Activity" data-ar="إضافة ملاحظة">Add Note / Log Activity</div>
+        <textarea class="note-input" id="noteInput" placeholder="Type a note or log a call, visit, or message..." data-placeholder-en="Type a note or log a call, visit, or message..." data-placeholder-ar="اكتب ملاحظة أو سجل مكالمة أو زيارة..."></textarea>
+        <button class="btn btn-primary" style="margin-top:8px;width:100%" onclick="addNote()">
+          + <span data-en="Log Activity" data-ar="تسجيل النشاط">Log Activity</span>
+        </button>
+      </div>
+    </div>
+    <div class="dp-actions">
+      <button class="btn btn-primary" style="flex:1" onclick="alert('Schedule viewing coming soon')">📅 <span data-en="Schedule Viewing" data-ar="جدولة معاينة">Schedule Viewing</span></button>
+      <button class="btn btn-ghost" style="flex:1" onclick="alert('Convert to contract coming soon')">📄 <span data-en="Convert to Contract" data-ar="تحويل لعقد">Convert to Contract</span></button>
+      <button class="btn btn-ghost" onclick="alert('More options coming soon')">⋯</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADD LEAD PANEL ── -->
+<div class="add-overlay" id="addOverlay" onclick="closeAddOuter(event)">
+  <div class="add-panel" id="addPanel">
+    <div class="dp-header">
+      <div>
+        <div style="font-size:11px;color:var(--text3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px" data-en="New Lead" data-ar="عميل محتمل جديد">New Lead</div>
+        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:600" data-en="Add Lead" data-ar="إضافة عميل">Add Lead</div>
+      </div>
+      <div class="dp-close" onclick="closeAdd()">✕</div>
+    </div>
+    <div class="dp-body">
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label" data-en="First Name" data-ar="الاسم الأول">First Name</label><input class="form-input" placeholder="e.g. Mohamed" data-placeholder-en="e.g. Mohamed" data-placeholder-ar="مثال: محمد"/></div>
+        <div class="form-group"><label class="form-label" data-en="Last Name" data-ar="اسم العائلة">Last Name</label><input class="form-input" placeholder="e.g. Tarek" data-placeholder-en="e.g. Tarek" data-placeholder-ar="مثال: طارق"/></div>
+      </div>
+      <div class="form-group"><label class="form-label" data-en="Phone Number" data-ar="رقم الهاتف">Phone Number</label><input class="form-input" type="tel" placeholder="+20 1XX XXX XXXX"/></div>
+      <div class="form-group"><label class="form-label" data-en="Email (optional)" data-ar="البريد الإلكتروني (اختياري)">Email (optional)</label><input class="form-input" type="email" placeholder="email@example.com"/></div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" data-en="Lead Source" data-ar="مصدر العميل">Lead Source</label>
+          <select class="form-input">
+            <option data-en="Phone Call" data-ar="اتصال هاتفي">Phone Call</option>
+            <option data-en="Referral" data-ar="إحالة">Referral</option>
+            <option data-en="Social Media" data-ar="سوشيال ميديا">Social Media</option>
+            <option data-en="Walk-in" data-ar="زيارة مباشرة">Walk-in</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-en="Assign Agent" data-ar="تعيين وكيل">Assign Agent</label>
+          <select class="form-input">
+            <option>Sara M.</option><option>Khaled H.</option><option>Rania A.</option><option>Ahmed S.</option><option>May Y.</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-en="Interested In (Property)" data-ar="مهتم بعقار">Interested In (Property)</label>
+        <select class="form-input">
+          <option data-en="Not specified yet" data-ar="لم يتحدد بعد">Not specified yet</option>
+          <option>Villa — 5th Settlement, New Cairo</option>
+          <option>Office Space — Downtown Cairo</option>
+          <option>Furnished Apartment — Zamalek</option>
+          <option>Retail Shop — Maadi Grand Mall</option>
+          <option>Twin House — Sheikh Zayed</option>
+          <option>Penthouse — Maadi Corniche</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-en="Budget (EGP)" data-ar="الميزانية (ج.م)">Budget (EGP)</label>
+        <input class="form-input" type="number" placeholder="e.g. 5000000"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-en="Next Follow-up Date" data-ar="تاريخ المتابعة القادمة">Next Follow-up Date</label>
+        <input class="form-input" type="date"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-en="Initial Note" data-ar="ملاحظة أولية">Initial Note</label>
+        <textarea class="form-input" style="resize:vertical;min-height:72px" placeholder="What did the client say? What are they looking for?" data-placeholder-en="What did the client say? What are they looking for?" data-placeholder-ar="ماذا قال العميل؟ ماذا يبحث عن؟"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;padding-top:4px">
+        <button class="btn btn-primary" style="flex:1" onclick="alert('Lead saved! (Backend coming soon)')">✓ <span data-en="Save Lead" data-ar="حفظ العميل">Save Lead</span></button>
+        <button class="btn btn-ghost" onclick="closeAdd()" data-en="Cancel" data-ar="إلغاء">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const STAGES = [
+  {key:'new',      en:'New Lead',          ar:'عميل جديد',       color:'var(--blue)'},
+  {key:'contacted',en:'Contacted',         ar:'تم التواصل',      color:'var(--teal)'},
+  {key:'viewing',  en:'Viewing Scheduled', ar:'معاينة مجدولة',   color:'var(--amber)'},
+  {key:'offer',    en:'Offer Made',        ar:'عرض مقدم',        color:'var(--purple)'},
+  {key:'contracted',en:'Contracted',       ar:'تحت العقد',       color:'var(--green)'},
+];
+
+const LEADS = [
+  {id:'L-0001',name:'Mohamed Tarek',nameAr:'محمد طارق',phone:'+20 100 234 5678',stage:'new',source:'phone',sourceAr:'هاتف',agent:'Sara M.',agentKey:'sara',agentInitials:'SM',agentColor:'var(--teal)',prop:'Apartment — Rehab City',propAr:'شقة — مدينة الرحاب',followup:'2026-03-22',overdue:false,notes:[{text:'Called to enquire about 3BR apartments in Rehab. Budget ~3.5M EGP.',time:'Today, 9:14 AM'}]},
+  {id:'L-0002',name:'Layla Hassan',nameAr:'ليلى حسن',phone:'+20 111 345 6789',stage:'viewing',source:'referral',sourceAr:'إحالة',agent:'Khaled H.',agentKey:'khaled',agentInitials:'KH',agentColor:'var(--gold)',prop:'Villa — 5th Settlement',propAr:'فيلا — القاهرة الجديدة',followup:'2026-03-21',overdue:true,notes:[{text:'Viewing scheduled for this Saturday at 11am. Husband joining.',time:'Yesterday'},{text:'Referred by existing client Mrs. Samira.',time:'3 days ago'}]},
+  {id:'L-0003',name:'Omar Farouk',nameAr:'عمر فاروق',phone:'+20 122 456 7890',stage:'offer',source:'social',sourceAr:'سوشيال ميديا',agent:'Sara M.',agentKey:'sara',agentInitials:'SM',agentColor:'var(--teal)',prop:'Penthouse — Maadi Corniche',propAr:'بنتهاوس — كورنيش المعادي',followup:'2026-03-23',overdue:false,notes:[{text:'Offer submitted: 9.4M EGP. Awaiting client response.',time:'2 days ago'},{text:'Second viewing done — client very interested.',time:'4 days ago'}]},
+  {id:'L-0004',name:'Dina Mostafa',nameAr:'دينا مصطفى',phone:'+20 100 567 8901',stage:'contracted',source:'walkin',sourceAr:'زيارة مباشرة',agent:'Rania A.',agentKey:'rania',agentInitials:'RA',agentColor:'var(--blue)',prop:'Furnished Apt — Zamalek',propAr:'شقة مفروشة — الزمالك',followup:'2026-04-01',overdue:false,notes:[{text:'Contract signed. Move-in date April 1st.',time:'1 week ago'}]},
+  {id:'L-0005',name:'Hana Sami',nameAr:'هناء سامي',phone:'+20 115 678 9012',stage:'new',source:'referral',sourceAr:'إحالة',agent:'Ahmed S.',agentKey:'ahmed',agentInitials:'AS',agentColor:'var(--coral)',prop:'Not specified yet',propAr:'لم يتحدد بعد',followup:'2026-03-19',overdue:true,notes:[{text:'Enquired about commercial spaces in Maadi or downtown.',time:'3 days ago'}]},
+  {id:'L-0006',name:'Karim Nabil',nameAr:'كريم نبيل',phone:'+20 128 789 0123',stage:'contacted',source:'phone',sourceAr:'هاتف',agent:'May Y.',agentKey:'may',agentInitials:'MY',agentColor:'var(--green)',prop:'Twin House — Sheikh Zayed',propAr:'توين هاوس — الشيخ زايد',followup:'2026-03-24',overdue:false,notes:[{text:'Follow-up call done. Client wants to see the twin house this weekend.',time:'2 days ago'}]},
+  {id:'L-0007',name:'Sara El-Din',nameAr:'سارة الدين',phone:'+20 100 890 1234',stage:'viewing',source:'social',sourceAr:'سوشيال ميديا',agent:'Khaled H.',agentKey:'khaled',agentInitials:'KH',agentColor:'var(--gold)',prop:'Office — Downtown Cairo',propAr:'مكتب — وسط القاهرة',followup:'2026-03-22',overdue:false,notes:[{text:'Viewing confirmed for Thursday 2pm. Decision maker will attend.',time:'1 day ago'}]},
+  {id:'L-0008',name:'Tarek Mansour',nameAr:'طارق منصور',phone:'+20 122 901 2345',stage:'contacted',source:'walkin',sourceAr:'زيارة مباشرة',agent:'Sara M.',agentKey:'sara',agentInitials:'SM',agentColor:'var(--teal)',prop:'Retail Shop — Maadi Mall',propAr:'محل تجاري — مول المعادي',followup:'2026-03-18',overdue:true,notes:[{text:'Walked in looking for retail spaces. Sent brochure.',time:'5 days ago'}]},
+];
+
+const CLIENTS_EXTRA = [
+  {id:'C-0001',name:'Samira Abdel',nameAr:'سميرة عبد',phone:'+20 100 111 2222',prop:'—',propAr:'—',stage:'completed',source:'referral',sourceAr:'إحالة',agent:'Sara M.',agentKey:'sara',followup:'—',overdue:false},
+  {id:'C-0002',name:'Bassem Lotfy',nameAr:'باسم لطفي',phone:'+20 122 333 4444',prop:'Villa — Maadi',propAr:'فيلا — المعادي',stage:'new',source:'phone',sourceAr:'هاتف',agent:'Rania A.',agentKey:'rania',followup:'2026-03-25',overdue:false},
+];
+
+let currentTab = 'pipeline';
+let currentLang = getLang();
+let openLead = null;
+
+// ── PIPELINE ──────────────────────────────────────────────────────────────
+function filteredLeads(){
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const agent = document.getElementById('agentFilter').value;
+  const source = document.getElementById('sourceFilter').value;
+  return LEADS.filter(l=>{
+    if(q && !l.name.toLowerCase().includes(q) && !l.phone.includes(q) && !l.prop.toLowerCase().includes(q)) return false;
+    if(agent!=='all' && !l.agentKey.includes(agent)) return false;
+    if(source!=='all' && l.source!==source) return false;
+    return true;
+  });
+}
+
+function renderPipeline(){
+  const leads = filteredLeads();
+  const board = document.getElementById('pipelineBoard');
+  board.innerHTML = STAGES.map(s=>{
+    const cards = leads.filter(l=>l.stage===s.key);
+    return `<div class="pipe-col">
+      <div class="pipe-col-header">
+        <span class="pipe-col-label" style="color:${s.color}">${currentLang==='ar'?s.ar:s.en}</span>
+        <span class="pipe-col-count">${cards.length}</span>
+      </div>
+      ${cards.map(l=>`
+        <div class="lead-card${l.overdue?' lead-overdue':''}" onclick="openDetail('${l.id}')">
+          <div class="lead-card-accent" style="background:${s.color}"></div>
+          <div class="lead-name">${currentLang==='ar'?l.nameAr:l.name}</div>
+          <div class="lead-prop">${currentLang==='ar'?l.propAr:l.prop}</div>
+          <div class="lead-meta">
+            <span class="lead-source">${currentLang==='ar'?l.sourceAr:l.source}</span>
+            ${l.overdue?`<span class="overdue-tag">${currentLang==='ar'?'متأخر':'overdue'}</span>`:`<span class="lead-date">${l.followup}</span>`}
+          </div>
+          <div class="lead-agent-row">
+            <div class="mini-av" style="background:${l.agentColor}22;color:${l.agentColor}">${l.agentInitials}</div>
+            <span style="font-size:11px;color:var(--text3)">${l.agent}</span>
+          </div>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+// ── CLIENTS TABLE ─────────────────────────────────────────────────────────
+function stagePill(s){
+  const map={
+    new:{bg:'var(--blue-dim)',c:'var(--blue)',en:'New',ar:'جديد'},
+    contacted:{bg:'var(--teal-dim)',c:'var(--teal)',en:'Contacted',ar:'تم التواصل'},
+    viewing:{bg:'#FBBF2418',c:'var(--amber)',en:'Viewing',ar:'معاينة'},
+    offer:{bg:'var(--purple-dim)',c:'var(--purple)',en:'Offer',ar:'عرض'},
+    contracted:{bg:'var(--green-dim)',c:'var(--green)',en:'Contracted',ar:'عقد'},
+    completed:{bg:'var(--surface3)',c:'var(--text2)',en:'Completed',ar:'مكتمل'},
+  };
+  const m=map[s]||{bg:'var(--surface3)',c:'var(--text2)',en:s,ar:s};
+  return `<span class="stage-pill" style="background:${m.bg};color:${m.c}">${currentLang==='ar'?m.ar:m.en}</span>`;
+}
+
+function renderClientsTable(){
+  const allClients = [...LEADS, ...CLIENTS_EXTRA];
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const agent = document.getElementById('agentFilter').value;
+  const source = document.getElementById('sourceFilter').value;
+  const rows = allClients.filter(c=>{
+    if(q && !c.name.toLowerCase().includes(q) && !c.phone.includes(q)) return false;
+    if(agent!=='all' && !c.agentKey.includes(agent)) return false;
+    if(source!=='all' && c.source!==source) return false;
+    return true;
+  });
+  document.getElementById('clientsTbody').innerHTML = rows.map(c=>`
+    <tr onclick="openDetail('${c.id}')">
+      <td><div class="client-name-cell">
+        <div class="client-av" style="background:${agentColor(c.agentKey)}22;color:${agentColor(c.agentKey)}">${c.name.split(' ').map(x=>x[0]).join('').slice(0,2)}</div>
+        <div>
+          <div style="font-weight:500;color:var(--text)">${currentLang==='ar'?c.nameAr:c.name}</div>
+          <div style="font-size:11px;color:var(--text3)">${c.id}</div>
+        </div>
+      </div></td>
+      <td>${c.phone}</td>
+      <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${currentLang==='ar'?c.propAr:c.prop}</td>
+      <td>${stagePill(c.stage)}</td>
+      <td><span class="source-tag">${currentLang==='ar'?c.sourceAr:c.source}</span></td>
+      <td>${c.agent}</td>
+      <td style="color:${c.overdue?'var(--coral)':'var(--text2)'}">${c.followup||'—'}</td>
+    </tr>`).join('');
+}
+
+function agentColor(k){
+  return {sara:'var(--teal)',khaled:'var(--gold)',rania:'var(--blue)',ahmed:'var(--coral)',may:'var(--green)'}[k]||'var(--text2)';
+}
+
+// ── DETAIL PANEL ──────────────────────────────────────────────────────────
+function openDetail(id){
+  const l = [...LEADS,...CLIENTS_EXTRA].find(x=>x.id===id);
+  if(!l) return;
+  openLead = l;
+  document.getElementById('dpRef').textContent = 'LEAD #'+l.id;
+  document.getElementById('dpName').textContent = currentLang==='ar'?l.nameAr:l.name;
+  document.getElementById('dpPhone').textContent = l.phone;
+  const stage = STAGES.find(s=>s.key===l.stage)||{en:l.stage,ar:l.stage,color:'var(--text)'};
+  document.getElementById('dpStage').innerHTML = `<span style="color:${stage.color}">${currentLang==='ar'?stage.ar:stage.en}</span>`;
+  document.getElementById('dpSource').textContent = currentLang==='ar'?l.sourceAr:l.source;
+  document.getElementById('dpAgent').textContent = l.agent;
+  document.getElementById('dpFollowup').innerHTML = `<span style="color:${l.overdue?'var(--coral)':'var(--text)'}">${l.followup||'—'}</span>`;
+  document.getElementById('dpProp').textContent = currentLang==='ar'?l.propAr:l.prop;
+
+  // Stage buttons
+  document.getElementById('stageButtons').innerHTML = STAGES.map(s=>
+    `<button class="btn ${s.key===l.stage?'btn-primary':'btn-ghost'}" style="${s.key===l.stage?'':'border-color:'+s.color+'44;color:'+s.color}" onclick="moveStage('${l.id}','${s.key}')">${currentLang==='ar'?s.ar:s.en}</button>`
+  ).join('');
+
+  // Timeline
+  const notes = l.notes||[];
+  document.getElementById('dpTimeline').innerHTML = notes.map((n,i)=>`
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-dot" style="background:${i===0?'var(--gold)':'var(--surface3)'}"></div>
+        <div class="tl-line"></div>
+      </div>
+      <div class="tl-content">
+        <div class="tl-text">${n.text}</div>
+        <div class="tl-time">${n.time}</div>
+      </div>
+    </div>`).join('') || `<div style="font-size:12px;color:var(--text3)">No activity logged yet.</div>`;
+
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+function moveStage(id, newStage){
+  const l = LEADS.find(x=>x.id===id);
+  if(l){ l.stage=newStage; openDetail(id); applyFilters(); }
+}
+
+function addNote(){
+  const input = document.getElementById('noteInput');
+  const text = input.value.trim();
+  if(!text||!openLead) return;
+  const l = LEADS.find(x=>x.id===openLead.id);
+  if(l){ l.notes.unshift({text, time:'Just now'}); openDetail(l.id); }
+  input.value='';
+}
+
+function closeDetail(){ document.getElementById('detailOverlay').classList.remove('open'); }
+function closeDetailOuter(e){ if(e.target===document.getElementById('detailOverlay')) closeDetail(); }
+function openAddLead(){ document.getElementById('addOverlay').classList.add('open'); }
+function closeAdd(){ document.getElementById('addOverlay').classList.remove('open'); }
+function closeAddOuter(e){ if(e.target===document.getElementById('addOverlay')) closeAdd(); }
+
+// ── TAB / FILTER ──────────────────────────────────────────────────────────
+function switchTab(tab){
+  currentTab = tab;
+  document.getElementById('tabPipeline').classList.toggle('active', tab==='pipeline');
+  document.getElementById('tabClients').classList.toggle('active', tab==='clients');
+  document.getElementById('pipelineView').style.display = tab==='pipeline'?'block':'none';
+  document.getElementById('clientsView').style.display = tab==='clients'?'block':'none';
+  applyFilters();
+}
+
+function applyFilters(){
+  if(currentTab==='pipeline') renderPipeline();
+  else renderClientsTable();
+}
+
+
+
+// ── LANGUAGE PERSISTENCE ─────────────────────────────────────────────────
+function getLang(){ return localStorage.getItem('rems_lang') || 'ar'; }
+function applyLangToDOM(lang){
+  const isAR = lang === 'ar';
+  document.documentElement.setAttribute('dir', isAR ? 'rtl' : 'ltr');
+  document.documentElement.setAttribute('lang', lang);
+  const btnEN = document.getElementById('btnEN');
+  const btnAR = document.getElementById('btnAR');
+  if(btnEN) btnEN.classList.toggle('active', !isAR);
+  if(btnAR) btnAR.classList.toggle('active', isAR);
+  document.querySelectorAll('[data-en]').forEach(el => {
+    const v = isAR ? el.getAttribute('data-ar') : el.getAttribute('data-en');
+    if(v) el.innerHTML = v;
+  });
+  document.querySelectorAll('[data-placeholder-en]').forEach(el => {
+    el.placeholder = isAR ? el.getAttribute('data-placeholder-ar') : el.getAttribute('data-placeholder-en');
+  });
+  document.querySelectorAll('.filter-select option[data-en], select option[data-en]').forEach(el => {
+    el.textContent = isAR ? (el.getAttribute('data-ar') || el.getAttribute('data-en')) : el.getAttribute('data-en');
+  });
+}
+function setLang(lang){
+  currentLang = lang;
+  localStorage.setItem('rems_lang', lang);
+  applyLangToDOM(lang);
+  if(typeof applyFilters === 'function') applyFilters();
+  if(typeof renderTable === 'function') renderTable();
+  if(typeof openContract !== 'undefined' && openContract && typeof openDetail === 'function') openDetail(openContract.id);
+  if(typeof openLead !== 'undefined' && openLead && typeof openDetail === 'function') openDetail(openLead.id);
+  if(typeof openProp !== 'undefined' && openProp && typeof openDetail === 'function') openDetail(openProp.id);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+currentLang = getLang();
+applyLangToDOM(currentLang);
+applyFilters();
+</script>
+</body>
+</html>
