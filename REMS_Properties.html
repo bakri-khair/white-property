@@ -186,20 +186,23 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .sidebar-overlay{display:none;position:fixed;inset:0;background:#000000bb;z-index:999}
 .sidebar-overlay.open{display:block}
 @media(max-width:768px){
-  .hamburger{display:flex}
-  .sidebar{position:fixed;top:0;right:-240px;width:220px;height:100vh;z-index:1000;transition:right .3s ease;overflow-y:auto;border-left:1px solid var(--border2)}
-  .sidebar.mobile-open{right:0}
-  .main{padding-top:70px}
+  .hamburger{display:flex !important}
+  .sidebar{position:fixed !important;top:0 !important;right:-240px !important;left:auto !important;width:220px !important;min-width:220px !important;height:100vh !important;z-index:1000 !important;transition:right .3s ease !important;overflow-y:auto !important;border-left:1px solid var(--border2) !important}
+  .sidebar.mobile-open{right:0 !important}
+  .main{padding-top:70px !important}
+}
 }
 </style>
 </head>
 <body>
 
 <!-- MOBILE HAMBURGER -->
-<div class="hamburger" id="hamburger" onclick="toggleSidebar()">
-  <span></span><span></span><span></span>
-</div>
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<button id="hamburger" onclick="toggleSidebar()" style="display:none;position:fixed;top:12px;right:12px;z-index:9999;background:#13161E;border:1px solid #ffffff22;border-radius:10px;width:52px;height:52px;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;box-shadow:0 2px 20px #000000cc;padding:0;-webkit-tap-highlight-color:transparent">
+  <div style="width:22px;height:3px;background:#E8C87A;border-radius:2px"></div>
+  <div style="width:22px;height:3px;background:#E8C87A;border-radius:2px"></div>
+  <div style="width:22px;height:3px;background:#E8C87A;border-radius:2px"></div>
+</button>
+<div id="sidebarOverlay" onclick="closeSidebar()" style="display:none;position:fixed;inset:0;background:#000000bb;z-index:998"></div>
 
 <div class="layout">
 
@@ -211,7 +214,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   </div>
   <div class="nav-section">
     <div class="nav-label" data-en="Main" data-ar="رئيسي">Main</div>
-    <a class="nav-item" href="REMS_Manager_Dashboard.html">
+    <a class="nav-item" href="/white-property/REMS_Manager_Dashboard.html">
       <span class="nav-icon">⬛</span>
       <span data-en="Dashboard" data-ar="لوحة التحكم">Dashboard</span>
     </a>
@@ -219,22 +222,22 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <span class="nav-icon">🏠</span>
       <span data-en="Properties" data-ar="العقارات">Properties</span>
     </div>
-    <a class="nav-item" href="REMS_Clients_Leads.html">
+    <a class="nav-item" href="/white-property/REMS_Clients_Leads.html">
       <span class="nav-icon">👥</span>
       <span data-en="Clients & Leads" data-ar="العملاء والعملاء المحتملون">Clients & Leads</span>
       <span class="nav-badge">7</span>
     </a>
-    <a class="nav-item" href="REMS_Contracts.html"><span class="nav-icon">📄</span><span data-en="Contracts" data-ar="العقود">Contracts</span></a>
+    <a class="nav-item" href="/white-property/REMS_Contracts.html"><span class="nav-icon">📄</span><span data-en="Contracts" data-ar="العقود">Contracts</span></a>
   </div>
   <div class="nav-section">
     <div class="nav-label" data-en="Team" data-ar="الفريق">Team</div>
-    <a class="nav-item" href="REMS_Agents.html"><span class="nav-icon">🧑‍💼</span><span data-en="Agents" data-ar="الوكلاء">Agents</span></a>
-    <a class="nav-item" href="REMS_Payments.html"><span class="nav-icon">💰</span><span data-en="Commissions" data-ar="العمولات">Commissions</span></a>
-    <a class="nav-item" href="REMS_Reports.html"><span class="nav-icon">📊</span><span data-en="Reports" data-ar="التقارير">Reports</span></a>
+    <a class="nav-item" href="/white-property/REMS_Agents.html"><span class="nav-icon">🧑‍💼</span><span data-en="Agents" data-ar="الوكلاء">Agents</span></a>
+    <a class="nav-item" href="/white-property/REMS_Payments.html"><span class="nav-icon">💰</span><span data-en="Commissions" data-ar="العمولات">Commissions</span></a>
+    <a class="nav-item" href="/white-property/REMS_Reports.html"><span class="nav-icon">📊</span><span data-en="Reports" data-ar="التقارير">Reports</span></a>
   </div>
   <div class="nav-section">
     <div class="nav-label" data-en="Finance" data-ar="المالية">Finance</div>
-    <a class="nav-item" href="REMS_Payments.html"><span class="nav-icon">💳</span><span data-en="Payments" data-ar="المدفوعات">Payments</span><span class="nav-badge">3</span></a>
+    <a class="nav-item" href="/white-property/REMS_Payments.html"><span class="nav-icon">💳</span><span data-en="Payments" data-ar="المدفوعات">Payments</span><span class="nav-badge">3</span></a>
     <a class="nav-item" href="#"><span class="nav-icon">📁</span><span data-en="Documents" data-ar="المستندات">Documents</span></a>
   </div>
   <div class="sidebar-footer">
@@ -687,17 +690,31 @@ applyFilters();
 
 
 // ── MOBILE SIDEBAR ────────────────────────────────────────────────────────
-function toggleSidebar(){
-  document.querySelector('.sidebar').classList.toggle('mobile-open');
-  document.getElementById('sidebarOverlay').classList.toggle('open');
-}
-function closeSidebar(){
-  document.querySelector('.sidebar').classList.remove('mobile-open');
-  document.getElementById('sidebarOverlay').classList.remove('open');
-}
-document.querySelectorAll('.nav-item').forEach(item=>{
-  item.addEventListener('click',()=>{ if(window.innerWidth<=768) closeSidebar(); });
-});
+(function(){
+  var btn = document.getElementById('hamburger');
+  var overlay = document.getElementById('sidebarOverlay');
+  var sidebar = document.querySelector('.sidebar');
+  // Show hamburger on mobile
+  if(window.innerWidth <= 768){
+    btn.style.display = 'flex';
+  }
+  window.addEventListener('resize', function(){
+    btn.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+  });
+  window.toggleSidebar = function(){
+    var isOpen = sidebar.classList.toggle('mobile-open');
+    overlay.style.display = isOpen ? 'block' : 'none';
+  };
+  window.closeSidebar = function(){
+    sidebar.classList.remove('mobile-open');
+    overlay.style.display = 'none';
+  };
+  document.querySelectorAll('.nav-item').forEach(function(item){
+    item.addEventListener('click', function(){
+      if(window.innerWidth <= 768) window.closeSidebar();
+    });
+  });
+})();
 
 </script>
 </body>
