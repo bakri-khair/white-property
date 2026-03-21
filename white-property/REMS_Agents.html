@@ -129,9 +129,32 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
 @media(max-width:1100px){.agents-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:768px){.sidebar{display:none}.main{padding:16px}.agents-grid{grid-template-columns:1fr}.stats-row{grid-template-columns:repeat(2,1fr)}}
+
+/* ── MOBILE NAV ── */
+.hamburger{display:none;position:fixed;top:16px;left:16px;z-index:200;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);width:40px;height:40px;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;gap:5px;padding:10px}
+.hamburger span{display:block;width:18px;height:2px;background:var(--gold2);border-radius:2px;transition:all .25s}
+[dir="rtl"] .hamburger{left:auto;right:16px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:#00000080;z-index:150;backdrop-filter:blur(2px)}
+.sidebar-overlay.open{display:block}
+@media(max-width:768px){
+  .hamburger{display:flex}
+  .sidebar{position:fixed;left:-220px;top:0;height:100vh;z-index:160;transition:left .28s cubic-bezier(.4,0,.2,1)}
+  [dir="rtl"] .sidebar{left:auto;right:-220px;transition:right .28s cubic-bezier(.4,0,.2,1)}
+  .sidebar.mobile-open{left:0}
+  [dir="rtl"] .sidebar.mobile-open{right:0;left:auto}
+  .main{padding:16px;padding-top:64px}
+}
+
 </style>
 </head>
 <body>
+
+<!-- MOBILE HAMBURGER -->
+<div class="hamburger" id="hamburger" onclick="toggleSidebar()">
+  <span></span><span></span><span></span>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
 <div class="layout">
 <aside class="sidebar">
   <div class="logo">
@@ -346,6 +369,25 @@ function setLang(lang){
   if(openAgent) openDetail(openAgent.id);
 }
 currentLang=getLang(); applyLangToDOM(currentLang); renderAgents(); renderCommissions();
+
+// ── MOBILE SIDEBAR ────────────────────────────────────────────────────────
+function toggleSidebar(){
+  const sb=document.querySelector('.sidebar');
+  const ov=document.getElementById('sidebarOverlay');
+  sb.classList.toggle('mobile-open');
+  ov.classList.toggle('open');
+}
+function closeSidebar(){
+  document.querySelector('.sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+// Close sidebar when a nav link is clicked on mobile
+document.querySelectorAll('.nav-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+    if(window.innerWidth<=768) closeSidebar();
+  });
+});
+
 </script>
 </body>
 </html>
