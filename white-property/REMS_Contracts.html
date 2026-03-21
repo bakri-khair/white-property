@@ -124,8 +124,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 /* ── DETAIL PANEL ── */
 .dp-overlay{position:fixed;inset:0;background:#00000070;z-index:100;display:flex;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
 .dp-overlay.open{opacity:1;pointer-events:all}
-.dp-panel{width:480px;height:100%;background:var(--surface);border-left:1px solid var(--border2);overflow-y:auto;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
-.dp-overlay.open .dp-panel{transform:translateX(0)}
+.dp-panel{width:480px;height:100%;background:var(--surface);border-left:1px solid var(--border2);overflow-y:auto;display:flex;flex-direction:column}
+.dp-overlay.open .dp-panel{}
 .dp-head{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0}
 .dp-close{background:var(--surface2);border:1px solid var(--border2);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:16px;transition:all .15s;flex-shrink:0}
 .dp-close:hover{background:var(--surface3);color:var(--text)}
@@ -180,10 +180,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 /* ── NEW CONTRACT PANEL ── */
 .nc-overlay{position:fixed;inset:0;background:#00000070;z-index:100;display:flex;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
 .nc-overlay.open{opacity:1;pointer-events:all}
-.nc-panel{width:500px;height:100%;background:var(--surface);border-left:1px solid var(--border2);overflow-y:auto;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
-.nc-overlay.open .nc-panel{transform:translateX(0)}
-.form-group{margin-bottom:14px}
-.form-label{font-size:11px;color:var(--text3);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.6px}
+.nc-panel{width:500px;height:100%;background:var(--surface);border-left:1px solid var(--border2);overflow-y:auto;color:var(--text3);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.6px}
 .form-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s}
 .form-input:focus{border-color:var(--gold)66}
 .form-input::placeholder{color:var(--text3)}
@@ -204,27 +201,29 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
 
-[dir="rtl"] .sidebar{right:0;left:auto}
+
 [dir="rtl"] .nav-badge{margin-left:0;margin-right:auto}
 [dir="rtl"] .search-icon{left:auto;right:12px}
 [dir="rtl"] .search-input{padding:9px 36px 9px 14px}
-[dir="rtl"] .dp-panel,[dir="rtl"] .nc-panel{border-left:none;border-right:1px solid var(--border2);transform:translateX(-100%)}
-[dir="rtl"] .dp-overlay.open .dp-panel,[dir="rtl"] .nc-overlay.open .nc-panel{transform:translateX(0)}
+[dir="rtl"] .dp-panel,[dir="rtl"] .nc-panel{border-left:none;border-right:1px solid var(--border2);}
+[dir="rtl"] .dp-overlay.open .dp-panel,[dir="rtl"] .nc-overlay.open .nc-panel{}
 
-@media(max-width:768px){.sidebar{display:none}.main{padding:16px}.stats-row{grid-template-columns:repeat(3,1fr)}}
+.stats-row{grid-template-columns:repeat(3,1fr)}}
+
+
 
 /* ── MOBILE NAV ── */
-.hamburger{display:none;position:fixed;top:14px;right:14px;z-index:200;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);width:42px;height:42px;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;gap:5px;padding:10px;box-shadow:0 2px 12px #00000060}
-.hamburger span{display:block;width:18px;height:2px;background:var(--gold2);border-radius:2px;transition:all .25s}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:#00000080;z-index:150;backdrop-filter:blur(2px)}
+.hamburger{display:none;position:fixed;top:14px;right:14px;z-index:9999;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);width:44px;height:44px;align-items:center;justify-content:center;flex-direction:column;gap:5px;cursor:pointer;box-shadow:0 2px 16px #000000aa}
+.hamburger span{display:block;width:20px;height:2px;background:var(--gold2);border-radius:2px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:#000000bb;z-index:999}
 .sidebar-overlay.open{display:block}
 @media(max-width:768px){
-  .hamburger{display:flex}
-  .sidebar{position:fixed;top:0;height:100vh;z-index:160;transition:transform .28s cubic-bezier(.4,0,.2,1);transform:translateX(100%)}
-  .sidebar.mobile-open{transform:translateX(0)}
-  .main{padding:16px;padding-top:68px}
+  .hamburger{display:flex !important}
+  .sidebar{position:fixed !important;top:0 !important;right:-240px !important;left:auto !important;width:220px !important;min-width:220px !important;height:100vh !important;z-index:1000 !important;transition:right .3s ease !important;overflow-y:auto !important;border-left:1px solid var(--border2) !important}
+  .sidebar.mobile-open{right:0 !important}
+  .main{padding-top:70px !important}
 }
-
+}
 </style>
 </head>
 <body>
@@ -830,21 +829,19 @@ currentLang = getLang();
 applyLangToDOM(currentLang);
 renderTable();
 
+
+
 // ── MOBILE SIDEBAR ────────────────────────────────────────────────────────
 function toggleSidebar(){
-  const sb=document.querySelector('.sidebar');
-  const ov=document.getElementById('sidebarOverlay');
-  sb.classList.toggle('mobile-open');
-  ov.classList.toggle('open');
+  document.querySelector('.sidebar').classList.toggle('mobile-open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
 }
 function closeSidebar(){
   document.querySelector('.sidebar').classList.remove('mobile-open');
   document.getElementById('sidebarOverlay').classList.remove('open');
 }
 document.querySelectorAll('.nav-item').forEach(item=>{
-  item.addEventListener('click',()=>{
-    if(window.innerWidth<=768) closeSidebar();
-  });
+  item.addEventListener('click',()=>{ if(window.innerWidth<=768) closeSidebar(); });
 });
 
 </script>
