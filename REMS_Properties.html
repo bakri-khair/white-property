@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>REMS — Properties</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0D0F14;--surface:#13161E;--surface2:#1A1E29;--surface3:#21263A;
+  --border:#ffffff0f;--border2:#ffffff18;
+  --gold:#C9A84C;--gold2:#E8C87A;--gold-dim:#C9A84C22;
+  --teal:#2DD4BF;--teal-dim:#2DD4BF18;
+  --coral:#F87171;--coral-dim:#F8717118;
+  --blue:#60A5FA;--blue-dim:#60A5FA18;
+  --green:#4ADE80;--green-dim:#4ADE8018;
+  --amber:#FBBF24;--purple:#A78BFA;--purple-dim:#A78BFA18;
+  --text:#F1F0EC;--text2:#9B9A94;--text3:#5C5B57;
+  --radius:14px;--radius-sm:8px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+.layout{display:flex;min-height:100vh;position:relative;z-index:1}
+
+/* ── SIDEBAR ── */
+.sidebar{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 0;position:sticky;top:0;height:100vh}
+.logo{padding:0 20px 28px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.logo-mark{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.5px;color:var(--gold2)}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+.nav-section{padding:0 12px;margin-bottom:6px}
+.nav-label{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);font-size:13.5px;font-weight:400;color:var(--text2);cursor:pointer;transition:all .15s;border:1px solid transparent;margin-bottom:2px;text-decoration:none}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--gold-dim);border-color:var(--gold)33;color:var(--gold2);font-weight:500}
+.nav-icon{font-size:15px;width:18px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--coral);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px}
+.sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
+.user-pill{display:flex;align-items:center;gap:10px}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--teal));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0}
+.user-name{font-size:13px;font-weight:500;color:var(--text)}
+.user-role{font-size:11px;color:var(--text3)}
+
+/* ── MAIN ── */
+.main{flex:1;padding:28px 32px;overflow-y:auto}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;letter-spacing:-0.5px}
+.page-title span{color:var(--gold)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.lang-toggle{display:flex;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden}
+.lang-btn{padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;color:var(--text2);border:none;background:none;font-family:'DM Sans',sans-serif}
+.lang-btn.active{background:var(--gold);color:#000}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .15s}
+.btn-primary{background:var(--gold);color:#000}
+.btn-primary:hover{background:var(--gold2)}
+.btn-ghost{background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border2)}
+
+/* ── STATS ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.stat-chip{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.stat-chip:hover{border-color:var(--border2);transform:translateY(-1px)}
+.stat-chip.active-filter{border-color:var(--gold)66}
+.stat-chip.active-filter::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--gold)}
+.stat-chip-label{font-size:10px;letter-spacing:.7px;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.stat-chip-value{font-family:'Syne',sans-serif;font-size:22px;font-weight:700}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.search-wrap{flex:1;min-width:200px;position:relative}
+.search-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 14px 9px 36px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s}
+.search-input:focus{border-color:var(--gold)66}
+.search-input::placeholder{color:var(--text3)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none}
+.filter-select{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text2);font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;transition:border-color .15s}
+.filter-select:focus{border-color:var(--gold)66}
+.filter-select option{background:var(--surface2)}
+.view-toggle{display:flex;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden}
+.view-btn{padding:8px 12px;cursor:pointer;color:var(--text3);transition:all .15s;border:none;background:none;font-size:14px}
+.view-btn.active{background:var(--surface3);color:var(--text)}
+
+/* ── ACTIVE FILTERS ── */
+.active-filters{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.filter-tag{display:flex;align-items:center;gap:6px;background:var(--gold-dim);border:1px solid var(--gold)33;border-radius:20px;padding:4px 10px;font-size:11px;color:var(--gold2);cursor:pointer}
+.filter-tag:hover{background:var(--gold)33}
+
+/* ── GRID VIEW ── */
+.prop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.prop-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all .2s;cursor:pointer;position:relative}
+.prop-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 8px 32px #00000040}
+.prop-card-img{height:140px;display:flex;align-items:center;justify-content:center;font-size:48px;position:relative}
+.prop-card-badges{position:absolute;top:10px;left:10px;display:flex;gap:5px;flex-wrap:wrap}
+.badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;border:1px solid transparent}
+.badge-available{background:var(--teal-dim);color:var(--teal);border-color:var(--teal)33}
+.badge-reserved{background:var(--amber)18;color:var(--amber);border-color:var(--amber)33}
+.badge-contracted{background:var(--purple-dim);color:var(--purple);border-color:var(--purple)33}
+.badge-completed{background:var(--green-dim);color:var(--green);border-color:var(--green)33}
+.badge-type{background:var(--surface3);color:var(--text2);border-color:var(--border2)}
+.prop-card-fav{position:absolute;top:10px;right:10px;background:var(--surface)cc;border:1px solid var(--border2);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;transition:all .15s;backdrop-filter:blur(4px)}
+.prop-card-fav:hover{background:var(--coral-dim);border-color:var(--coral)33}
+.prop-card-body{padding:14px}
+.prop-card-title{font-size:13.5px;font-weight:500;color:var(--text);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prop-card-meta{font-size:11px;color:var(--text3);margin-bottom:10px}
+.prop-card-attrs{display:flex;gap:10px;margin-bottom:12px}
+.attr{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)}
+.prop-card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border)}
+.prop-price{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--gold2)}
+.prop-agent{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)}
+.agent-dot{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700}
+
+/* ── LIST VIEW ── */
+.prop-list-view{display:flex;flex-direction:column;gap:8px}
+.prop-list-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .15s}
+.prop-list-item:hover{border-color:var(--border2);background:var(--surface2)}
+.list-thumb{width:48px;height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.list-main{flex:1;min-width:0}
+.list-title{font-size:13.5px;font-weight:500;color:var(--text);margin-bottom:3px}
+.list-meta{font-size:11px;color:var(--text3)}
+.list-attrs{display:flex;gap:12px;margin-top:4px}
+.list-price{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--gold2);white-space:nowrap;text-align:right}
+.list-agent-col{text-align:right;font-size:11px;color:var(--text3);white-space:nowrap}
+.list-status-col{white-space:nowrap}
+
+/* ── DETAIL PANEL ── */
+.detail-overlay{position:fixed;inset:0;background:#00000070;z-index:100;display:flex;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
+.detail-overlay.open{opacity:1;pointer-events:all}
+.detail-panel{width:420px;height:100%;background:var(--surface);border-left:1px solid var(--border2);overflow-y:auto;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.detail-close{background:var(--surface2);border:1px solid var(--border2);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:16px;transition:all .15s}
+.detail-close:hover{background:var(--surface3);color:var(--text)}
+.detail-hero{height:180px;display:flex;align-items:center;justify-content:center;font-size:64px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.detail-body{padding:20px}
+.detail-price{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:var(--gold2);margin-bottom:4px}
+.detail-address{font-size:13px;color:var(--text2);margin-bottom:16px}
+.detail-badges{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.detail-section{margin-bottom:20px}
+.detail-section-title{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.detail-attrs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.detail-attr{background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px}
+.detail-attr-label{font-size:10px;color:var(--text3);margin-bottom:3px}
+.detail-attr-value{font-size:13px;font-weight:500;color:var(--text)}
+.detail-docs{display:flex;flex-direction:column;gap:6px}
+.doc-item{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:12px;color:var(--text2);cursor:pointer;transition:border-color .15s}
+.doc-item:hover{border-color:var(--border2);color:var(--text)}
+.detail-actions{display:flex;gap:8px;padding:16px 20px;border-top:1px solid var(--border);position:sticky;bottom:0;background:var(--surface)}
+
+/* ── EMPTY / PAGINATION ── */
+.pagination{display:flex;align-items:center;justify-content:space-between;margin-top:24px;padding-top:16px;border-top:1px solid var(--border)}
+.page-info{font-size:12px;color:var(--text3)}
+.page-btns{display:flex;gap:4px}
+.page-btn{width:30px;height:30px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text2);transition:all .15s}
+.page-btn:hover{border-color:var(--border2);color:var(--text)}
+.page-btn.active{background:var(--gold);color:#000;border-color:var(--gold)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.prop-card,.prop-list-item{animation:fadeUp .3s ease both}
+.prop-card:nth-child(1),.prop-list-item:nth-child(1){animation-delay:.04s}
+.prop-card:nth-child(2),.prop-list-item:nth-child(2){animation-delay:.08s}
+.prop-card:nth-child(3),.prop-list-item:nth-child(3){animation-delay:.12s}
+.prop-card:nth-child(4),.prop-list-item:nth-child(4){animation-delay:.16s}
+.prop-card:nth-child(5),.prop-list-item:nth-child(5){animation-delay:.20s}
+.prop-card:nth-child(6),.prop-list-item:nth-child(6){animation-delay:.24s}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
+
+
+[dir="rtl"] .nav-badge{margin-left:0;margin-right:auto}
+[dir="rtl"] .search-icon{left:auto;right:12px}
+[dir="rtl"] .search-input{padding:9px 36px 9px 14px}
+[dir="rtl"] .detail-panel{border-left:none;border-right:1px solid var(--border2);}
+[dir="rtl"] .detail-overlay.open .detail-panel{}
+[dir="rtl"] .prop-card-badges{left:auto;right:10px}
+[dir="rtl"] .prop-card-fav{right:auto;left:10px}
+
+@media(max-width:1100px){.prop-grid{grid-template-columns:repeat(2,1fr)}}
+.prop-grid{grid-template-columns:1fr}.stats-row{grid-template-columns:repeat(3,1fr)}}
+
+
+
+/* ── MOBILE NAV ── */
+.hamburger{display:none;position:fixed;top:14px;right:14px;z-index:9999;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);width:44px;height:44px;align-items:center;justify-content:center;flex-direction:column;gap:5px;cursor:pointer;box-shadow:0 2px 16px #000000aa}
+.hamburger span{display:block;width:20px;height:2px;background:var(--gold2);border-radius:2px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:#000000bb;z-index:999}
+.sidebar-overlay.open{display:block}
+@media(max-width:768px){
+  .hamburger{display:flex}
+  .sidebar{position:fixed;top:0;right:-240px;width:220px;height:100vh;z-index:1000;transition:right .3s ease;overflow-y:auto;border-left:1px solid var(--border2)}
+  .sidebar.mobile-open{right:0}
+  .main{padding-top:70px}
+}
+</style>
+</head>
+<body>
+
+<!-- MOBILE HAMBURGER -->
+<div class="hamburger" id="hamburger" onclick="toggleSidebar()">
+  <span></span><span></span><span></span>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<div class="layout">
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">White Property</div>
+    <div class="logo-sub" data-en="Real Estate System" data-ar="نظام العقارات">Real Estate System</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label" data-en="Main" data-ar="رئيسي">Main</div>
+    <a class="nav-item" href="REMS_Manager_Dashboard.html">
+      <span class="nav-icon">⬛</span>
+      <span data-en="Dashboard" data-ar="لوحة التحكم">Dashboard</span>
+    </a>
+    <div class="nav-item active">
+      <span class="nav-icon">🏠</span>
+      <span data-en="Properties" data-ar="العقارات">Properties</span>
+    </div>
+    <a class="nav-item" href="REMS_Clients_Leads.html">
+      <span class="nav-icon">👥</span>
+      <span data-en="Clients & Leads" data-ar="العملاء والعملاء المحتملون">Clients & Leads</span>
+      <span class="nav-badge">7</span>
+    </a>
+    <a class="nav-item" href="REMS_Contracts.html"><span class="nav-icon">📄</span><span data-en="Contracts" data-ar="العقود">Contracts</span></a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label" data-en="Team" data-ar="الفريق">Team</div>
+    <a class="nav-item" href="REMS_Agents.html"><span class="nav-icon">🧑‍💼</span><span data-en="Agents" data-ar="الوكلاء">Agents</span></a>
+    <a class="nav-item" href="REMS_Payments.html"><span class="nav-icon">💰</span><span data-en="Commissions" data-ar="العمولات">Commissions</span></a>
+    <a class="nav-item" href="REMS_Reports.html"><span class="nav-icon">📊</span><span data-en="Reports" data-ar="التقارير">Reports</span></a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label" data-en="Finance" data-ar="المالية">Finance</div>
+    <a class="nav-item" href="REMS_Payments.html"><span class="nav-icon">💳</span><span data-en="Payments" data-ar="المدفوعات">Payments</span><span class="nav-badge">3</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">📁</span><span data-en="Documents" data-ar="المستندات">Documents</span></a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="avatar">RA</div>
+      <div>
+        <div class="user-name" data-en="Reem Ashraf" data-ar="ريم أشرف">Reem Ashraf</div>
+        <div class="user-role" data-en="Manager" data-ar="مديرة">Manager</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="page-title" data-en="Properties" data-ar="العقارات">Properties</div>
+    <div class="topbar-right">
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="btnAR" onclick="setLang('ar')">AR</button>
+      </div>
+      <button class="btn btn-ghost" onclick="alert('Export feature coming soon')">
+        ↓ <span data-en="Export" data-ar="تصدير">Export</span>
+      </button>
+      <button class="btn btn-primary" onclick="openAddProperty()">
+        + <span data-en="Add Property" data-ar="إضافة عقار">Add Property</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- STATS CHIPS -->
+  <div class="stats-row">
+    <div class="stat-chip active-filter" onclick="filterByStatus('all')">
+      <div class="stat-chip-label" data-en="All Properties" data-ar="جميع العقارات">All Properties</div>
+      <div class="stat-chip-value" style="color:var(--text)">47</div>
+    </div>
+    <div class="stat-chip" onclick="filterByStatus('available')">
+      <div class="stat-chip-label" data-en="Available" data-ar="متاحة">Available</div>
+      <div class="stat-chip-value" style="color:var(--teal)">28</div>
+    </div>
+    <div class="stat-chip" onclick="filterByStatus('reserved')">
+      <div class="stat-chip-label" data-en="Reserved" data-ar="محجوزة">Reserved</div>
+      <div class="stat-chip-value" style="color:var(--amber)">9</div>
+    </div>
+    <div class="stat-chip" onclick="filterByStatus('contracted')">
+      <div class="stat-chip-label" data-en="Contracted" data-ar="تحت العقد">Contracted</div>
+      <div class="stat-chip-value" style="color:var(--purple)">7</div>
+    </div>
+    <div class="stat-chip" onclick="filterByStatus('completed')">
+      <div class="stat-chip-label" data-en="Completed" data-ar="مكتملة">Completed</div>
+      <div class="stat-chip-value" style="color:var(--green)">3</div>
+    </div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="searchInput" type="text" placeholder="Search by title, area, or reference..." oninput="applyFilters()" data-placeholder-en="Search by title, area, or reference..." data-placeholder-ar="ابحث بالعنوان أو المنطقة أو الرقم المرجعي..."/>
+    </div>
+    <select class="filter-select" id="typeFilter" onchange="applyFilters()">
+      <option value="all" data-en="All Types" data-ar="كل الأنواع">All Types</option>
+      <option value="residential" data-en="Residential" data-ar="سكني">Residential</option>
+      <option value="commercial" data-en="Commercial" data-ar="تجاري">Commercial</option>
+      <option value="shortrental" data-en="Short-term Rental" data-ar="إيجار قصير">Short-term Rental</option>
+    </select>
+    <select class="filter-select" id="areaFilter" onchange="applyFilters()">
+      <option value="all" data-en="All Areas" data-ar="كل المناطق">All Areas</option>
+      <option value="maadi">Maadi / المعادي</option>
+      <option value="zamalek">Zamalek / الزمالك</option>
+      <option value="newcairo">New Cairo / القاهرة الجديدة</option>
+      <option value="downtown">Downtown / وسط البلد</option>
+      <option value="sheikh">Sheikh Zayed / الشيخ زايد</option>
+    </select>
+    <select class="filter-select" id="priceFilter" onchange="applyFilters()">
+      <option value="all" data-en="Any Price" data-ar="أي سعر">Any Price</option>
+      <option value="low" data-en="Under 2M EGP" data-ar="أقل من 2 مليون">Under 2M EGP</option>
+      <option value="mid" data-en="2M – 8M EGP" data-ar="2 – 8 مليون">2M – 8M EGP</option>
+      <option value="high" data-en="Above 8M EGP" data-ar="أكثر من 8 مليون">Above 8M EGP</option>
+    </select>
+    <select class="filter-select" id="agentFilter" onchange="applyFilters()">
+      <option value="all" data-en="All Agents" data-ar="كل الوكلاء">All Agents</option>
+      <option value="sara">Sara M.</option>
+      <option value="khaled">Khaled H.</option>
+      <option value="rania">Rania A.</option>
+      <option value="ahmed">Ahmed S.</option>
+      <option value="may">May Y.</option>
+    </select>
+    <div class="view-toggle">
+      <button class="view-btn active" id="gridBtn" onclick="setView('grid')" title="Grid view">▦</button>
+      <button class="view-btn" id="listBtn" onclick="setView('list')" title="List view">☰</button>
+    </div>
+  </div>
+
+  <!-- ACTIVE FILTER TAGS -->
+  <div class="active-filters" id="activeTags"></div>
+
+  <!-- RESULTS COUNT -->
+  <div style="font-size:12px;color:var(--text3);margin-bottom:14px" id="resultsCount">Showing 47 properties</div>
+
+  <!-- PROPERTIES CONTAINER -->
+  <div id="propsContainer"></div>
+
+  <!-- PAGINATION -->
+  <div class="pagination">
+    <div class="page-info" id="pageInfo">Page 1 of 4</div>
+    <div class="page-btns">
+      <div class="page-btn">‹</div>
+      <div class="page-btn active">1</div>
+      <div class="page-btn">2</div>
+      <div class="page-btn">3</div>
+      <div class="page-btn">4</div>
+      <div class="page-btn">›</div>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- ── DETAIL PANEL ── -->
+<div class="detail-overlay" id="detailOverlay" onclick="closeDetail(event)">
+  <div class="detail-panel" id="detailPanel">
+    <div class="detail-header">
+      <div>
+        <div style="font-size:11px;color:var(--text3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px" id="detailRef">REF #P-0012</div>
+        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:600" id="detailTitle">Villa — New Cairo</div>
+      </div>
+      <div class="detail-close" onclick="closeDetailBtn()">✕</div>
+    </div>
+    <div class="detail-hero" id="detailHero">🏠</div>
+    <div class="detail-body">
+      <div class="detail-price" id="detailPrice">EGP 12,500,000</div>
+      <div class="detail-address" id="detailAddress">5th Settlement, New Cairo, Cairo</div>
+      <div class="detail-badges" id="detailBadges"></div>
+
+      <div class="detail-section">
+        <div class="detail-section-title" data-en="Property Details" data-ar="تفاصيل العقار">Property Details</div>
+        <div class="detail-attrs" id="detailAttrs"></div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title" data-en="Description" data-ar="الوصف">Description</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6" id="detailDesc"></div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title" data-en="Assigned Agent" data-ar="الوكيل المعين">Assigned Agent</div>
+        <div style="display:flex;align-items:center;gap:10px" id="detailAgent"></div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-section-title" data-en="Documents" data-ar="المستندات">Documents</div>
+        <div class="detail-docs" id="detailDocs"></div>
+      </div>
+    </div>
+    <div class="detail-actions">
+      <button class="btn btn-primary" style="flex:1" onclick="alert('Edit property coming soon')">
+        ✏️ <span data-en="Edit" data-ar="تعديل">Edit</span>
+      </button>
+      <button class="btn btn-ghost" style="flex:1" onclick="alert('Assign lead coming soon')">
+        👥 <span data-en="Assign Lead" data-ar="تعيين عميل">Assign Lead</span>
+      </button>
+      <button class="btn btn-ghost" onclick="alert('More options coming soon')">⋯</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADD PROPERTY MODAL ── -->
+<div class="detail-overlay" id="addOverlay" onclick="closeAdd(event)">
+  <div class="detail-panel" id="addPanel" style="width:480px">
+    <div class="detail-header">
+      <div>
+        <div style="font-size:11px;color:var(--text3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px" data-en="New Listing" data-ar="إضافة عقار جديد">New Listing</div>
+        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:600" data-en="Add Property" data-ar="إضافة عقار">Add Property</div>
+      </div>
+      <div class="detail-close" onclick="closeAddBtn()">✕</div>
+    </div>
+    <div class="detail-body" style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px" data-en="Property Title" data-ar="عنوان العقار">Property Title</div>
+        <input style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none" placeholder="e.g. Apartment — Maadi, Cairo" data-placeholder-en="e.g. Apartment — Maadi, Cairo" data-placeholder-ar="مثال: شقة — المعادي، القاهرة"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px" data-en="Category" data-ar="الفئة">Category</div>
+          <select style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text2);font-family:'DM Sans',sans-serif;outline:none">
+            <option data-en="Residential" data-ar="سكني">Residential</option>
+            <option data-en="Commercial" data-ar="تجاري">Commercial</option>
+            <option data-en="Short-term Rental" data-ar="إيجار قصير">Short-term Rental</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px" data-en="Type" data-ar="النوع">Type</div>
+          <select style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text2);font-family:'DM Sans',sans-serif;outline:none">
+            <option>Apartment</option>
+            <option>Villa</option>
+            <option>House</option>
+            <option>Office</option>
+            <option>Shop</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px" data-en="Price (EGP)" data-ar="السعر (ج.م)">Price (EGP)</div>
+          <input style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none" type="number" placeholder="0"/>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px" data-en="Size (m²)" data-ar="المساحة (م²)">Size (m²)</div>
+          <input style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none" type="number" placeholder="0"/>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px" data-en="Bedrooms" data-ar="غرف النوم">Bedrooms</div>
+          <input style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none" type="number" placeholder="0"/>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px" data-en="Assign Agent" data-ar="تعيين وكيل">Assign Agent</div>
+          <select style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text2);font-family:'DM Sans',sans-serif;outline:none">
+            <option>Sara M.</option>
+            <option>Khaled H.</option>
+            <option>Rania A.</option>
+            <option>Ahmed S.</option>
+            <option>May Y.</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px" data-en="Area / District" data-ar="المنطقة">Area / District</div>
+        <input style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none" placeholder="e.g. Maadi, Cairo" data-placeholder-en="e.g. Maadi, Cairo" data-placeholder-ar="مثال: المعادي، القاهرة"/>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px" data-en="Description" data-ar="الوصف">Description</div>
+        <textarea style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;resize:vertical;min-height:80px" placeholder="Brief property description..." data-placeholder-en="Brief property description..." data-placeholder-ar="وصف مختصر للعقار..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;padding-top:8px">
+        <button class="btn btn-primary" style="flex:1" onclick="alert('Property saved! (Backend coming soon)')">
+          ✓ <span data-en="Save Property" data-ar="حفظ العقار">Save Property</span>
+        </button>
+        <button class="btn btn-ghost" onclick="closeAddBtn()" data-en="Cancel" data-ar="إلغاء">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const PROPERTIES = [
+  {id:'P-0001',emoji:'🏢',title:'Office Space — Downtown Cairo',titleAr:'مكتب — وسط القاهرة',area:'Downtown',areaAr:'وسط البلد',areaKey:'downtown',type:'Commercial',typeAr:'تجاري',typeKey:'commercial',status:'available',size:120,beds:null,price:4800000,priceDisplay:'4.8M EGP',agent:'Sara M.',agentInitials:'SM',agentColor:'var(--teal)',desc:'Premium office space on the 7th floor with Nile views. Fitted with central AC, fibre internet, and open-plan layout. Ideal for corporate headquarters.',descAr:'مكتب فاخر في الدور السابع بإطلالة على النيل. مجهز بتكييف مركزي وإنترنت فائق السرعة.',docs:['Floor Plan.pdf','NOC Certificate.pdf']},
+  {id:'P-0002',emoji:'🏠',title:'Villa — 5th Settlement, New Cairo',titleAr:'فيلا — القاهرة الجديدة',area:'New Cairo',areaAr:'القاهرة الجديدة',areaKey:'newcairo',type:'Residential',typeAr:'سكني',typeKey:'residential',status:'reserved',size:380,beds:5,price:12500000,priceDisplay:'12.5M EGP',agent:'Khaled H.',agentInitials:'KH',agentColor:'var(--gold)',desc:'Stunning standalone villa in a gated compound. Private pool, landscaped garden, 5 en-suite bedrooms, and a dedicated driver room. Ready to move in.',descAr:'فيلا مستقلة رائعة في كمبوند مسور. حمام سباحة خاص وحديقة وخمس غرف نوم.',docs:['Title Deed.pdf','Floor Plan.pdf','Inspection Report.pdf']},
+  {id:'P-0003',emoji:'🛋️',title:'Furnished Apartment — Zamalek',titleAr:'شقة مفروشة — الزمالك',area:'Zamalek',areaAr:'الزمالك',areaKey:'zamalek',type:'Short-term Rental',typeAr:'إيجار قصير',typeKey:'shortrental',status:'available',size:90,beds:2,price:25000,priceDisplay:'25K EGP/mo',agent:'Rania A.',agentInitials:'RA',agentColor:'var(--blue)',desc:'Elegantly furnished 2-bedroom apartment on Gezira island. Walking distance to the Opera House. Available for monthly or quarterly rental.',descAr:'شقة مفروشة بأناقة في جزيرة الجيزة. على مسافة قصيرة من دار الأوبرا.',docs:['Rental Agreement Template.pdf','Inventory List.pdf']},
+  {id:'P-0004',emoji:'🏪',title:'Retail Shop — Maadi Grand Mall',titleAr:'محل تجاري — مول المعادي',area:'Maadi',areaAr:'المعادي',areaKey:'maadi',type:'Commercial',typeAr:'تجاري',typeKey:'commercial',status:'available',size:65,beds:null,price:3200000,priceDisplay:'3.2M EGP',agent:'Ahmed S.',agentInitials:'AS',agentColor:'var(--coral)',desc:'Ground floor retail unit with high foot traffic. Direct street access plus internal mall entrance. Suitable for F&B, retail, or services.',descAr:'وحدة تجارية في الدور الأرضي بحركة مرور عالية. وصول مباشر من الشارع والمول.',docs:['Floor Plan.pdf','NOC Certificate.pdf']},
+  {id:'P-0005',emoji:'🏘️',title:'Twin House — Sheikh Zayed',titleAr:'توين هاوس — الشيخ زايد',area:'Sheikh Zayed',areaAr:'الشيخ زايد',areaKey:'sheikh',type:'Residential',typeAr:'سكني',typeKey:'residential',status:'contracted',size:260,beds:4,price:8900000,priceDisplay:'8.9M EGP',agent:'May Y.',agentInitials:'MY',agentColor:'var(--green)',desc:'4-bedroom twin house in Beverly Hills compound. Private garden, rooftop terrace, double garage. Contract signed — handover Q2 2025.',descAr:'توين هاوس 4 غرف في كمبوند بيفرلي هيلز. حديقة خاصة وتراس وكراج مزدوج.',docs:['Contract C-0038.pdf','Title Deed.pdf','Payment Schedule.pdf']},
+  {id:'P-0006',emoji:'🏙️',title:'Penthouse — Maadi Corniche',titleAr:'بنتهاوس — كورنيش المعادي',area:'Maadi',areaAr:'المعادي',areaKey:'maadi',type:'Residential',typeAr:'سكني',typeKey:'residential',status:'available',size:220,beds:3,price:9800000,priceDisplay:'9.8M EGP',agent:'Sara M.',agentInitials:'SM',agentColor:'var(--teal)',desc:'Spectacular Nile-view penthouse with private rooftop pool. 3 master bedrooms, smart home system, and covered private parking for 2 cars.',descAr:'بنتهاوس استثنائي بإطلالة على النيل وحمام سباحة خاص على السطح.',docs:['Floor Plan.pdf','Title Deed.pdf']},
+];
+
+let currentView = 'grid';
+let currentStatus = 'all';
+let currentLang = getLang();
+let openProp = null;
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function statusBadge(s) {
+  const map = {
+    available:{cls:'badge-available',en:'Available',ar:'متاح'},
+    reserved:{cls:'badge-reserved',en:'Reserved',ar:'محجوز'},
+    contracted:{cls:'badge-contracted',en:'Contracted',ar:'تحت العقد'},
+    completed:{cls:'badge-completed',en:'Completed',ar:'مكتمل'},
+  };
+  const m = map[s]||{cls:'badge-type',en:s,ar:s};
+  return `<span class="badge ${m.cls}">${currentLang==='ar'?m.ar:m.en}</span>`;
+}
+
+function bgForType(t){
+  if(t==='Commercial') return '#C9A84C18';
+  if(t==='Short-term Rental') return '#4ADE8018';
+  return '#60A5FA18';
+}
+
+function renderGrid(list){
+  return `<div class="prop-grid">${list.map(p=>`
+    <div class="prop-card" onclick="openDetail('${p.id}')">
+      <div class="prop-card-img" style="background:${bgForType(p.type)}">
+        ${p.emoji}
+        <div class="prop-card-badges">
+          ${statusBadge(p.status)}
+          <span class="badge badge-type">${currentLang==='ar'?p.typeAr:p.type}</span>
+        </div>
+        <div class="prop-card-fav" onclick="event.stopPropagation();this.textContent=this.textContent==='🤍'?'❤️':'🤍'">🤍</div>
+      </div>
+      <div class="prop-card-body">
+        <div class="prop-card-title">${currentLang==='ar'?p.titleAr:p.title}</div>
+        <div class="prop-card-meta">${currentLang==='ar'?p.areaAr:p.area} · ${p.size} m²</div>
+        <div class="prop-card-attrs">
+          ${p.beds?`<span class="attr">🛏 ${p.beds} <span data-en="beds" data-ar="غرف">${currentLang==='ar'?'غرف':'beds'}</span></span>`:''}
+          <span class="attr">📐 ${p.size} m²</span>
+          <span class="attr">📄 ${p.docs.length} docs</span>
+        </div>
+        <div class="prop-card-footer">
+          <div class="prop-price">${p.priceDisplay}</div>
+          <div class="prop-agent">
+            <div class="agent-dot" style="background:${p.agentColor}22;color:${p.agentColor}">${p.agentInitials}</div>
+            ${p.agent}
+          </div>
+        </div>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function renderList(list){
+  return `<div class="prop-list-view">${list.map(p=>`
+    <div class="prop-list-item" onclick="openDetail('${p.id}')">
+      <div class="list-thumb" style="background:${bgForType(p.type)}">${p.emoji}</div>
+      <div class="list-main">
+        <div class="list-title">${currentLang==='ar'?p.titleAr:p.title}</div>
+        <div class="list-meta">${currentLang==='ar'?p.areaAr:p.area} · ${currentLang==='ar'?p.typeAr:p.type}</div>
+        <div class="list-attrs">
+          ${p.beds?`<span class="attr" style="font-size:12px">🛏 ${p.beds}</span>`:''}
+          <span class="attr" style="font-size:12px">📐 ${p.size} m²</span>
+          <span class="attr" style="font-size:12px">📄 ${p.docs.length}</span>
+        </div>
+      </div>
+      <div class="list-status-col">${statusBadge(p.status)}</div>
+      <div>
+        <div class="list-price">${p.priceDisplay}</div>
+        <div class="list-agent-col">${p.agent}</div>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function applyFilters(){
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const type = document.getElementById('typeFilter').value;
+  const area = document.getElementById('areaFilter').value;
+  const price = document.getElementById('priceFilter').value;
+  const agent = document.getElementById('agentFilter').value;
+
+  let list = PROPERTIES.filter(p=>{
+    if(currentStatus!=='all' && p.status!==currentStatus) return false;
+    if(q && !p.title.toLowerCase().includes(q) && !p.area.toLowerCase().includes(q) && !p.id.toLowerCase().includes(q)) return false;
+    if(type!=='all' && p.typeKey!==type) return false;
+    if(area!=='all' && p.areaKey!==area) return false;
+    if(price==='low' && p.price>=2000000) return false;
+    if(price==='mid' && (p.price<2000000||p.price>8000000)) return false;
+    if(price==='high' && p.price<=8000000) return false;
+    if(agent!=='all' && !p.agent.toLowerCase().includes(agent)) return false;
+    return true;
+  });
+
+  document.getElementById('resultsCount').textContent =
+    currentLang==='ar'?`عرض ${list.length} عقار`:`Showing ${list.length} ${list.length===1?'property':'properties'}`;
+  document.getElementById('propsContainer').innerHTML =
+    currentView==='grid' ? renderGrid(list) : renderList(list);
+}
+
+function filterByStatus(s){
+  currentStatus = s;
+  document.querySelectorAll('.stat-chip').forEach((c,i)=>{
+    const statuses=['all','available','reserved','contracted','completed'];
+    c.classList.toggle('active-filter', statuses[i]===s);
+  });
+  applyFilters();
+}
+
+function setView(v){
+  currentView = v;
+  document.getElementById('gridBtn').classList.toggle('active', v==='grid');
+  document.getElementById('listBtn').classList.toggle('active', v==='list');
+  applyFilters();
+}
+
+// ── DETAIL PANEL ──────────────────────────────────────────────────────────
+function openDetail(id){
+  const p = PROPERTIES.find(x=>x.id===id);
+  if(!p) return;
+  openProp = p;
+  document.getElementById('detailRef').textContent = 'REF #'+p.id;
+  document.getElementById('detailTitle').textContent = currentLang==='ar'?p.titleAr:p.title;
+  document.getElementById('detailHero').textContent = p.emoji;
+  document.getElementById('detailPrice').textContent = p.priceDisplay;
+  document.getElementById('detailAddress').textContent = (currentLang==='ar'?p.areaAr:p.area)+', Cairo';
+  document.getElementById('detailBadges').innerHTML =
+    statusBadge(p.status)+
+    `<span class="badge badge-type">${currentLang==='ar'?p.typeAr:p.type}</span>`;
+  document.getElementById('detailAttrs').innerHTML = `
+    ${p.beds?`<div class="detail-attr"><div class="detail-attr-label">${currentLang==='ar'?'غرف النوم':'Bedrooms'}</div><div class="detail-attr-value">${p.beds}</div></div>`:''}
+    <div class="detail-attr"><div class="detail-attr-label">${currentLang==='ar'?'المساحة':'Size'}</div><div class="detail-attr-value">${p.size} m²</div></div>
+    <div class="detail-attr"><div class="detail-attr-label">${currentLang==='ar'?'الفئة':'Category'}</div><div class="detail-attr-value">${currentLang==='ar'?p.typeAr:p.type}</div></div>
+    <div class="detail-attr"><div class="detail-attr-label">${currentLang==='ar'?'الحالة':'Status'}</div><div class="detail-attr-value">${p.status.charAt(0).toUpperCase()+p.status.slice(1)}</div></div>
+  `;
+  document.getElementById('detailDesc').textContent = currentLang==='ar'?p.descAr:p.desc;
+  document.getElementById('detailAgent').innerHTML = `
+    <div class="agent-dot" style="width:32px;height:32px;border-radius:50%;background:${p.agentColor}22;color:${p.agentColor};font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">${p.agentInitials}</div>
+    <div><div style="font-size:13px;font-weight:500;color:var(--text)">${p.agent}</div><div style="font-size:11px;color:var(--text3)">${currentLang==='ar'?'وكيل مبيعات':'Sales Agent'}</div></div>
+  `;
+  document.getElementById('detailDocs').innerHTML = p.docs.map(d=>
+    `<div class="doc-item">📎 ${d}</div>`
+  ).join('');
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+function closeDetail(e){ if(e.target===document.getElementById('detailOverlay')) closeDetailBtn(); }
+function closeDetailBtn(){ document.getElementById('detailOverlay').classList.remove('open'); }
+function openAddProperty(){ document.getElementById('addOverlay').classList.add('open'); }
+function closeAdd(e){ if(e.target===document.getElementById('addOverlay')) closeAddBtn(); }
+function closeAddBtn(){ document.getElementById('addOverlay').classList.remove('open'); }
+
+
+
+// ── LANGUAGE PERSISTENCE ─────────────────────────────────────────────────
+function getLang(){ return localStorage.getItem('rems_lang') || 'ar'; }
+function applyLangToDOM(lang){
+  const isAR = lang === 'ar';
+  document.documentElement.setAttribute('dir', isAR ? 'rtl' : 'ltr');
+  document.documentElement.setAttribute('lang', lang);
+  const btnEN = document.getElementById('btnEN');
+  const btnAR = document.getElementById('btnAR');
+  if(btnEN) btnEN.classList.toggle('active', !isAR);
+  if(btnAR) btnAR.classList.toggle('active', isAR);
+  document.querySelectorAll('[data-en]').forEach(el => {
+    const v = isAR ? el.getAttribute('data-ar') : el.getAttribute('data-en');
+    if(v) el.innerHTML = v;
+  });
+  document.querySelectorAll('[data-placeholder-en]').forEach(el => {
+    el.placeholder = isAR ? el.getAttribute('data-placeholder-ar') : el.getAttribute('data-placeholder-en');
+  });
+  document.querySelectorAll('.filter-select option[data-en], select option[data-en]').forEach(el => {
+    el.textContent = isAR ? (el.getAttribute('data-ar') || el.getAttribute('data-en')) : el.getAttribute('data-en');
+  });
+}
+function setLang(lang){
+  currentLang = lang;
+  localStorage.setItem('rems_lang', lang);
+  applyLangToDOM(lang);
+  if(typeof applyFilters === 'function') applyFilters();
+  if(typeof renderTable === 'function') renderTable();
+  if(typeof openContract !== 'undefined' && openContract && typeof openDetail === 'function') openDetail(openContract.id);
+  if(typeof openLead !== 'undefined' && openLead && typeof openDetail === 'function') openDetail(openLead.id);
+  if(typeof openProp !== 'undefined' && openProp && typeof openDetail === 'function') openDetail(openProp.id);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+currentLang = getLang();
+applyLangToDOM(currentLang);
+applyFilters();
+
+
+
+// ── MOBILE SIDEBAR ────────────────────────────────────────────────────────
+function toggleSidebar(){
+  document.querySelector('.sidebar').classList.toggle('mobile-open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function closeSidebar(){
+  document.querySelector('.sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+document.querySelectorAll('.nav-item').forEach(item=>{
+  item.addEventListener('click',()=>{ if(window.innerWidth<=768) closeSidebar(); });
+});
+
+</script>
+</body>
+</html>

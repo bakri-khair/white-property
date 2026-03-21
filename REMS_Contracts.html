@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>REMS — Contracts</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0D0F14;--surface:#13161E;--surface2:#1A1E29;--surface3:#21263A;
+  --border:#ffffff0f;--border2:#ffffff18;
+  --gold:#C9A84C;--gold2:#E8C87A;--gold-dim:#C9A84C22;
+  --teal:#2DD4BF;--teal-dim:#2DD4BF18;
+  --coral:#F87171;--coral-dim:#F8717118;
+  --blue:#60A5FA;--blue-dim:#60A5FA18;
+  --green:#4ADE80;--green-dim:#4ADE8018;
+  --amber:#FBBF24;--purple:#A78BFA;--purple-dim:#A78BFA18;
+  --text:#F1F0EC;--text2:#9B9A94;--text3:#5C5B57;
+  --radius:14px;--radius-sm:8px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+.layout{display:flex;min-height:100vh;position:relative;z-index:1}
+
+/* ── SIDEBAR ── */
+.sidebar{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 0;position:sticky;top:0;height:100vh}
+.logo{padding:0 20px 28px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.logo-mark{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;letter-spacing:-0.5px;color:var(--gold2)}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+.nav-section{padding:0 12px;margin-bottom:6px}
+.nav-label{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);font-size:13.5px;color:var(--text2);cursor:pointer;transition:all .15s;border:1px solid transparent;margin-bottom:2px;text-decoration:none;font-weight:400}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--gold-dim);border-color:var(--gold)33;color:var(--gold2);font-weight:500}
+.nav-icon{font-size:15px;width:18px;text-align:center}
+.nav-badge{margin-left:auto;background:var(--coral);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:20px}
+.sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
+.user-pill{display:flex;align-items:center;gap:10px}
+.av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--teal));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0}
+.user-name{font-size:13px;font-weight:500}
+.user-role{font-size:11px;color:var(--text3)}
+
+/* ── MAIN ── */
+.main{flex:1;padding:28px 32px;overflow-y:auto}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;letter-spacing:-0.5px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.lang-toggle{display:flex;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden}
+.lang-btn{padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;color:var(--text2);border:none;background:none;font-family:'DM Sans',sans-serif}
+.lang-btn.active{background:var(--gold);color:#000}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--gold);color:#000}
+.btn-primary:hover{background:var(--gold2)}
+.btn-ghost{background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}
+.btn-ghost:hover{color:var(--text)}
+.btn-danger{background:var(--coral-dim);color:var(--coral);border:1px solid var(--coral)33}
+.btn-danger:hover{background:var(--coral)22}
+.btn-approve{background:var(--green-dim);color:var(--green);border:1px solid var(--green)33}
+.btn-approve:hover{background:var(--green)22}
+
+/* ── STATS ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.stat-card.active-filter{border-color:var(--gold)55}
+.stat-card.active-filter::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--gold)}
+.stat-label{font-size:10px;letter-spacing:.7px;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.stat-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:700}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:3px}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.search-wrap{flex:1;min-width:180px;position:relative}
+.search-input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 14px 9px 36px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s}
+.search-input:focus{border-color:var(--gold)66}
+.search-input::placeholder{color:var(--text3)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none}
+.filter-select{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text2);font-family:'DM Sans',sans-serif;outline:none;cursor:pointer}
+.filter-select option{background:var(--surface2)}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface)}
+.contracts-table{width:100%;border-collapse:collapse}
+.contracts-table thead th{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);padding:12px 16px;text-align:left;border-bottom:1px solid var(--border);font-weight:400;white-space:nowrap;background:var(--surface)}
+.contracts-table tbody tr{transition:background .12s;cursor:pointer}
+.contracts-table tbody tr:hover td{background:var(--surface2)}
+.contracts-table tbody td{padding:14px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);vertical-align:middle}
+.contracts-table tbody tr:last-child td{border-bottom:none}
+.contracts-table tbody tr.flagged td{background:#F8717108}
+.contracts-table tbody tr.flagged:hover td{background:#F8717114}
+
+/* cell types */
+.ref-cell{font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:var(--text3)}
+.client-cell{display:flex;align-items:center;gap:8px}
+.client-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+.client-name{font-weight:500;color:var(--text)}
+.client-id{font-size:10px;color:var(--text3)}
+.prop-cell{max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.value-cell{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--gold2)}
+.agent-cell{display:flex;align-items:center;gap:6px}
+.agent-mini{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
+
+/* status + type pills */
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.pill-draft{background:var(--surface3);color:var(--text2)}
+.pill-review{background:var(--amber)18;color:var(--amber)}
+.pill-approved{background:var(--blue-dim);color:var(--blue)}
+.pill-active{background:var(--green-dim);color:var(--green)}
+.pill-expired{background:var(--coral-dim);color:var(--coral)}
+.pill-completed{background:var(--teal-dim);color:var(--teal)}
+.pill-sale{background:var(--gold-dim);color:var(--gold2)}
+.pill-rental{background:var(--purple-dim);color:var(--purple)}
+.pill-shortrental{background:var(--teal-dim);color:var(--teal)}
+.approval-flag{font-size:10px;color:var(--coral);background:var(--coral-dim);padding:2px 7px;border-radius:10px;white-space:nowrap}
+
+/* ── APPROVAL BANNER ── */
+.approval-banner{background:var(--coral-dim);border:1px solid var(--coral)33;border-radius:var(--radius-sm);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px}
+.approval-banner-text{font-size:13px;color:var(--text)}
+.approval-banner-text strong{color:var(--coral)}
+
+/* ── DETAIL PANEL ── */
+.dp-overlay{position:fixed;inset:0;background:#00000070;z-index:100;display:flex;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
+.dp-overlay.open{opacity:1;pointer-events:all}
+.dp-panel{width:480px;height:100%;background:var(--surface);border-left:1px solid var(--border2);overflow-y:auto;display:flex;flex-direction:column}
+.dp-overlay.open .dp-panel{}
+.dp-head{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0}
+.dp-close{background:var(--surface2);border:1px solid var(--border2);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:16px;transition:all .15s;flex-shrink:0}
+.dp-close:hover{background:var(--surface3);color:var(--text)}
+.dp-body{padding:20px;flex:1;overflow-y:auto}
+.dp-section{margin-bottom:22px}
+.dp-sec-title{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.dp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.dp-field{background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px}
+.dp-field-label{font-size:10px;color:var(--text3);margin-bottom:3px}
+.dp-field-value{font-size:13px;font-weight:500;color:var(--text)}
+.dp-field-value.gold{color:var(--gold2);font-family:'Syne',sans-serif;font-size:15px}
+
+/* payment schedule */
+.pay-schedule{display:flex;flex-direction:column;gap:6px}
+.pay-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)}
+.pay-row.paid{border-color:var(--green)22}
+.pay-row.overdue{border-color:var(--coral)22;background:var(--coral-dim)}
+.pay-row.upcoming{border-color:var(--amber)22}
+.pay-num{font-size:10px;color:var(--text3);width:24px;flex-shrink:0}
+.pay-info{flex:1}
+.pay-amount{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;white-space:nowrap}
+.pay-date{font-size:10px;color:var(--text3);margin-top:1px}
+.pay-status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* docs */
+.doc-list{display:flex;flex-direction:column;gap:6px}
+.doc-row{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;cursor:pointer;transition:border-color .15s}
+.doc-row:hover{border-color:var(--border2)}
+.doc-name{flex:1;font-size:12.5px;color:var(--text2)}
+.doc-size{font-size:10px;color:var(--text3)}
+
+/* workflow timeline */
+.wf-steps{display:flex;align-items:center;gap:0;margin:4px 0 16px}
+.wf-step{display:flex;flex-direction:column;align-items:center;flex:1}
+.wf-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid var(--border2);background:var(--surface2);position:relative;z-index:1;transition:all .2s}
+.wf-dot.done{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+.wf-dot.current{background:var(--gold-dim);border-color:var(--gold);color:var(--gold)}
+.wf-dot.pending{opacity:.4}
+.wf-label{font-size:9px;color:var(--text3);margin-top:5px;text-align:center;letter-spacing:.3px}
+.wf-label.done{color:var(--green)}
+.wf-label.current{color:var(--gold)}
+.wf-connector{flex:1;height:1px;background:var(--border2);margin-bottom:18px}
+.wf-connector.done{background:var(--green)66}
+
+/* approval actions */
+.approve-box{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px}
+.approve-box-title{font-size:12px;font-weight:500;color:var(--text);margin-bottom:10px}
+.approve-actions{display:flex;gap:8px}
+
+.dp-footer{display:flex;gap:8px;padding:16px 20px;border-top:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+
+/* ── NEW CONTRACT PANEL ── */
+.nc-overlay{position:fixed;inset:0;background:#00000070;z-index:100;display:flex;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
+.nc-overlay.open{opacity:1;pointer-events:all}
+.nc-panel{width:500px;height:100%;background:var(--surface);border-left:1px solid var(--border2);overflow-y:auto;color:var(--text3);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.6px}
+.form-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s}
+.form-input:focus{border-color:var(--gold)66}
+.form-input::placeholder{color:var(--text3)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* pagination */
+.pagination{display:flex;align-items:center;justify-content:space-between;margin-top:20px}
+.page-info{font-size:12px;color:var(--text3)}
+.page-btns{display:flex;gap:4px}
+.page-btn{width:30px;height:30px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text2);transition:all .15s}
+.page-btn:hover{color:var(--text)}
+.page-btn.active{background:var(--gold);color:#000;border-color:var(--gold)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.contracts-table tbody tr{animation:fadeUp .2s ease both}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
+
+
+[dir="rtl"] .nav-badge{margin-left:0;margin-right:auto}
+[dir="rtl"] .search-icon{left:auto;right:12px}
+[dir="rtl"] .search-input{padding:9px 36px 9px 14px}
+[dir="rtl"] .dp-panel,[dir="rtl"] .nc-panel{border-left:none;border-right:1px solid var(--border2);}
+[dir="rtl"] .dp-overlay.open .dp-panel,[dir="rtl"] .nc-overlay.open .nc-panel{}
+
+.stats-row{grid-template-columns:repeat(3,1fr)}}
+
+
+
+/* ── MOBILE NAV ── */
+.hamburger{display:none;position:fixed;top:14px;right:14px;z-index:9999;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);width:44px;height:44px;align-items:center;justify-content:center;flex-direction:column;gap:5px;cursor:pointer;box-shadow:0 2px 16px #000000aa}
+.hamburger span{display:block;width:20px;height:2px;background:var(--gold2);border-radius:2px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:#000000bb;z-index:999}
+.sidebar-overlay.open{display:block}
+@media(max-width:768px){
+  .hamburger{display:flex}
+  .sidebar{position:fixed;top:0;right:-240px;width:220px;height:100vh;z-index:1000;transition:right .3s ease;overflow-y:auto;border-left:1px solid var(--border2)}
+  .sidebar.mobile-open{right:0}
+  .main{padding-top:70px}
+}
+</style>
+</head>
+<body>
+
+<!-- MOBILE HAMBURGER -->
+<div class="hamburger" id="hamburger" onclick="toggleSidebar()">
+  <span></span><span></span><span></span>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<div class="layout">
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">White Property</div>
+    <div class="logo-sub" data-en="Real Estate System" data-ar="نظام العقارات">Real Estate System</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label" data-en="Main" data-ar="رئيسي">Main</div>
+    <a class="nav-item" href="REMS_Manager_Dashboard.html"><span class="nav-icon">⬛</span><span data-en="Dashboard" data-ar="لوحة التحكم">Dashboard</span></a>
+    <a class="nav-item" href="REMS_Properties.html"><span class="nav-icon">🏠</span><span data-en="Properties" data-ar="العقارات">Properties</span></a>
+    <a class="nav-item" href="REMS_Clients_Leads.html"><span class="nav-icon">👥</span><span data-en="Clients & Leads" data-ar="العملاء والعملاء المحتملون">Clients & Leads</span><span class="nav-badge">7</span></a>
+    <div class="nav-item active"><span class="nav-icon">📄</span><span data-en="Contracts" data-ar="العقود">Contracts</span></div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label" data-en="Team" data-ar="الفريق">Team</div>
+    <a class="nav-item" href="REMS_Agents.html"><span class="nav-icon">🧑‍💼</span><span data-en="Agents" data-ar="الوكلاء">Agents</span></a>
+    <a class="nav-item" href="REMS_Payments.html"><span class="nav-icon">💰</span><span data-en="Commissions" data-ar="العمولات">Commissions</span></a>
+    <a class="nav-item" href="REMS_Reports.html"><span class="nav-icon">📊</span><span data-en="Reports" data-ar="التقارير">Reports</span></a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label" data-en="Finance" data-ar="المالية">Finance</div>
+    <a class="nav-item" href="REMS_Payments.html"><span class="nav-icon">💳</span><span data-en="Payments" data-ar="المدفوعات">Payments</span><span class="nav-badge">3</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">📁</span><span data-en="Documents" data-ar="المستندات">Documents</span></a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="av">RA</div>
+      <div>
+        <div class="user-name" data-en="Reem Ashraf" data-ar="ريم أشرف">Reem Ashraf</div>
+        <div class="user-role" data-en="Manager" data-ar="مديرة">Manager</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="page-title" data-en="Contracts" data-ar="العقود">Contracts</div>
+    <div class="topbar-right">
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="btnAR" onclick="setLang('ar')">AR</button>
+      </div>
+      <button class="btn btn-ghost" onclick="alert('Export coming soon')">↓ <span data-en="Export" data-ar="تصدير">Export</span></button>
+      <button class="btn btn-primary" onclick="openNewContract()">+ <span data-en="New Contract" data-ar="عقد جديد">New Contract</span></button>
+    </div>
+  </div>
+
+  <!-- APPROVAL BANNER -->
+  <div class="approval-banner" id="approvalBanner">
+    <div class="approval-banner-text">
+      <strong data-en="3 contracts" data-ar="3 عقود">3 contracts</strong>
+      <span data-en=" are awaiting your approval — review and sign off before they can go active." data-ar=" في انتظار موافقتك — راجعها وافتحها قبل أن تصبح نشطة."> are awaiting your approval — review and sign off before they can go active.</span>
+    </div>
+    <button class="btn btn-approve" onclick="filterByStatus('review')" style="white-space:nowrap">
+      <span data-en="Review Now" data-ar="مراجعة الآن">Review Now</span> →
+    </button>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card active-filter" id="statAll" onclick="filterByStatus('all')">
+      <div class="stat-label" data-en="All Contracts" data-ar="جميع العقود">All Contracts</div>
+      <div class="stat-val" style="color:var(--text)">18</div>
+      <div class="stat-sub" data-en="total on record" data-ar="إجمالي المسجلة">total on record</div>
+    </div>
+    <div class="stat-card" id="statReview" onclick="filterByStatus('review')">
+      <div class="stat-label" data-en="Awaiting Approval" data-ar="في انتظار الموافقة">Awaiting Approval</div>
+      <div class="stat-val" style="color:var(--amber)">3</div>
+      <div class="stat-sub" data-en="needs your sign-off" data-ar="تحتاج موافقتك">needs your sign-off</div>
+    </div>
+    <div class="stat-card" id="statActive" onclick="filterByStatus('active')">
+      <div class="stat-label" data-en="Active" data-ar="نشطة">Active</div>
+      <div class="stat-val" style="color:var(--green)">9</div>
+      <div class="stat-sub" data-en="in progress" data-ar="قيد التنفيذ">in progress</div>
+    </div>
+    <div class="stat-card" id="statExpired" onclick="filterByStatus('expired')">
+      <div class="stat-label" data-en="Expiring Soon" data-ar="تنتهي قريباً">Expiring Soon</div>
+      <div class="stat-val" style="color:var(--coral)">2</div>
+      <div class="stat-sub" data-en="within 30 days" data-ar="خلال 30 يوماً">within 30 days</div>
+    </div>
+    <div class="stat-card" id="statCompleted" onclick="filterByStatus('completed')">
+      <div class="stat-label" data-en="Completed" data-ar="مكتملة">Completed</div>
+      <div class="stat-val" style="color:var(--teal)">4</div>
+      <div class="stat-sub" data-en="deals closed" data-ar="صفقات منجزة">deals closed</div>
+    </div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="searchInput" type="text" placeholder="Search by ref, client, or property..." oninput="renderTable()" data-placeholder-en="Search by ref, client, or property..." data-placeholder-ar="ابحث بالمرجع أو العميل أو العقار..."/>
+    </div>
+    <select class="filter-select" id="typeFilter" onchange="renderTable()">
+      <option value="all" data-en="All Types" data-ar="كل الأنواع">All Types</option>
+      <option value="sale" data-en="Sale" data-ar="بيع">Sale</option>
+      <option value="rental" data-en="Rental" data-ar="إيجار">Rental</option>
+      <option value="shortrental" data-en="Short-term Rental" data-ar="إيجار قصير">Short-term Rental</option>
+    </select>
+    <select class="filter-select" id="agentFilter" onchange="renderTable()">
+      <option value="all" data-en="All Agents" data-ar="كل الوكلاء">All Agents</option>
+      <option value="sara">Sara M.</option>
+      <option value="khaled">Khaled H.</option>
+      <option value="rania">Rania A.</option>
+      <option value="ahmed">Ahmed S.</option>
+      <option value="may">May Y.</option>
+    </select>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table class="contracts-table">
+      <thead>
+        <tr>
+          <th data-en="Ref" data-ar="المرجع">Ref</th>
+          <th data-en="Client" data-ar="العميل">Client</th>
+          <th data-en="Property" data-ar="العقار">Property</th>
+          <th data-en="Type" data-ar="النوع">Type</th>
+          <th data-en="Value" data-ar="القيمة">Value</th>
+          <th data-en="Status" data-ar="الحالة">Status</th>
+          <th data-en="Agent" data-ar="الوكيل">Agent</th>
+          <th data-en="Start Date" data-ar="تاريخ البدء">Start Date</th>
+          <th data-en="End / Close" data-ar="الانتهاء">End / Close</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="contractsTbody"></tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <div class="page-info" id="pageInfo">Showing 12 of 18 contracts</div>
+    <div class="page-btns">
+      <div class="page-btn">‹</div>
+      <div class="page-btn active">1</div>
+      <div class="page-btn">2</div>
+      <div class="page-btn">›</div>
+    </div>
+  </div>
+</main>
+</div>
+
+<!-- ── DETAIL PANEL ── -->
+<div class="dp-overlay" id="dpOverlay" onclick="closeDpOuter(event)">
+  <div class="dp-panel" id="dpPanel">
+    <div class="dp-head">
+      <div>
+        <div style="font-size:11px;color:var(--text3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px" id="dpRef">CONTRACT #C-0041</div>
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:4px" id="dpTitle">Villa Sale — New Cairo</div>
+        <div id="dpPills" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
+      <div class="dp-close" onclick="closeDp()">✕</div>
+    </div>
+    <div class="dp-body">
+
+      <!-- WORKFLOW -->
+      <div class="dp-section">
+        <div class="dp-sec-title" data-en="Approval Workflow" data-ar="مسار الموافقة">Approval Workflow</div>
+        <div class="wf-steps" id="wfSteps"></div>
+        <div id="approveBox"></div>
+      </div>
+
+      <!-- DETAILS -->
+      <div class="dp-section">
+        <div class="dp-sec-title" data-en="Contract Details" data-ar="تفاصيل العقد">Contract Details</div>
+        <div class="dp-grid" id="dpDetails"></div>
+      </div>
+
+      <!-- PARTIES -->
+      <div class="dp-section">
+        <div class="dp-sec-title" data-en="Parties" data-ar="الأطراف">Parties</div>
+        <div class="dp-grid" id="dpParties"></div>
+      </div>
+
+      <!-- PAYMENT SCHEDULE -->
+      <div class="dp-section">
+        <div class="dp-sec-title" data-en="Payment Schedule" data-ar="جدول المدفوعات">Payment Schedule</div>
+        <div class="pay-schedule" id="dpPayments"></div>
+      </div>
+
+      <!-- DOCUMENTS -->
+      <div class="dp-section">
+        <div class="dp-sec-title" data-en="Attached Documents" data-ar="المستندات المرفقة">Attached Documents</div>
+        <div class="doc-list" id="dpDocs"></div>
+      </div>
+
+    </div>
+    <div class="dp-footer" id="dpFooter"></div>
+  </div>
+</div>
+
+<!-- ── NEW CONTRACT PANEL ── -->
+<div class="nc-overlay" id="ncOverlay" onclick="closeNcOuter(event)">
+  <div class="nc-panel" id="ncPanel">
+    <div class="dp-head">
+      <div>
+        <div style="font-size:11px;color:var(--text3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px" data-en="New Contract" data-ar="عقد جديد">New Contract</div>
+        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:600" data-en="Create Contract" data-ar="إنشاء عقد جديد">Create Contract</div>
+      </div>
+      <div class="dp-close" onclick="closeNc()">✕</div>
+    </div>
+    <div class="dp-body" style="padding:20px;display:flex;flex-direction:column;gap:2px">
+      <div class="form-group">
+        <label class="form-label" data-en="Contract Type" data-ar="نوع العقد">Contract Type</label>
+        <select class="form-input">
+          <option data-en="Sale Contract" data-ar="عقد بيع">Sale Contract</option>
+          <option data-en="Rental Agreement" data-ar="عقد إيجار">Rental Agreement</option>
+          <option data-en="Short-term Rental" data-ar="إيجار قصير">Short-term Rental</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-en="Client" data-ar="العميل">Client</label>
+        <select class="form-input">
+          <option data-en="— Select client —" data-ar="— اختر العميل —">— Select client —</option>
+          <option>Mohamed Tarek</option><option>Layla Hassan</option><option>Omar Farouk</option>
+          <option>Dina Mostafa</option><option>Karim Nabil</option><option>Sara El-Din</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-en="Property" data-ar="العقار">Property</label>
+        <select class="form-input">
+          <option data-en="— Select property —" data-ar="— اختر العقار —">— Select property —</option>
+          <option>Villa — 5th Settlement, New Cairo</option>
+          <option>Office Space — Downtown Cairo</option>
+          <option>Furnished Apartment — Zamalek</option>
+          <option>Retail Shop — Maadi Grand Mall</option>
+          <option>Twin House — Sheikh Zayed</option>
+          <option>Penthouse — Maadi Corniche</option>
+        </select>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" data-en="Deal Value (EGP)" data-ar="قيمة الصفقة (ج.م)">Deal Value (EGP)</label>
+          <input class="form-input" type="number" placeholder="0"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-en="Commission (%)" data-ar="العمولة (%)">Commission (%)</label>
+          <input class="form-input" type="number" placeholder="2.5"/>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" data-en="Start Date" data-ar="تاريخ البدء">Start Date</label>
+          <input class="form-input" type="date"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-en="End Date" data-ar="تاريخ الانتهاء">End Date</label>
+          <input class="form-input" type="date"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-en="Assign Agent" data-ar="تعيين وكيل">Assign Agent</label>
+        <select class="form-input">
+          <option>Sara M.</option><option>Khaled H.</option><option>Rania A.</option>
+          <option>Ahmed S.</option><option>May Y.</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-en="Payment Plan" data-ar="خطة الدفع">Payment Plan</label>
+        <select class="form-input">
+          <option data-en="Full Payment" data-ar="دفع كامل">Full Payment</option>
+          <option data-en="2 Installments" data-ar="دفعتان">2 Installments</option>
+          <option data-en="4 Installments" data-ar="4 دفعات">4 Installments</option>
+          <option data-en="6 Installments" data-ar="6 دفعات">6 Installments</option>
+          <option data-en="Monthly" data-ar="شهري">Monthly</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-en="Notes" data-ar="ملاحظات">Notes</label>
+        <textarea class="form-input" style="resize:vertical;min-height:72px" placeholder="Any special terms or conditions..." data-placeholder-en="Any special terms or conditions..." data-placeholder-ar="أي شروط أو أحكام خاصة..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;padding-top:4px">
+        <button class="btn btn-primary" style="flex:1" onclick="alert('Contract saved as Draft — (Backend coming soon)')">✓ <span data-en="Save as Draft" data-ar="حفظ كمسودة">Save as Draft</span></button>
+        <button class="btn btn-ghost" onclick="closeNc()" data-en="Cancel" data-ar="إلغاء">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const CONTRACTS = [
+  {id:'C-0041',type:'sale',typeAr:'بيع',client:'Omar Farouk',clientAr:'عمر فاروق',clientId:'L-0003',
+   prop:'Penthouse — Maadi Corniche',propAr:'بنتهاوس — كورنيش المعادي',
+   value:9400000,valueDisplay:'9.4M EGP',status:'review',
+   agent:'Sara M.',agentKey:'sara',agentInitials:'SM',
+   start:'2026-03-15',end:'—',flagged:true,
+   commission:235000,commissionPct:2.5,
+   payments:[
+     {n:1,amount:'2,350,000',due:'2026-03-15',status:'paid'},
+     {n:2,amount:'2,350,000',due:'2026-06-15',status:'upcoming'},
+     {n:3,amount:'2,350,000',due:'2026-09-15',status:'upcoming'},
+     {n:4,amount:'2,350,000',due:'2026-12-15',status:'upcoming'},
+   ],
+   docs:['Contract Draft C-0041.pdf','Property Title Deed.pdf','Client ID.pdf'],
+   workflow:'review',
+   notes:'Awaiting manager approval before activation. Client has signed the draft.'},
+
+  {id:'C-0040',type:'rental',typeAr:'إيجار',client:'Karim Nabil',clientAr:'كريم نبيل',clientId:'L-0006',
+   prop:'Twin House — Sheikh Zayed',propAr:'توين هاوس — الشيخ زايد',
+   value:180000,valueDisplay:'180K EGP/yr',status:'review',
+   agent:'May Y.',agentKey:'may',agentInitials:'MY',
+   start:'2026-04-01',end:'2027-03-31',flagged:true,
+   commission:9000,commissionPct:5,
+   payments:[
+     {n:1,amount:'90,000',due:'2026-04-01',status:'upcoming'},
+     {n:2,amount:'90,000',due:'2026-10-01',status:'upcoming'},
+   ],
+   docs:['Rental Agreement Draft C-0040.pdf','NOC Certificate.pdf'],
+   workflow:'review',
+   notes:'6-month renewable rental. First payment on move-in day.'},
+
+  {id:'C-0039',type:'sale',typeAr:'بيع',client:'Layla Hassan',clientAr:'ليلى حسن',clientId:'L-0002',
+   prop:'Villa — 5th Settlement',propAr:'فيلا — القاهرة الجديدة',
+   value:12500000,valueDisplay:'12.5M EGP',status:'review',
+   agent:'Khaled H.',agentKey:'khaled',agentInitials:'KH',
+   start:'2026-03-10',end:'—',flagged:true,
+   commission:375000,commissionPct:3,
+   payments:[
+     {n:1,amount:'3,125,000',due:'2026-03-10',status:'paid'},
+     {n:2,amount:'3,125,000',due:'2026-06-10',status:'upcoming'},
+     {n:3,amount:'3,125,000',due:'2026-09-10',status:'upcoming'},
+     {n:4,amount:'3,125,000',due:'2026-12-10',status:'upcoming'},
+   ],
+   docs:['Contract Draft C-0039.pdf','Villa Title Deed.pdf','NOC.pdf','Inspection Report.pdf'],
+   workflow:'review',
+   notes:'Client has paid first installment. Pending manager approval.'},
+
+  {id:'C-0038',type:'rental',typeAr:'إيجار',client:'Hana Sami',clientAr:'هناء سامي',clientId:'L-0005',
+   prop:'Office — Downtown Cairo',propAr:'مكتب — وسط القاهرة',
+   value:240000,valueDisplay:'240K EGP/yr',status:'active',
+   agent:'Sara M.',agentKey:'sara',agentInitials:'SM',
+   start:'2025-10-01',end:'2026-09-30',flagged:false,
+   commission:12000,commissionPct:5,
+   payments:[
+     {n:1,amount:'60,000',due:'2025-10-01',status:'paid'},
+     {n:2,amount:'60,000',due:'2026-01-01',status:'paid'},
+     {n:3,amount:'60,000',due:'2026-04-01',status:'upcoming'},
+     {n:4,amount:'60,000',due:'2026-07-01',status:'upcoming'},
+   ],
+   docs:['Contract C-0038.pdf','NOC Certificate.pdf'],
+   workflow:'active',
+   notes:'Active rental. Renewal due October 2026.'},
+
+  {id:'R-0018',type:'shortrental',typeAr:'إيجار قصير',client:'Dina Mostafa',clientAr:'دينا مصطفى',clientId:'L-0004',
+   prop:'Furnished Apt — Zamalek',propAr:'شقة مفروشة — الزمالك',
+   value:25000,valueDisplay:'25K EGP/mo',status:'expired',
+   agent:'Rania A.',agentKey:'rania',agentInitials:'RA',
+   start:'2026-01-01',end:'2026-03-31',flagged:false,
+   commission:1250,commissionPct:5,
+   payments:[
+     {n:1,amount:'25,000',due:'2026-01-01',status:'paid'},
+     {n:2,amount:'25,000',due:'2026-02-01',status:'paid'},
+     {n:3,amount:'25,000',due:'2026-03-01',status:'paid'},
+   ],
+   docs:['Rental Contract R-0018.pdf','Inventory Checklist.pdf'],
+   workflow:'active',
+   notes:'3-month short-term rental. Expired March 31st — renewal pending.'},
+
+  {id:'C-0035',type:'sale',typeAr:'بيع',client:'Bassem Lotfy',clientAr:'باسم لطفي',clientId:'C-0002',
+   prop:'Apartment — Maadi',propAr:'شقة — المعادي',
+   value:3800000,valueDisplay:'3.8M EGP',status:'completed',
+   agent:'Rania A.',agentKey:'rania',agentInitials:'RA',
+   start:'2025-08-01',end:'2025-11-30',flagged:false,
+   commission:95000,commissionPct:2.5,
+   payments:[
+     {n:1,amount:'1,900,000',due:'2025-08-01',status:'paid'},
+     {n:2,amount:'1,900,000',due:'2025-11-01',status:'paid'},
+   ],
+   docs:['Contract C-0035.pdf','Title Deed Transfer.pdf','Final Receipt.pdf'],
+   workflow:'completed',
+   notes:'Deal fully completed. Title transferred to buyer.'},
+];
+
+let currentStatusFilter = 'all';
+let currentLang = getLang();
+let openContract = null;
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+const agentColor = k=>({sara:'var(--teal)',khaled:'var(--gold)',rania:'var(--blue)',ahmed:'var(--coral)',may:'var(--green)'}[k]||'var(--text2)');
+
+function statusPill(s){
+  const m={
+    draft:{cls:'pill-draft',en:'Draft',ar:'مسودة'},
+    review:{cls:'pill-review',en:'Awaiting Approval',ar:'في انتظار الموافقة'},
+    approved:{cls:'pill-approved',en:'Approved',ar:'موافق عليه'},
+    active:{cls:'pill-active',en:'Active',ar:'نشط'},
+    expired:{cls:'pill-expired',en:'Expiring Soon',ar:'ينتهي قريباً'},
+    completed:{cls:'pill-completed',en:'Completed',ar:'مكتمل'},
+  };
+  const d=m[s]||{cls:'pill-draft',en:s,ar:s};
+  return `<span class="pill ${d.cls}">${currentLang==='ar'?d.ar:d.en}</span>`;
+}
+
+function typePill(t){
+  const m={sale:{cls:'pill-sale',en:'Sale',ar:'بيع'},rental:{cls:'pill-rental',en:'Rental',ar:'إيجار'},shortrental:{cls:'pill-shortrental',en:'Short-term',ar:'قصير الأمد'}};
+  const d=m[t]||{cls:'pill-draft',en:t,ar:t};
+  return `<span class="pill ${d.cls}">${currentLang==='ar'?d.ar:d.en}</span>`;
+}
+
+// ── TABLE ─────────────────────────────────────────────────────────────────
+function renderTable(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const type=document.getElementById('typeFilter').value;
+  const agent=document.getElementById('agentFilter').value;
+
+  const list=CONTRACTS.filter(c=>{
+    if(currentStatusFilter!=='all' && c.status!==currentStatusFilter) return false;
+    if(q && !c.id.toLowerCase().includes(q) && !c.client.toLowerCase().includes(q) && !c.prop.toLowerCase().includes(q)) return false;
+    if(type!=='all' && c.type!==type) return false;
+    if(agent!=='all' && !c.agentKey.includes(agent)) return false;
+    return true;
+  });
+
+  document.getElementById('pageInfo').textContent =
+    currentLang==='ar'?`عرض ${list.length} من 18 عقداً`:`Showing ${list.length} of 18 contracts`;
+
+  document.getElementById('contractsTbody').innerHTML = list.map(c=>`
+    <tr class="${c.flagged?'flagged':''}" onclick="openDetail('${c.id}')">
+      <td><span class="ref-cell">${c.id}</span></td>
+      <td><div class="client-cell">
+        <div class="client-av" style="background:${agentColor(c.agentKey)}22;color:${agentColor(c.agentKey)}">${(currentLang==='ar'?c.clientAr:c.client).split(' ').map(x=>x[0]).join('').slice(0,2)}</div>
+        <div>
+          <div class="client-name">${currentLang==='ar'?c.clientAr:c.client}</div>
+          <div class="client-id">${c.clientId}</div>
+        </div>
+      </div></td>
+      <td class="prop-cell">${currentLang==='ar'?c.propAr:c.prop}</td>
+      <td>${typePill(c.type)}</td>
+      <td class="value-cell">${c.valueDisplay}</td>
+      <td>${statusPill(c.status)}${c.flagged?` <span class="approval-flag">${currentLang==='ar'?'يحتاج موافقة':'needs approval'}</span>`:''}</td>
+      <td><div class="agent-cell">
+        <div class="agent-mini" style="background:${agentColor(c.agentKey)}22;color:${agentColor(c.agentKey)}">${c.agentInitials}</div>
+        ${c.agent}
+      </div></td>
+      <td>${c.start}</td>
+      <td>${c.end}</td>
+      <td><button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="event.stopPropagation();openDetail('${c.id}')">
+        ${currentLang==='ar'?'عرض':'View'} →
+      </button></td>
+    </tr>`).join('');
+}
+
+// ── DETAIL PANEL ──────────────────────────────────────────────────────────
+const WF_STEPS = [
+  {key:'draft',en:'Draft',ar:'مسودة'},
+  {key:'review',en:'Review',ar:'مراجعة'},
+  {key:'approved',en:'Approved',ar:'موافق'},
+  {key:'active',en:'Active',ar:'نشط'},
+  {key:'completed',en:'Done',ar:'منجز'},
+];
+
+function wfIndex(s){
+  const map={draft:0,review:1,approved:2,active:3,completed:4};
+  return map[s]??1;
+}
+
+function openDetail(id){
+  const c=CONTRACTS.find(x=>x.id===id);
+  if(!c) return;
+  openContract=c;
+  document.getElementById('dpRef').textContent='CONTRACT #'+c.id;
+  document.getElementById('dpTitle').textContent=(currentLang==='ar'?c.propAr:c.prop);
+  document.getElementById('dpPills').innerHTML=typePill(c.type)+' '+statusPill(c.status);
+
+  // Workflow steps
+  const ci=wfIndex(c.workflow||c.status);
+  document.getElementById('wfSteps').innerHTML=WF_STEPS.map((s,i)=>`
+    ${i>0?`<div class="wf-connector ${i<=ci?'done':''}"></div>`:''}
+    <div class="wf-step">
+      <div class="wf-dot ${i<ci?'done':i===ci?'current':'pending'}">${i<ci?'✓':i+1}</div>
+      <div class="wf-label ${i<ci?'done':i===ci?'current':''}">${currentLang==='ar'?s.ar:s.en}</div>
+    </div>`).join('');
+
+  // Approve box (only for review status)
+  document.getElementById('approveBox').innerHTML = c.status==='review'?`
+    <div class="approve-box">
+      <div class="approve-box-title" data-en="This contract needs your approval to proceed." data-ar="هذا العقد يحتاج موافقتك للمتابعة.">${currentLang==='ar'?'هذا العقد يحتاج موافقتك للمتابعة.':'This contract needs your approval to proceed.'}</div>
+      <div class="approve-actions">
+        <button class="btn btn-approve" style="flex:1" onclick="approveContract('${c.id}')">✓ ${currentLang==='ar'?'موافقة وتفعيل':'Approve & Activate'}</button>
+        <button class="btn btn-danger" onclick="alert('Rejection flow coming soon')">✕ ${currentLang==='ar'?'رفض':'Reject'}</button>
+      </div>
+    </div>`:'';
+
+  // Details
+  document.getElementById('dpDetails').innerHTML=`
+    <div class="dp-field"><div class="dp-field-label">${currentLang==='ar'?'قيمة الصفقة':'Deal Value'}</div><div class="dp-field-value gold">${c.valueDisplay}</div></div>
+    <div class="dp-field"><div class="dp-field-label">${currentLang==='ar'?'العمولة':'Commission'}</div><div class="dp-field-value">${c.commissionPct}% — EGP ${c.commission.toLocaleString()}</div></div>
+    <div class="dp-field"><div class="dp-field-label">${currentLang==='ar'?'تاريخ البدء':'Start Date'}</div><div class="dp-field-value">${c.start}</div></div>
+    <div class="dp-field"><div class="dp-field-label">${currentLang==='ar'?'تاريخ الانتهاء':'End Date'}</div><div class="dp-field-value">${c.end}</div></div>`;
+
+  // Parties
+  document.getElementById('dpParties').innerHTML=`
+    <div class="dp-field"><div class="dp-field-label">${currentLang==='ar'?'العميل':'Client'}</div><div class="dp-field-value">${currentLang==='ar'?c.clientAr:c.client}</div></div>
+    <div class="dp-field"><div class="dp-field-label">${currentLang==='ar'?'الوكيل':'Agent'}</div><div class="dp-field-value">${c.agent}</div></div>`;
+
+  // Payments
+  document.getElementById('dpPayments').innerHTML=c.payments.map(p=>`
+    <div class="pay-row ${p.status}">
+      <div class="pay-num">#${p.n}</div>
+      <div class="pay-info">
+        <div class="pay-amount" style="color:${p.status==='paid'?'var(--green)':p.status==='overdue'?'var(--coral)':'var(--text)'}">${currentLang==='ar'?'ج.م':'EGP'} ${p.amount}</div>
+        <div class="pay-date">${currentLang==='ar'?'استحقاق:':'Due:'} ${p.due}</div>
+      </div>
+      <div class="pay-status-dot" style="background:${p.status==='paid'?'var(--green)':p.status==='overdue'?'var(--coral)':'var(--amber)'}"></div>
+      <span style="font-size:10px;font-weight:600;color:${p.status==='paid'?'var(--green)':p.status==='overdue'?'var(--coral)':'var(--amber)'}">
+        ${p.status==='paid'?(currentLang==='ar'?'مدفوعة':'Paid'):p.status==='overdue'?(currentLang==='ar'?'متأخرة':'Overdue'):(currentLang==='ar'?'قادمة':'Upcoming')}
+      </span>
+    </div>`).join('');
+
+  // Docs
+  document.getElementById('dpDocs').innerHTML=c.docs.map(d=>`
+    <div class="doc-row"><span style="font-size:14px">📎</span><span class="doc-name">${d}</span><span class="doc-size">PDF</span><span style="font-size:12px;color:var(--blue)">↓</span></div>`).join('');
+
+  // Footer actions
+  document.getElementById('dpFooter').innerHTML=`
+    <button class="btn btn-ghost" style="flex:1" onclick="alert('Download contract PDF coming soon')">📥 ${currentLang==='ar'?'تحميل PDF':'Download PDF'}</button>
+    <button class="btn btn-ghost" style="flex:1" onclick="alert('Edit contract coming soon')">✏️ ${currentLang==='ar'?'تعديل':'Edit'}</button>
+    <button class="btn btn-ghost" onclick="alert('More options coming soon')">⋯</button>`;
+
+  document.getElementById('dpOverlay').classList.add('open');
+}
+
+function approveContract(id){
+  const c=CONTRACTS.find(x=>x.id===id);
+  if(c){
+    c.status='active';c.workflow='active';c.flagged=false;
+    openDetail(id);
+    renderTable();
+    // update banner count
+    const pending=CONTRACTS.filter(x=>x.status==='review').length;
+    if(pending===0) document.getElementById('approvalBanner').style.display='none';
+  }
+}
+
+function filterByStatus(s){
+  currentStatusFilter=s;
+  ['All','Review','Active','Expired','Completed'].forEach((n,i)=>{
+    const el=document.getElementById('stat'+n);
+    if(el) el.classList.toggle('active-filter',['all','review','active','expired','completed'][i]===s);
+  });
+  renderTable();
+}
+
+function closeDp(){document.getElementById('dpOverlay').classList.remove('open')}
+function closeDpOuter(e){if(e.target===document.getElementById('dpOverlay'))closeDp()}
+function openNewContract(){document.getElementById('ncOverlay').classList.add('open')}
+function closeNc(){document.getElementById('ncOverlay').classList.remove('open')}
+function closeNcOuter(e){if(e.target===document.getElementById('ncOverlay'))closeNc()}
+
+
+
+// ── LANGUAGE PERSISTENCE ─────────────────────────────────────────────────
+function getLang(){ return localStorage.getItem('rems_lang') || 'ar'; }
+function applyLangToDOM(lang){
+  const isAR = lang === 'ar';
+  document.documentElement.setAttribute('dir', isAR ? 'rtl' : 'ltr');
+  document.documentElement.setAttribute('lang', lang);
+  const btnEN = document.getElementById('btnEN');
+  const btnAR = document.getElementById('btnAR');
+  if(btnEN) btnEN.classList.toggle('active', !isAR);
+  if(btnAR) btnAR.classList.toggle('active', isAR);
+  document.querySelectorAll('[data-en]').forEach(el => {
+    const v = isAR ? el.getAttribute('data-ar') : el.getAttribute('data-en');
+    if(v) el.innerHTML = v;
+  });
+  document.querySelectorAll('[data-placeholder-en]').forEach(el => {
+    el.placeholder = isAR ? el.getAttribute('data-placeholder-ar') : el.getAttribute('data-placeholder-en');
+  });
+  document.querySelectorAll('.filter-select option[data-en], select option[data-en]').forEach(el => {
+    el.textContent = isAR ? (el.getAttribute('data-ar') || el.getAttribute('data-en')) : el.getAttribute('data-en');
+  });
+}
+function setLang(lang){
+  currentLang = lang;
+  localStorage.setItem('rems_lang', lang);
+  applyLangToDOM(lang);
+  if(typeof applyFilters === 'function') applyFilters();
+  if(typeof renderTable === 'function') renderTable();
+  if(typeof openContract !== 'undefined' && openContract && typeof openDetail === 'function') openDetail(openContract.id);
+  if(typeof openLead !== 'undefined' && openLead && typeof openDetail === 'function') openDetail(openLead.id);
+  if(typeof openProp !== 'undefined' && openProp && typeof openDetail === 'function') openDetail(openProp.id);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+currentLang = getLang();
+applyLangToDOM(currentLang);
+renderTable();
+
+
+
+// ── MOBILE SIDEBAR ────────────────────────────────────────────────────────
+function toggleSidebar(){
+  document.querySelector('.sidebar').classList.toggle('mobile-open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function closeSidebar(){
+  document.querySelector('.sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+document.querySelectorAll('.nav-item').forEach(item=>{
+  item.addEventListener('click',()=>{ if(window.innerWidth<=768) closeSidebar(); });
+});
+
+</script>
+</body>
+</html>
