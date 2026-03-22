@@ -214,7 +214,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   </div>
   <div class="nav-section">
     <div class="nav-label" data-en="Main" data-ar="رئيسي">Main</div>
-    <a class="nav-item" href="/white-property/REMS_Manager_Dashboard.html">
+    <a class="nav-item" href="/REMS_Manager_Dashboard.html">
       <span class="nav-icon">⬛</span>
       <span data-en="Dashboard" data-ar="لوحة التحكم">Dashboard</span>
     </a>
@@ -222,22 +222,22 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <span class="nav-icon">🏠</span>
       <span data-en="Properties" data-ar="العقارات">Properties</span>
     </div>
-    <a class="nav-item" href="/white-property/REMS_Clients_Leads.html">
+    <a class="nav-item" href="/REMS_Clients_Leads.html">
       <span class="nav-icon">👥</span>
       <span data-en="Clients & Leads" data-ar="العملاء والعملاء المحتملون">Clients & Leads</span>
       <span class="nav-badge">7</span>
     </a>
-    <a class="nav-item" href="/white-property/REMS_Contracts.html"><span class="nav-icon">📄</span><span data-en="Contracts" data-ar="العقود">Contracts</span></a>
+    <a class="nav-item" href="/REMS_Contracts.html"><span class="nav-icon">📄</span><span data-en="Contracts" data-ar="العقود">Contracts</span></a>
   </div>
   <div class="nav-section">
     <div class="nav-label" data-en="Team" data-ar="الفريق">Team</div>
-    <a class="nav-item" href="/white-property/REMS_Agents.html"><span class="nav-icon">🧑‍💼</span><span data-en="Agents" data-ar="الوكلاء">Agents</span></a>
-    <a class="nav-item" href="/white-property/REMS_Payments.html"><span class="nav-icon">💰</span><span data-en="Commissions" data-ar="العمولات">Commissions</span></a>
-    <a class="nav-item" href="/white-property/REMS_Reports.html"><span class="nav-icon">📊</span><span data-en="Reports" data-ar="التقارير">Reports</span></a>
+    <a class="nav-item" href="/REMS_Agents.html"><span class="nav-icon">🧑‍💼</span><span data-en="Agents" data-ar="الوكلاء">Agents</span></a>
+    <a class="nav-item" href="/REMS_Payments.html"><span class="nav-icon">💰</span><span data-en="Commissions" data-ar="العمولات">Commissions</span></a>
+    <a class="nav-item" href="/REMS_Reports.html"><span class="nav-icon">📊</span><span data-en="Reports" data-ar="التقارير">Reports</span></a>
   </div>
   <div class="nav-section">
     <div class="nav-label" data-en="Finance" data-ar="المالية">Finance</div>
-    <a class="nav-item" href="/white-property/REMS_Payments.html"><span class="nav-icon">💳</span><span data-en="Payments" data-ar="المدفوعات">Payments</span><span class="nav-badge">3</span></a>
+    <a class="nav-item" href="/REMS_Payments.html"><span class="nav-icon">💳</span><span data-en="Payments" data-ar="المدفوعات">Payments</span><span class="nav-badge">3</span></a>
     <a class="nav-item" href="#"><span class="nav-icon">📁</span><span data-en="Documents" data-ar="المستندات">Documents</span></a>
   </div>
   <div class="sidebar-footer">
@@ -807,15 +807,17 @@ function setLang(lang){
 
 // ── SAVE PROPERTY TO SUPABASE ─────────────────────────────────────────────
 async function saveProperty(){
-  const inputs = document.querySelectorAll('#addPanel input, #addPanel select, #addPanel textarea');
+  const panel  = document.getElementById('addPanel');
+  const inputs = panel.querySelectorAll('input, select, textarea');
   const title    = inputs[0].value.trim();
   const category = inputs[1].value;
   const type     = inputs[2].value;
   const price    = parseFloat(inputs[3].value) || 0;
   const size_sqm = parseInt(inputs[4].value)   || 0;
   const bedrooms = parseInt(inputs[5].value)   || null;
-  const area     = inputs[7].value.trim();
-  const desc     = inputs[8].value.trim();
+  // inputs[6] = agent select
+  const area     = inputs[7] ? inputs[7].value.trim() : '';
+  const desc     = inputs[8] ? inputs[8].value.trim() : '';
 
   if(!title){ alert(currentLang==='ar'?'الرجاء إدخال عنوان العقار':'Please enter a property title'); return; }
   if(!price){ alert(currentLang==='ar'?'الرجاء إدخال السعر':'Please enter a price'); return; }
