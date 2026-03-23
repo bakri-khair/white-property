@@ -124,7 +124,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .list-status-col{white-space:nowrap}
 
 /* ── DETAIL PANEL ── */
-.detail-overlay{position:fixed;inset:0;background:#00000070;z-index:100;display:flex;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
+.detail-overlay{position:fixed;inset:0;background:#00000070;z-index:1100;display:flex;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
 .detail-overlay.open{opacity:1;pointer-events:all}
 .detail-panel{width:420px;height:100%;background:var(--surface);border-left:1px solid var(--border2);overflow-y:auto;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .detail-close{background:var(--surface2);border:1px solid var(--border2);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:16px;transition:all .15s}
@@ -210,7 +210,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <aside class="sidebar">
   <div class="logo">
     <div class="logo-mark">White Property</div>
-    <div class="logo-sub" data-en="Real Estate System" data-ar="نظام العقارات">Real Estate System</div>
+    <div class="logo-sub" data-en="Real Estate System" data-ar="نظام العقارات">نظام العقارات</div>
   </div>
   <div class="nav-section">
     <div class="nav-label" data-en="Main" data-ar="رئيسي">Main</div>
@@ -256,11 +256,11 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
   <!-- TOPBAR -->
   <div class="topbar">
-    <div class="page-title" data-en="Properties" data-ar="العقارات">Properties</div>
+    <div class="page-title" data-en="Properties" data-ar="العقارات">العقارات</div>
     <div class="topbar-right">
       <div class="lang-toggle">
-        <button class="lang-btn active" id="btnEN" onclick="setLang('en')">EN</button>
-        <button class="lang-btn" id="btnAR" onclick="setLang('ar')">AR</button>
+        <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+        <button class="lang-btn active" id="btnAR" onclick="setLang('ar')">AR</button>
       </div>
       <button class="btn btn-ghost" onclick="alert('Export feature coming soon')">
         ↓ <span data-en="Export" data-ar="تصدير">Export</span>
