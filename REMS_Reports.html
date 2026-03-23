@@ -393,30 +393,58 @@ currentLang=getLang();applyLangToDOM(currentLang);renderRevenueChart();
   var btn = document.getElementById('mobileMenuBtn');
   var overlay = document.getElementById('sidebarOverlay');
   var sidebar = document.querySelector('.sidebar');
+
   function checkMobile(){
-    if(window.innerWidth <= 768){
-      btn.style.display = 'flex';
-    } else {
-      btn.style.display = 'none';
+    if(btn) btn.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
+    if(window.innerWidth > 768){
       sidebar.classList.remove('mobile-open');
-      if(overlay) overlay.style.display = 'none';
+      if(overlay){ overlay.style.display='none'; overlay.style.pointerEvents='none'; }
     }
   }
   checkMobile();
   window.addEventListener('resize', checkMobile);
-  window.toggleSidebar = function(){
-    var isOpen = sidebar.classList.toggle('mobile-open');
-    if(overlay) overlay.style.display = isOpen ? 'block' : 'none';
-  };
-  window.closeSidebar = function(){
+
+  function openSidebar(){
+    sidebar.classList.add('mobile-open');
+    if(overlay){
+      overlay.style.display = 'block';
+      overlay.style.pointerEvents = 'all';
+      overlay.style.background = '#000000bb';
+    }
+  }
+
+  function doClose(){
     sidebar.classList.remove('mobile-open');
-    if(overlay) overlay.style.display = 'none';
+    if(overlay){ overlay.style.display='none'; overlay.style.pointerEvents='none'; }
+  }
+
+  window.toggleSidebar = function(){
+    if(sidebar.classList.contains('mobile-open')) doClose();
+    else openSidebar();
   };
+
+  window.closeSidebar = doClose;
+
+  // Tap overlay → close
+  if(overlay){
+    overlay.addEventListener('touchend', function(e){ e.preventDefault(); doClose(); }, {passive:false});
+    overlay.addEventListener('click', function(){ doClose(); });
+  }
+
+  // Tap nav item → close
   document.querySelectorAll('.sidebar .nav-item, .sidebar a').forEach(function(item){
     item.addEventListener('click', function(){
-      if(window.innerWidth <= 768) window.closeSidebar();
+      if(window.innerWidth <= 768) doClose();
     });
   });
+
+  // Tap main content → close
+  var main = document.querySelector('.main') || document.querySelector('main');
+  if(main){
+    main.addEventListener('click', function(){
+      if(window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) doClose();
+    });
+  }
 })();
 
 </script>
