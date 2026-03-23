@@ -115,26 +115,20 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
 
 /* ── MOBILE NAV ── */
-.hamburger{display:none;position:fixed;top:14px;right:14px;z-index:9999;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);width:44px;height:44px;align-items:center;justify-content:center;flex-direction:column;gap:5px;cursor:pointer;box-shadow:0 2px 16px #000000aa}
-.hamburger span{display:block;width:20px;height:2px;background:var(--gold2);border-radius:2px}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:#000000bb;z-index:999}
-.sidebar-overlay.open{display:block}
 @media(max-width:768px){
-  .hamburger{display:flex !important}
-  .sidebar{position:fixed !important;top:0 !important;right:-240px !important;left:auto !important;width:220px !important;min-width:220px !important;height:100vh !important;z-index:1000 !important;transition:right .3s ease !important;overflow-y:auto !important;-webkit-overflow-scrolling:touch !important;border-left:1px solid var(--border2) !important}
+  .sidebar{position:fixed !important;top:0 !important;right:-240px !important;left:auto !important;width:220px !important;min-width:220px !important;height:100vh !important;z-index:1000 !important;transition:right .3s ease !important;overflow-y:auto !important;-webkit-overflow-scrolling:touch !important}
   .sidebar.mobile-open{right:0 !important}
   .main{padding-top:70px !important}
-}
 }
 </style>
 </head>
 <body>
 
 <!-- MOBILE HAMBURGER -->
-<button id="hamburger" onclick="toggleSidebar()" style="display:none;position:fixed;top:12px;right:12px;z-index:9999;background:#13161E;border:1px solid #ffffff22;border-radius:10px;width:52px;height:52px;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;box-shadow:0 2px 20px #000000cc;padding:0;-webkit-tap-highlight-color:transparent">
-  <div style="width:22px;height:3px;background:#E8C87A;border-radius:2px"></div>
-  <div style="width:22px;height:3px;background:#E8C87A;border-radius:2px"></div>
-  <div style="width:22px;height:3px;background:#E8C87A;border-radius:2px"></div>
+<button id="mobileMenuBtn" onclick="toggleSidebar()" style="display:none;position:fixed;top:12px;right:12px;z-index:9999;background:#13161E;border:2px solid #C9A84C;border-radius:10px;width:48px;height:48px;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 20px #000000cc">
+  <div style="width:22px;height:3px;background:#E8C87A;border-radius:2px;pointer-events:none"></div>
+  <div style="width:22px;height:3px;background:#E8C87A;border-radius:2px;pointer-events:none"></div>
+  <div style="width:22px;height:3px;background:#E8C87A;border-radius:2px;pointer-events:none"></div>
 </button>
 <div id="sidebarOverlay" onclick="closeSidebar()" style="display:none;position:fixed;inset:0;background:#000000bb;z-index:998"></div>
 
@@ -353,25 +347,29 @@ currentLang=getLang();applyLangToDOM(currentLang);renderTable();
 
 // ── MOBILE SIDEBAR ────────────────────────────────────────────────────────
 (function(){
-  var btn = document.getElementById('hamburger');
+  var btn = document.getElementById('mobileMenuBtn');
   var overlay = document.getElementById('sidebarOverlay');
   var sidebar = document.querySelector('.sidebar');
-  // Show hamburger on mobile
-  if(window.innerWidth <= 768){
-    btn.style.display = 'flex';
+  function checkMobile(){
+    if(window.innerWidth <= 768){
+      btn.style.display = 'flex';
+    } else {
+      btn.style.display = 'none';
+      sidebar.classList.remove('mobile-open');
+      if(overlay) overlay.style.display = 'none';
+    }
   }
-  window.addEventListener('resize', function(){
-    btn.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
-  });
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
   window.toggleSidebar = function(){
     var isOpen = sidebar.classList.toggle('mobile-open');
-    overlay.style.display = isOpen ? 'block' : 'none';
+    if(overlay) overlay.style.display = isOpen ? 'block' : 'none';
   };
   window.closeSidebar = function(){
     sidebar.classList.remove('mobile-open');
-    overlay.style.display = 'none';
+    if(overlay) overlay.style.display = 'none';
   };
-  document.querySelectorAll('.nav-item').forEach(function(item){
+  document.querySelectorAll('.sidebar .nav-item, .sidebar a').forEach(function(item){
     item.addEventListener('click', function(){
       if(window.innerWidth <= 768) window.closeSidebar();
     });
