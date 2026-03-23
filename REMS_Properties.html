@@ -214,7 +214,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   </div>
   <div class="nav-section">
     <div class="nav-label" data-en="Main" data-ar="رئيسي">Main</div>
-    <a class="nav-item" href="/REMS_Manager_Dashboard.html">
+    <a class="nav-item" href="REMS_Manager_Dashboard.html">
       <span class="nav-icon">⬛</span>
       <span data-en="Dashboard" data-ar="لوحة التحكم">Dashboard</span>
     </a>
@@ -222,22 +222,22 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <span class="nav-icon">🏠</span>
       <span data-en="Properties" data-ar="العقارات">Properties</span>
     </div>
-    <a class="nav-item" href="/REMS_Clients_Leads.html">
+    <a class="nav-item" href="REMS_Clients_Leads.html">
       <span class="nav-icon">👥</span>
       <span data-en="Clients & Leads" data-ar="العملاء والعملاء المحتملون">Clients & Leads</span>
       <span class="nav-badge">7</span>
     </a>
-    <a class="nav-item" href="/REMS_Contracts.html"><span class="nav-icon">📄</span><span data-en="Contracts" data-ar="العقود">Contracts</span></a>
+    <a class="nav-item" href="REMS_Contracts.html"><span class="nav-icon">📄</span><span data-en="Contracts" data-ar="العقود">Contracts</span></a>
   </div>
   <div class="nav-section">
     <div class="nav-label" data-en="Team" data-ar="الفريق">Team</div>
-    <a class="nav-item" href="/REMS_Agents.html"><span class="nav-icon">🧑‍💼</span><span data-en="Agents" data-ar="الوكلاء">Agents</span></a>
-    <a class="nav-item" href="/REMS_Payments.html"><span class="nav-icon">💰</span><span data-en="Commissions" data-ar="العمولات">Commissions</span></a>
-    <a class="nav-item" href="/REMS_Reports.html"><span class="nav-icon">📊</span><span data-en="Reports" data-ar="التقارير">Reports</span></a>
+    <a class="nav-item" href="REMS_Agents.html"><span class="nav-icon">🧑‍💼</span><span data-en="Agents" data-ar="الوكلاء">Agents</span></a>
+    <a class="nav-item" href="REMS_Payments.html"><span class="nav-icon">💰</span><span data-en="Commissions" data-ar="العمولات">Commissions</span></a>
+    <a class="nav-item" href="REMS_Reports.html"><span class="nav-icon">📊</span><span data-en="Reports" data-ar="التقارير">Reports</span></a>
   </div>
   <div class="nav-section">
     <div class="nav-label" data-en="Finance" data-ar="المالية">Finance</div>
-    <a class="nav-item" href="/REMS_Payments.html"><span class="nav-icon">💳</span><span data-en="Payments" data-ar="المدفوعات">Payments</span><span class="nav-badge">3</span></a>
+    <a class="nav-item" href="REMS_Payments.html"><span class="nav-icon">💳</span><span data-en="Payments" data-ar="المدفوعات">Payments</span><span class="nav-badge">3</span></a>
     <a class="nav-item" href="#"><span class="nav-icon">📁</span><span data-en="Documents" data-ar="المستندات">Documents</span></a>
   </div>
   <div class="sidebar-footer">
@@ -560,8 +560,8 @@ function formatPrice(price, type){
 
 // Map DB row → display object
 function mapProperty(p){
-  const agentName = p.users ? p.users.full_name : '—';
-  const initials = agentName.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+  const agentName = '—';
+  const initials = '??';
   return {
     id: p.id,
     emoji: emojiForType(p.title || p.type),
@@ -580,7 +580,7 @@ function mapProperty(p){
     priceDisplay: formatPrice(p.price, p.category),
     agent: agentName,
     agentInitials: initials,
-    agentColor: agentColorFor(agentName),
+    agentColor: 'var(--gold)',
     desc: p.description || '—',
     descAr: p.description_ar || p.description || '—',
     docs: [],
@@ -600,12 +600,26 @@ async function loadProperties(){
       ${currentLang==='ar'?'جاري تحميل العقارات...':'Loading properties...'}
     </div>`;
   try {
-    const data = await sbFetch('properties', 'select=*,users(full_name)&order=created_at.desc');
-    if(Array.isArray(data)){
+    const data = await sbFetch('properties', 'select=*&order=created_at.desc');
+    if(Array.isArray(data) && data.length > 0){
       PROPERTIES = data.map(mapProperty);
+    } else if(Array.isArray(data) && data.length === 0){
+      PROPERTIES = [];
+      document.getElementById('propsContainer').innerHTML =
+        `<div style="text-align:center;padding:60px;color:var(--text3);font-size:14px">
+          ${currentLang==='ar'?'لا توجد عقارات بعد. أضف أول عقار!':'No properties yet. Add your first property!'}
+        </div>`;
+      updateStatChips();
+      return;
     } else {
       PROPERTIES = [];
       console.error('Supabase error:', data);
+      document.getElementById('propsContainer').innerHTML =
+        `<div style="text-align:center;padding:60px;color:var(--coral);font-size:14px">
+          Error loading properties. Check console.
+        </div>`;
+      updateStatChips();
+      return;
     }
   } catch(e){
     console.error('Failed to load:', e);
