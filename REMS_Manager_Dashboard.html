@@ -796,10 +796,9 @@ async function loadDashboardKPIs(){
       fetch(`${SUPABASE_URL}/rest/v1/contracts?select=id,status`,{headers}).then(r=>r.json()),
       fetch(`${SUPABASE_URL}/rest/v1/clients?select=id`,{headers}).then(r=>r.json()),
     ]);
-    // Properties
+    // Properties - count all
     if(Array.isArray(props)){
-      const active = props.filter(p=>p.status==='available'||p.status==='reserved');
-      document.getElementById('kpiProperties').textContent = active.length || props.length;
+      document.getElementById('kpiProperties').textContent = props.length;
     }
     // Leads
     if(Array.isArray(leads)){

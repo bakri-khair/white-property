@@ -438,8 +438,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         <textarea class="form-input" style="resize:vertical;min-height:72px" placeholder="What did the client say? What are they looking for?" data-placeholder-en="What did the client say? What are they looking for?" data-placeholder-ar="ماذا قال العميل؟ ماذا يبحث عن؟"></textarea>
       </div>
       <div style="display:flex;gap:8px;padding-top:4px">
-        <button class="btn btn-primary" style="flex:1" onclick="alert('Lead saved! (Backend coming soon)')">✓ <span data-en="Save Lead" data-ar="حفظ العميل">Save Lead</span></button>
-        <button class="btn btn-ghost" onclick="closeAdd()" data-en="Cancel" data-ar="إلغاء">Cancel</button>
+        <button class="btn btn-primary" style="flex:1" onclick="saveLead()">✓ <span data-en="Save Lead" data-ar="حفظ العميل">حفظ العميل</span></button>
+        <button class="btn btn-ghost" onclick="closeAdd()" data-en="Cancel" data-ar="إلغاء">إلغاء</button>
       </div>
     </div>
   </div>
@@ -758,6 +758,62 @@ function setLang(lang){
   if(typeof openContract !== 'undefined' && openContract && typeof openDetail === 'function') openDetail(openContract.id);
   if(typeof openLead !== 'undefined' && openLead && typeof openDetail === 'function') openDetail(openLead.id);
   if(typeof openProp !== 'undefined' && openProp && typeof openDetail === 'function') openDetail(openProp.id);
+}
+
+// ── SAVE LEAD TO SUPABASE ─────────────────────────────────────────────────
+async function saveLead(){
+  const panel = document.querySelector('#addPanel .dp-body');
+  const inputs = panel.querySelectorAll('input, select, textarea');
+  const firstName = inputs[0].value.trim();
+  const lastName  = inputs[1].value.trim();
+  const phone     = inputs[2].value.trim();
+  const email     = inputs[3].value.trim();
+  const source    = inputs[4].value;
+  const note      = inputs[7] ? inputs[7].value.trim() : '';
+  const followup  = inputs[6] ? inputs[6].value : null;
+
+  if(!firstName){ alert(currentLang==='ar'?'الرجاء إدخال الاسم':'Please enter a name'); return; }
+  if(!phone){ alert(currentLang==='ar'?'الرجاء إدخال رقم الهاتف':'Please enter a phone number'); return; }
+
+  const btn = document.querySelector('#addPanel .btn-primary');
+  btn.disabled = true;
+  btn.textContent = currentLang==='ar' ? 'جاري الحفظ...' : 'Saving...';
+
+  try {
+    const fullName = `${firstName} ${lastName}`.trim();
+    // 1. Save client first
+    const clientRes = await fetch(`${SUPABASE_URL}/rest/v1/clients`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json', 'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({ full_name: fullName, full_name_ar: fullName, phone, email: email||null, source, status: 'active', notes: note })
+    });
+    const clientData = await clientRes.json();
+
+    if(Array.isArray(clientData) && clientData.length > 0){
+      const clientId = clientData[0].id;
+      // 2. Save lead
+      await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ client_id: clientId, stage: 'new', source, last_note: note, next_followup: followup||null, overdue: false })
+      });
+      closeAdd();
+      await loadData();
+    } else {
+      throw new Error(JSON.stringify(clientData));
+    }
+  } catch(e){
+    console.error(e);
+    alert(currentLang==='ar'?'حدث خطأ':'Error saving. Check console.');
+  }
+  btn.disabled = false;
+  btn.innerHTML = `✓ <span>${currentLang==='ar'?'حفظ العميل':'Save Lead'}</span>`;
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────

@@ -508,8 +508,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         <textarea class="form-input" style="resize:vertical;min-height:72px" placeholder="Any special terms or conditions..." data-placeholder-en="Any special terms or conditions..." data-placeholder-ar="أي شروط أو أحكام خاصة..."></textarea>
       </div>
       <div style="display:flex;gap:8px;padding-top:4px">
-        <button class="btn btn-primary" style="flex:1" onclick="alert('Contract saved as Draft — (Backend coming soon)')">✓ <span data-en="Save as Draft" data-ar="حفظ كمسودة">Save as Draft</span></button>
-        <button class="btn btn-ghost" onclick="closeNc()" data-en="Cancel" data-ar="إلغاء">Cancel</button>
+        <button class="btn btn-primary" style="flex:1" onclick="saveContract()">✓ <span data-en="Save as Draft" data-ar="حفظ كمسودة">حفظ كمسودة</span></button>
+        <button class="btn btn-ghost" onclick="closeNc()" data-en="Cancel" data-ar="إلغاء">إلغاء</button>
       </div>
     </div>
   </div>
@@ -782,6 +782,59 @@ function setLang(lang){
   if(typeof openContract !== 'undefined' && openContract && typeof openDetail === 'function') openDetail(openContract.id);
   if(typeof openLead !== 'undefined' && openLead && typeof openDetail === 'function') openDetail(openLead.id);
   if(typeof openProp !== 'undefined' && openProp && typeof openDetail === 'function') openDetail(openProp.id);
+}
+
+// ── SUPABASE CONFIG ───────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://rsltcussoppshltpyqhu.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzbHRjdXNzb3Bwc2hsdHB5cWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDQwNzAsImV4cCI6MjA4OTc4MDA3MH0.R8fNuI43h_u4lDIXtmxEbMT--vP59YawMGj3IJLo0mg';
+
+// ── SAVE CONTRACT ─────────────────────────────────────────────────────────
+async function saveContract(){
+  const panel = document.querySelector('#ncPanel .detail-body');
+  const inputs = panel.querySelectorAll('input, select, textarea');
+  const type       = inputs[0].value;
+  const dealValue  = parseFloat(inputs[2].value) || 0;
+  const commPct    = parseFloat(inputs[3].value) || 2.5;
+  const startDate  = inputs[4].value || null;
+  const endDate    = inputs[5].value || null;
+  const notes      = inputs[7] ? inputs[7].value.trim() : '';
+
+  if(!dealValue){ alert(currentLang==='ar'?'الرجاء إدخال قيمة الصفقة':'Please enter a deal value'); return; }
+
+  const btn = document.querySelector('#ncPanel .btn-primary');
+  btn.disabled = true;
+  btn.textContent = currentLang==='ar' ? 'جاري الحفظ...' : 'Saving...';
+
+  try {
+    const ref = 'C-' + Date.now().toString().slice(-4);
+    const commAmount = dealValue * (commPct / 100);
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/contracts`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json', 'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
+        ref, type, status: 'draft',
+        deal_value: dealValue,
+        commission_pct: commPct,
+        commission_amount: commAmount,
+        start_date: startDate,
+        end_date: endDate,
+        notes
+      })
+    });
+    const data = await res.json();
+    if(Array.isArray(data) && data.length > 0){
+      closeNc();
+      await loadContracts();
+    } else { throw new Error(JSON.stringify(data)); }
+  } catch(e){
+    console.error(e);
+    alert(currentLang==='ar'?'حدث خطأ':'Error saving.');
+  }
+  btn.disabled = false;
+  btn.innerHTML = `✓ <span>${currentLang==='ar'?'حفظ كمسودة':'Save as Draft'}</span>`;
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────
