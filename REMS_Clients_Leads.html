@@ -544,25 +544,35 @@ function mapClient(c){
 }
 
 async function loadData(){
-  // Load leads with client + property + agent names
-  const leadsRaw = await sbFetch('leads','select=*,clients(full_name,full_name_ar,phone),properties(title),users(full_name)&order=created_at.desc');
+  // Simple fetches — no joins to avoid RLS issues
+  const [leadsRaw, clientsRaw] = await Promise.all([
+    sbFetch('leads','select=*&order=created_at.desc'),
+    sbFetch('clients','select=*&order=created_at.desc'),
+  ]);
+
   if(Array.isArray(leadsRaw)){
-    LEADS = leadsRaw.map(l => mapLead({
-      ...l,
-      client_name: l.clients?.full_name || '—',
-      client_phone: l.clients?.phone || '—',
-      property_title: l.properties?.title || '—',
-      agent_name: l.users?.full_name || '—',
-    }));
+    LEADS = leadsRaw.map(l => {
+      // Find matching client
+      const client = Array.isArray(clientsRaw) ? clientsRaw.find(c=>c.id===l.client_id) : null;
+      return mapLead({
+        ...l,
+        client_name: client?.full_name || 'عميل جديد',
+        client_phone: client?.phone || '—',
+        property_title: '—',
+        agent_name: '—',
+      });
+    });
   }
-  // Load clients
-  const clientsRaw = await sbFetch('clients','select=*,users(full_name)&order=created_at.desc');
+
   if(Array.isArray(clientsRaw)){
-    CLIENTS_DATA = clientsRaw.map(c => mapClient({...c, agent_name: c.users?.full_name || '—'}));
+    CLIENTS_DATA = clientsRaw.map(c => mapClient({...c, agent_name: '—'}));
   }
-  // Update badge count
+
+  // Update overdue badge
+  const overdue = LEADS.filter(l=>l.overdue).length;
   const badge = document.querySelector('.nav-badge');
-  if(badge) badge.textContent = LEADS.filter(l=>l.overdue).length || LEADS.length;
+  if(badge) badge.textContent = overdue || LEADS.length;
+
   renderView();
 }
 

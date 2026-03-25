@@ -560,14 +560,13 @@ function mapContract(c){
 async function loadContracts(){
   document.getElementById('contractsTable').innerHTML =
     '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text3)">جاري التحميل...</td></tr>';
-  const raw = await sbFetch('contracts',
-    'select=*,clients(full_name),properties(title),users(full_name)&order=created_at.desc');
+  const raw = await sbFetch('contracts','select=*&order=created_at.desc');
   if(Array.isArray(raw)){
     CONTRACTS = raw.map(c => mapContract({
       ...c,
-      client_name: c.clients?.full_name || '—',
-      property_title: c.properties?.title || '—',
-      agent_name: c.users?.full_name || '—',
+      client_name: '—',
+      property_title: '—',
+      agent_name: '—',
     }));
   }
   renderTable();
