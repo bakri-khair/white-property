@@ -517,98 +517,62 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────
-const CONTRACTS = [
-  {id:'C-0041',type:'sale',typeAr:'بيع',client:'Omar Farouk',clientAr:'عمر فاروق',clientId:'L-0003',
-   prop:'Penthouse — Maadi Corniche',propAr:'بنتهاوس — كورنيش المعادي',
-   value:9400000,valueDisplay:'9.4M EGP',status:'review',
-   agent:'Sara M.',agentKey:'sara',agentInitials:'SM',
-   start:'2026-03-15',end:'—',flagged:true,
-   commission:235000,commissionPct:2.5,
-   payments:[
-     {n:1,amount:'2,350,000',due:'2026-03-15',status:'paid'},
-     {n:2,amount:'2,350,000',due:'2026-06-15',status:'upcoming'},
-     {n:3,amount:'2,350,000',due:'2026-09-15',status:'upcoming'},
-     {n:4,amount:'2,350,000',due:'2026-12-15',status:'upcoming'},
-   ],
-   docs:['Contract Draft C-0041.pdf','Property Title Deed.pdf','Client ID.pdf'],
-   workflow:'review',
-   notes:'Awaiting manager approval before activation. Client has signed the draft.'},
+// ── SUPABASE CONFIG ───────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://rsltcussoppshltpyqhu.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzbHRjdXNzb3Bwc2hsdHB5cWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDQwNzAsImV4cCI6MjA4OTc4MDA3MH0.R8fNuI43h_u4lDIXtmxEbMT--vP59YawMGj3IJLo0mg';
+async function sbFetch(table, params=''){
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`,{
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Accept':'application/json'}
+    });
+    return await res.json();
+  } catch(e){ console.error('sbFetch error:',e); return []; }
+}
+let CONTRACTS = [];
 
-  {id:'C-0040',type:'rental',typeAr:'إيجار',client:'Karim Nabil',clientAr:'كريم نبيل',clientId:'L-0006',
-   prop:'Twin House — Sheikh Zayed',propAr:'توين هاوس — الشيخ زايد',
-   value:180000,valueDisplay:'180K EGP/yr',status:'review',
-   agent:'May Y.',agentKey:'may',agentInitials:'MY',
-   start:'2026-04-01',end:'2027-03-31',flagged:true,
-   commission:9000,commissionPct:5,
-   payments:[
-     {n:1,amount:'90,000',due:'2026-04-01',status:'upcoming'},
-     {n:2,amount:'90,000',due:'2026-10-01',status:'upcoming'},
-   ],
-   docs:['Rental Agreement Draft C-0040.pdf','NOC Certificate.pdf'],
-   workflow:'review',
-   notes:'6-month renewable rental. First payment on move-in day.'},
+function mapContract(c){
+  return {
+    id: c.ref || c.id,
+    type: c.type || 'sale',
+    typeAr: c.type === 'rental' ? 'إيجار' : 'بيع',
+    client: c.client_name || '—',
+    clientAr: c.client_name || '—',
+    prop: c.property_title || '—',
+    propAr: c.property_title || '—',
+    value: c.deal_value || 0,
+    valueDisplay: c.deal_value >= 1000000 ? (c.deal_value/1000000).toFixed(1)+'M EGP' : (c.deal_value/1000).toFixed(0)+'K EGP',
+    status: c.status || 'draft',
+    agent: c.agent_name || '—',
+    agentKey: (c.agent_name||'').toLowerCase().split(' ')[0],
+    agentInitials: (c.agent_name||'??').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase(),
+    start: c.start_date || '—',
+    end: c.end_date || '—',
+    flagged: c.status === 'review',
+    commission: c.commission_amount || 0,
+    commissionPct: c.commission_pct || 2.5,
+    payments: [],
+    docs: [],
+    workflow: c.status || 'draft',
+    notes: c.notes || '—',
+  };
+}
 
-  {id:'C-0039',type:'sale',typeAr:'بيع',client:'Layla Hassan',clientAr:'ليلى حسن',clientId:'L-0002',
-   prop:'Villa — 5th Settlement',propAr:'فيلا — القاهرة الجديدة',
-   value:12500000,valueDisplay:'12.5M EGP',status:'review',
-   agent:'Khaled H.',agentKey:'khaled',agentInitials:'KH',
-   start:'2026-03-10',end:'—',flagged:true,
-   commission:375000,commissionPct:3,
-   payments:[
-     {n:1,amount:'3,125,000',due:'2026-03-10',status:'paid'},
-     {n:2,amount:'3,125,000',due:'2026-06-10',status:'upcoming'},
-     {n:3,amount:'3,125,000',due:'2026-09-10',status:'upcoming'},
-     {n:4,amount:'3,125,000',due:'2026-12-10',status:'upcoming'},
-   ],
-   docs:['Contract Draft C-0039.pdf','Villa Title Deed.pdf','NOC.pdf','Inspection Report.pdf'],
-   workflow:'review',
-   notes:'Client has paid first installment. Pending manager approval.'},
+async function loadContracts(){
+  document.getElementById('contractsTable').innerHTML =
+    '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text3)">جاري التحميل...</td></tr>';
+  const raw = await sbFetch('contracts',
+    'select=*,clients(full_name),properties(title),users(full_name)&order=created_at.desc');
+  if(Array.isArray(raw)){
+    CONTRACTS = raw.map(c => mapContract({
+      ...c,
+      client_name: c.clients?.full_name || '—',
+      property_title: c.properties?.title || '—',
+      agent_name: c.users?.full_name || '—',
+    }));
+  }
+  renderTable();
+}
 
-  {id:'C-0038',type:'rental',typeAr:'إيجار',client:'Hana Sami',clientAr:'هناء سامي',clientId:'L-0005',
-   prop:'Office — Downtown Cairo',propAr:'مكتب — وسط القاهرة',
-   value:240000,valueDisplay:'240K EGP/yr',status:'active',
-   agent:'Sara M.',agentKey:'sara',agentInitials:'SM',
-   start:'2025-10-01',end:'2026-09-30',flagged:false,
-   commission:12000,commissionPct:5,
-   payments:[
-     {n:1,amount:'60,000',due:'2025-10-01',status:'paid'},
-     {n:2,amount:'60,000',due:'2026-01-01',status:'paid'},
-     {n:3,amount:'60,000',due:'2026-04-01',status:'upcoming'},
-     {n:4,amount:'60,000',due:'2026-07-01',status:'upcoming'},
-   ],
-   docs:['Contract C-0038.pdf','NOC Certificate.pdf'],
-   workflow:'active',
-   notes:'Active rental. Renewal due October 2026.'},
-
-  {id:'R-0018',type:'shortrental',typeAr:'إيجار قصير',client:'Dina Mostafa',clientAr:'دينا مصطفى',clientId:'L-0004',
-   prop:'Furnished Apt — Zamalek',propAr:'شقة مفروشة — الزمالك',
-   value:25000,valueDisplay:'25K EGP/mo',status:'expired',
-   agent:'Rania A.',agentKey:'rania',agentInitials:'RA',
-   start:'2026-01-01',end:'2026-03-31',flagged:false,
-   commission:1250,commissionPct:5,
-   payments:[
-     {n:1,amount:'25,000',due:'2026-01-01',status:'paid'},
-     {n:2,amount:'25,000',due:'2026-02-01',status:'paid'},
-     {n:3,amount:'25,000',due:'2026-03-01',status:'paid'},
-   ],
-   docs:['Rental Contract R-0018.pdf','Inventory Checklist.pdf'],
-   workflow:'active',
-   notes:'3-month short-term rental. Expired March 31st — renewal pending.'},
-
-  {id:'C-0035',type:'sale',typeAr:'بيع',client:'Bassem Lotfy',clientAr:'باسم لطفي',clientId:'C-0002',
-   prop:'Apartment — Maadi',propAr:'شقة — المعادي',
-   value:3800000,valueDisplay:'3.8M EGP',status:'completed',
-   agent:'Rania A.',agentKey:'rania',agentInitials:'RA',
-   start:'2025-08-01',end:'2025-11-30',flagged:false,
-   commission:95000,commissionPct:2.5,
-   payments:[
-     {n:1,amount:'1,900,000',due:'2025-08-01',status:'paid'},
-     {n:2,amount:'1,900,000',due:'2025-11-01',status:'paid'},
-   ],
-   docs:['Contract C-0035.pdf','Title Deed Transfer.pdf','Final Receipt.pdf'],
-   workflow:'completed',
-   notes:'Deal fully completed. Title transferred to buyer.'},
-];
 
 let currentStatusFilter = 'all';
 let currentLang = getLang();
@@ -823,7 +787,7 @@ function setLang(lang){
 // ── INIT ──────────────────────────────────────────────────────────────────
 currentLang = getLang();
 applyLangToDOM(currentLang);
-renderTable();
+loadContracts();
 
 
 

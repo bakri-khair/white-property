@@ -267,20 +267,46 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 </div>
 
 <script>
-const PAYMENTS = [
-  {contract:'C-0041',client:'Omar Farouk',clientAr:'عمر فاروق',type:'sale',typeAr:'بيع',n:'2/4',amount:'2,350,000',due:'2026-06-15',status:'upcoming',paid:'—'},
-  {contract:'C-0041',client:'Omar Farouk',clientAr:'عمر فاروق',type:'sale',typeAr:'بيع',n:'1/4',amount:'2,350,000',due:'2026-03-15',status:'paid',paid:'2026-03-14'},
-  {contract:'C-0039',client:'Layla Hassan',clientAr:'ليلى حسن',type:'sale',typeAr:'بيع',n:'2/4',amount:'3,125,000',due:'2026-03-10',status:'overdue',paid:'—'},
-  {contract:'C-0039',client:'Layla Hassan',clientAr:'ليلى حسن',type:'sale',typeAr:'بيع',n:'1/4',amount:'3,125,000',due:'2026-03-10',status:'paid',paid:'2026-03-10'},
-  {contract:'C-0038',client:'Hana Sami',clientAr:'هناء سامي',type:'rental',typeAr:'إيجار',n:'3/4',amount:'60,000',due:'2026-04-01',status:'upcoming',paid:'—'},
-  {contract:'C-0038',client:'Hana Sami',clientAr:'هناء سامي',type:'rental',typeAr:'إيجار',n:'2/4',amount:'60,000',due:'2026-01-01',status:'paid',paid:'2025-12-31'},
-  {contract:'C-0038',client:'Hana Sami',clientAr:'هناء سامي',type:'rental',typeAr:'إيجار',n:'1/4',amount:'60,000',due:'2025-10-01',status:'paid',paid:'2025-09-30'},
-  {contract:'R-0018',client:'Dina Mostafa',clientAr:'دينا مصطفى',type:'rental',typeAr:'إيجار',n:'3/3',amount:'25,000',due:'2026-03-01',status:'paid',paid:'2026-03-01'},
-  {contract:'R-0018',client:'Dina Mostafa',clientAr:'دينا مصطفى',type:'rental',typeAr:'إيجار',n:'2/3',amount:'25,000',due:'2026-02-01',status:'paid',paid:'2026-02-01'},
-  {contract:'C-0040',client:'Karim Nabil',clientAr:'كريم نبيل',type:'rental',typeAr:'إيجار',n:'1/2',amount:'90,000',due:'2026-04-01',status:'upcoming',paid:'—'},
-  {contract:'C-0035',client:'Bassem Lotfy',clientAr:'باسم لطفي',type:'sale',typeAr:'بيع',n:'2/2',amount:'1,900,000',due:'2025-11-01',status:'paid',paid:'2025-10-30'},
-  {contract:'C-0035',client:'Bassem Lotfy',clientAr:'باسم لطفي',type:'sale',typeAr:'بيع',n:'1/2',amount:'1,900,000',due:'2025-08-01',status:'paid',paid:'2025-08-01'},
-];
+// ── SUPABASE CONFIG ───────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://rsltcussoppshltpyqhu.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzbHRjdXNzb3Bwc2hsdHB5cWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDQwNzAsImV4cCI6MjA4OTc4MDA3MH0.R8fNuI43h_u4lDIXtmxEbMT--vP59YawMGj3IJLo0mg';
+async function sbFetch(table, params=''){
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`,{
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Accept':'application/json'}
+    });
+    return await res.json();
+  } catch(e){ console.error('sbFetch error:',e); return []; }
+}
+let PAYMENTS = [];
+
+function mapPayment(p){
+  const contractRef = p.contracts?.ref || p.contract_id?.slice(0,8) || '—';
+  const clientName = p.contracts?.clients?.full_name || '—';
+  const contractType = p.contracts?.type || 'sale';
+  return {
+    contract: contractRef,
+    client: clientName,
+    clientAr: clientName,
+    type: contractType,
+    typeAr: contractType === 'rental' ? 'إيجار' : 'بيع',
+    n: `${p.installment_number||1}/${p.total_installments||1}`,
+    amount: (p.amount||0).toLocaleString(),
+    due: p.due_date || '—',
+    status: p.status || 'upcoming',
+    paid: p.paid_date || '—',
+  };
+}
+
+async function loadPayments(){
+  const raw = await sbFetch('payments',
+    'select=*,contracts(ref,type,clients(full_name))&order=due_date.asc');
+  if(Array.isArray(raw) && raw.length > 0){
+    PAYMENTS = raw.map(mapPayment);
+  }
+  renderTable();
+}
+
 
 let currentLang='ar', currentTab='all';
 function getLang(){return localStorage.getItem('rems_lang')||'ar';}
@@ -341,7 +367,7 @@ function applyLangToDOM(lang){
   document.querySelectorAll('[data-placeholder-en]').forEach(el=>{el.placeholder=isAR?el.getAttribute('data-placeholder-ar'):el.getAttribute('data-placeholder-en');});
 }
 function setLang(lang){currentLang=lang;localStorage.setItem('rems_lang',lang);applyLangToDOM(lang);renderTable();}
-currentLang=getLang();applyLangToDOM(currentLang);renderTable();
+currentLang=getLang();applyLangToDOM(currentLang);loadPayments();
 
 
 

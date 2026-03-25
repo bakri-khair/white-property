@@ -467,27 +467,27 @@ body::before{
   <div class="kpi-grid">
     <div class="kpi-card gold">
       <div class="kpi-label" data-en="Active Listings" data-ar="العقارات النشطة">Active Listings</div>
-      <div class="kpi-value">47</div>
+      <div class="kpi-value" id="kpiProperties">—</div>
       <div class="kpi-change"><span class="up">↑ 6</span> <span data-en="from last month" data-ar="من الشهر الماضي">from last month</span></div>
       <div class="kpi-icon">🏠</div>
     </div>
     <div class="kpi-card teal">
       <div class="kpi-label" data-en="Open Leads" data-ar="العملاء المحتملون">Open Leads</div>
-      <div class="kpi-value">31</div>
+      <div class="kpi-value" id="kpiLeads">—</div>
       <div class="kpi-change"><span class="up">↑ 4</span> <span data-en="new this week" data-ar="جديد هذا الأسبوع">new this week</span></div>
       <div class="kpi-icon">👥</div>
     </div>
     <div class="kpi-card coral">
       <div class="kpi-label" data-en="Pending Approvals" data-ar="في انتظار الموافقة">Pending Approvals</div>
-      <div class="kpi-value">5</div>
-      <div class="kpi-change"><span class="dn">3 contracts</span>, <span data-en="2 documents" data-ar="وثيقتان">2 documents</span></div>
+      <div class="kpi-value" id="kpiPending">—</div>
+      <div class="kpi-change"><span class="dn" id="kpiPendingContracts">—</span> <span data-en="contracts" data-ar="عقود">عقود</span></div>
       <div class="kpi-icon">⏳</div>
     </div>
     <div class="kpi-card blue">
-      <div class="kpi-label" data-en="Revenue — March" data-ar="الإيرادات — مارس">Revenue — March</div>
-      <div class="kpi-value">4.2M</div>
-      <div class="kpi-change"><span data-en="EGP" data-ar="ج.م">EGP</span> &nbsp;<span class="up">↑ 12%</span></div>
-      <div class="kpi-icon">💰</div>
+      <div class="kpi-label" data-en="Active Contracts" data-ar="العقود النشطة">Active Contracts</div>
+      <div class="kpi-value" id="kpiContracts">—</div>
+      <div class="kpi-change"><span class="up" id="kpiClients">—</span> <span data-en="clients" data-ar="عميل">عميل</span></div>
+      <div class="kpi-icon">📄</div>
     </div>
   </div>
 
@@ -782,6 +782,45 @@ function setLang(lang){
 
 // ── INIT ─────────────────────────────────────────────────────────────────
 applyLangToDOM(currentLang);
+
+// ── SUPABASE LIVE KPIs ────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://rsltcussoppshltpyqhu.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzbHRjdXNzb3Bwc2hsdHB5cWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDQwNzAsImV4cCI6MjA4OTc4MDA3MH0.R8fNuI43h_u4lDIXtmxEbMT--vP59YawMGj3IJLo0mg';
+
+async function loadDashboardKPIs(){
+  try {
+    const headers = {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Accept':'application/json'};
+    const [props, leads, contracts, clients] = await Promise.all([
+      fetch(`${SUPABASE_URL}/rest/v1/properties?select=id,status`,{headers}).then(r=>r.json()),
+      fetch(`${SUPABASE_URL}/rest/v1/leads?select=id,stage`,{headers}).then(r=>r.json()),
+      fetch(`${SUPABASE_URL}/rest/v1/contracts?select=id,status`,{headers}).then(r=>r.json()),
+      fetch(`${SUPABASE_URL}/rest/v1/clients?select=id`,{headers}).then(r=>r.json()),
+    ]);
+    // Properties
+    if(Array.isArray(props)){
+      const active = props.filter(p=>p.status==='available'||p.status==='reserved');
+      document.getElementById('kpiProperties').textContent = active.length || props.length;
+    }
+    // Leads
+    if(Array.isArray(leads)){
+      const open = leads.filter(l=>l.stage!=='contracted'&&l.stage!=='completed');
+      document.getElementById('kpiLeads').textContent = open.length || leads.length;
+    }
+    // Contracts
+    if(Array.isArray(contracts)){
+      const pending = contracts.filter(c=>c.status==='review'||c.status==='draft');
+      const active = contracts.filter(c=>c.status==='active');
+      document.getElementById('kpiPending').textContent = pending.length;
+      document.getElementById('kpiPendingContracts').textContent = pending.length;
+      document.getElementById('kpiContracts').textContent = active.length || contracts.length;
+    }
+    // Clients
+    if(Array.isArray(clients)){
+      document.getElementById('kpiClients').textContent = clients.length;
+    }
+  } catch(e){ console.error('Dashboard KPI error:',e); }
+}
+loadDashboardKPIs();
 
 
 

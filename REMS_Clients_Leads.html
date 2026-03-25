@@ -455,7 +455,18 @@ const STAGES = [
   {key:'contracted',en:'Contracted',       ar:'تحت العقد',       color:'var(--green)'},
 ];
 
-const LEADS = [
+// ── SUPABASE CONFIG ───────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://rsltcussoppshltpyqhu.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzbHRjdXNzb3Bwc2hsdHB5cWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDQwNzAsImV4cCI6MjA4OTc4MDA3MH0.R8fNuI43h_u4lDIXtmxEbMT--vP59YawMGj3IJLo0mg';
+async function sbFetch(table, params=''){
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`,{
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Accept':'application/json'}
+    });
+    return await res.json();
+  } catch(e){ console.error('sbFetch error:',e); return []; }
+}
+const LEADS_CACHE = [
   {id:'L-0001',name:'Mohamed Tarek',nameAr:'محمد طارق',phone:'+20 100 234 5678',stage:'new',source:'phone',sourceAr:'هاتف',agent:'Sara M.',agentKey:'sara',agentInitials:'SM',agentColor:'var(--teal)',prop:'Apartment — Rehab City',propAr:'شقة — مدينة الرحاب',followup:'2026-03-22',overdue:false,notes:[{text:'Called to enquire about 3BR apartments in Rehab. Budget ~3.5M EGP.',time:'Today, 9:14 AM'}]},
   {id:'L-0002',name:'Layla Hassan',nameAr:'ليلى حسن',phone:'+20 111 345 6789',stage:'viewing',source:'referral',sourceAr:'إحالة',agent:'Khaled H.',agentKey:'khaled',agentInitials:'KH',agentColor:'var(--gold)',prop:'Villa — 5th Settlement',propAr:'فيلا — القاهرة الجديدة',followup:'2026-03-21',overdue:true,notes:[{text:'Viewing scheduled for this Saturday at 11am. Husband joining.',time:'Yesterday'},{text:'Referred by existing client Mrs. Samira.',time:'3 days ago'}]},
   {id:'L-0003',name:'Omar Farouk',nameAr:'عمر فاروق',phone:'+20 122 456 7890',stage:'offer',source:'social',sourceAr:'سوشيال ميديا',agent:'Sara M.',agentKey:'sara',agentInitials:'SM',agentColor:'var(--teal)',prop:'Penthouse — Maadi Corniche',propAr:'بنتهاوس — كورنيش المعادي',followup:'2026-03-23',overdue:false,notes:[{text:'Offer submitted: 9.4M EGP. Awaiting client response.',time:'2 days ago'},{text:'Second viewing done — client very interested.',time:'4 days ago'}]},
@@ -471,9 +482,89 @@ const CLIENTS_EXTRA = [
   {id:'C-0002',name:'Bassem Lotfy',nameAr:'باسم لطفي',phone:'+20 122 333 4444',prop:'Villa — Maadi',propAr:'فيلا — المعادي',stage:'new',source:'phone',sourceAr:'هاتف',agent:'Rania A.',agentKey:'rania',followup:'2026-03-25',overdue:false},
 ];
 
+// ── LIVE DATA ─────────────────────────────────────────────────────────────
+let LEADS = [];
+let CLIENTS_DATA = [];
 let currentTab = 'pipeline';
 let currentLang = getLang();
 let openLead = null;
+
+function agentInitialsFor(name){ return (name||'??').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase(); }
+function agentColorByName(name){
+  if(!name) return 'var(--gold)';
+  const n = name.toLowerCase();
+  if(n.includes('sara')) return 'var(--teal)';
+  if(n.includes('khaled')) return 'var(--gold)';
+  if(n.includes('rania')) return 'var(--blue)';
+  if(n.includes('ahmed')) return 'var(--coral)';
+  if(n.includes('may')) return 'var(--green)';
+  return 'var(--purple)';
+}
+
+function mapLead(l){
+  const agentName = l.agent_name || '—';
+  const clientName = l.client_name || '—';
+  const propTitle = l.property_title || '—';
+  return {
+    id: l.id,
+    name: clientName,
+    nameAr: clientName,
+    phone: l.client_phone || '—',
+    stage: l.stage || 'new',
+    source: l.source || '—',
+    sourceAr: l.source || '—',
+    agent: agentName,
+    agentKey: (agentName).toLowerCase().split(' ')[0],
+    agentInitials: agentInitialsFor(agentName),
+    agentColor: agentColorByName(agentName),
+    prop: propTitle,
+    propAr: propTitle,
+    followup: l.next_followup || '—',
+    overdue: l.overdue || false,
+    notes: l.last_note ? [{text: l.last_note, time: ''}] : [],
+  };
+}
+
+function mapClient(c){
+  const agentName = c.agent_name || '—';
+  return {
+    id: c.id,
+    name: c.full_name || '—',
+    nameAr: c.full_name_ar || c.full_name || '—',
+    phone: c.phone || '—',
+    prop: '—', propAr: '—',
+    stage: c.status || 'active',
+    source: c.source || '—',
+    sourceAr: c.source || '—',
+    agent: agentName,
+    agentKey: (agentName).toLowerCase().split(' ')[0],
+    followup: '—',
+    overdue: false,
+  };
+}
+
+async function loadData(){
+  // Load leads with client + property + agent names
+  const leadsRaw = await sbFetch('leads','select=*,clients(full_name,full_name_ar,phone),properties(title),users(full_name)&order=created_at.desc');
+  if(Array.isArray(leadsRaw)){
+    LEADS = leadsRaw.map(l => mapLead({
+      ...l,
+      client_name: l.clients?.full_name || '—',
+      client_phone: l.clients?.phone || '—',
+      property_title: l.properties?.title || '—',
+      agent_name: l.users?.full_name || '—',
+    }));
+  }
+  // Load clients
+  const clientsRaw = await sbFetch('clients','select=*,users(full_name)&order=created_at.desc');
+  if(Array.isArray(clientsRaw)){
+    CLIENTS_DATA = clientsRaw.map(c => mapClient({...c, agent_name: c.users?.full_name || '—'}));
+  }
+  // Update badge count
+  const badge = document.querySelector('.nav-badge');
+  if(badge) badge.textContent = LEADS.filter(l=>l.overdue).length || LEADS.length;
+  renderView();
+}
 
 // ── PIPELINE ──────────────────────────────────────────────────────────────
 function filteredLeads(){
@@ -531,7 +622,7 @@ function stagePill(s){
 }
 
 function renderClientsTable(){
-  const allClients = [...LEADS, ...CLIENTS_EXTRA];
+  const allClients = CLIENTS_DATA.length ? CLIENTS_DATA : LEADS;
   const q = document.getElementById('searchInput').value.toLowerCase();
   const agent = document.getElementById('agentFilter').value;
   const source = document.getElementById('sourceFilter').value;

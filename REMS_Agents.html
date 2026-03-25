@@ -259,22 +259,64 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 </div>
 
 <script>
-const AGENTS = [
-  {id:'A-001',name:'Sara Mahmoud',nameAr:'سارة محمود',role:'Senior Sales Agent',roleAr:'وكيلة مبيعات أولى',phone:'+20 100 111 2233',email:'sara@whiteproperty.eg',initials:'SM',color:'var(--teal)',colorHex:'#2DD4BF',deals:8,leads:14,commission:235000,commissionDisplay:'235K',target:80,joined:'Jan 2023',active:true,
-   activatedDeals:[{ref:'C-0041',prop:'Penthouse — Maadi',value:'9.4M',color:'var(--gold)'},
-                   {ref:'C-0038',prop:'Office — Downtown',value:'240K/yr',color:'var(--blue)'}]},
-  {id:'A-002',name:'Khaled Hassan',nameAr:'خالد حسن',role:'Sales Agent',roleAr:'وكيل مبيعات',phone:'+20 111 222 3344',email:'khaled@whiteproperty.eg',initials:'KH',color:'var(--gold)',colorHex:'#C9A84C',deals:6,leads:9,commission:375000,commissionDisplay:'375K',target:65,joined:'Mar 2022',active:true,
-   activatedDeals:[{ref:'C-0039',prop:'Villa — New Cairo',value:'12.5M',color:'var(--teal)'}]},
-  {id:'A-003',name:'Rania Adel',nameAr:'رانيا عادل',role:'Sales Agent',roleAr:'وكيلة مبيعات',phone:'+20 122 333 4455',email:'rania@whiteproperty.eg',initials:'RA',color:'var(--blue)',colorHex:'#60A5FA',deals:5,leads:11,commission:96250,commissionDisplay:'96K',target:55,joined:'Jun 2023',active:true,
-   activatedDeals:[{ref:'R-0018',prop:'Apt — Zamalek',value:'25K/mo',color:'var(--purple)'},
-                   {ref:'C-0035',prop:'Apt — Maadi',value:'3.8M',color:'var(--green)'}]},
-  {id:'A-004',name:'Ahmed Salem',nameAr:'أحمد سالم',role:'Junior Agent',roleAr:'وكيل مبتدئ',phone:'+20 100 444 5566',email:'ahmed@whiteproperty.eg',initials:'AS',color:'var(--coral)',colorHex:'#F87171',deals:2,leads:7,commission:11250,commissionDisplay:'11K',target:22,joined:'Sep 2024',active:true,
-   activatedDeals:[{ref:'—',prop:'No closed deals yet',value:'—',color:'var(--text3)'}]},
-  {id:'A-005',name:'May Youssef',nameAr:'مي يوسف',role:'Sales Agent',roleAr:'وكيلة مبيعات',phone:'+20 115 555 6677',email:'may@whiteproperty.eg',initials:'MY',color:'var(--green)',colorHex:'#4ADE80',deals:4,leads:8,commission:9000,commissionDisplay:'9K',target:48,joined:'Nov 2023',active:true,
-   activatedDeals:[{ref:'C-0040',prop:'Twin House — Zayed',value:'180K/yr',color:'var(--amber)'}]},
-];
+// ── SUPABASE CONFIG ───────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://rsltcussoppshltpyqhu.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzbHRjdXNzb3Bwc2hsdHB5cWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDQwNzAsImV4cCI6MjA4OTc4MDA3MH0.R8fNuI43h_u4lDIXtmxEbMT--vP59YawMGj3IJLo0mg';
+async function sbFetch(table, params=''){
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`,{
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Accept':'application/json'}
+    });
+    return await res.json();
+  } catch(e){ console.error('sbFetch error:',e); return []; }
+}
+let AGENTS = [];
+let COMMISSIONS = [];
+
+function mapAgent(u){
+  return {
+    id: u.id,
+    name: u.full_name || '—',
+    nameAr: u.full_name_ar || u.full_name || '—',
+    role: u.role || 'agent',
+    roleAr: u.role === 'manager' ? 'مديرة' : 'وكيل مبيعات',
+    phone: u.phone || '—',
+    email: u.email || '—',
+    initials: (u.full_name||'??').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase(),
+    color: agentColor(u.full_name),
+    colorHex: '#C9A84C',
+    deals: 0, leads: 0,
+    commission: 0, commissionDisplay: '0',
+    target: Math.floor(Math.random()*60)+20,
+    joined: u.created_at ? new Date(u.created_at).toLocaleDateString('en',{month:'short',year:'numeric'}) : '—',
+    active: u.is_active !== false,
+    activatedDeals: [],
+  };
+}
+
+function agentColor(name){
+  if(!name) return 'var(--gold)';
+  const n = name.toLowerCase();
+  if(n.includes('sara')) return 'var(--teal)';
+  if(n.includes('khaled')) return 'var(--gold)';
+  if(n.includes('rania')) return 'var(--blue)';
+  if(n.includes('ahmed')) return 'var(--coral)';
+  if(n.includes('may')) return 'var(--green)';
+  return 'var(--purple)';
+}
+
+async function loadAgents(){
+  document.getElementById('agentsGrid').innerHTML =
+    '<div style="text-align:center;padding:60px;color:var(--text3)">جاري التحميل...</div>';
+  const users = await sbFetch('users','select=*&order=created_at.asc');
+  if(Array.isArray(users)){
+    AGENTS = users.filter(u=>u.role!=='manager').map(mapAgent);
+  }
+  renderAgents(); renderCommissions();
+}
 
 const COMMISSIONS = [
+ = [
   {agent:'Sara M.',agentAr:'سارة م.',contract:'C-0041',value:'9,400,000',amount:'235,000',rate:'2.5%',status:'pending',date:'2026-03-15'},
   {agent:'Khaled H.',agentAr:'خالد ح.',contract:'C-0039',value:'12,500,000',amount:'375,000',rate:'3%',status:'pending',date:'2026-03-10'},
   {agent:'Rania A.',agentAr:'رانيا أ.',contract:'C-0035',value:'3,800,000',amount:'95,000',rate:'2.5%',status:'paid',date:'2025-11-30'},
