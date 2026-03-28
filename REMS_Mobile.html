@@ -137,7 +137,16 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-h
 
 <!-- TOP NAV -->
 <div class="top-nav">
-  <div class="nav-logo" style="color:#1B4FBF">WHITE <span style="color:#F5C518">Property</span></div>
+  <div style="display:flex;align-items:center;gap:4px">
+    <svg width="28" height="28" viewBox="0 0 100 100" style="flex-shrink:0">
+      <polygon points="50,10 85,45 15,45" fill="#1B4FBF"/>
+      <rect x="20" y="45" width="60" height="40" fill="#1B4FBF"/>
+      <rect x="38" y="65" width="24" height="20" fill="white"/>
+      <rect x="82" y="20" width="8" height="55" rx="4" fill="#F5C518"/>
+      <rect x="94" y="28" width="8" height="47" rx="4" fill="#89B4D4"/>
+    </svg>
+    <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:16px;color:#1B4FBF;letter-spacing:-0.5px">WHITE <span style="color:#F5C518">Property</span></div>
+  </div>
   <div class="nav-right">
     <button class="notif-btn">🔔<div class="notif-dot"></div></button>
     <div class="nav-avatar">ر</div>
@@ -273,7 +282,16 @@ async function renderHome(){
   main.innerHTML = `
     <div class="greeting">
       <div class="greeting-sub">أهلاً وسهلاً 👋</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
       <div class="greeting-name">ريم الخير</div>
+      <svg width="44" height="44" viewBox="0 0 100 100" style="opacity:0.9;flex-shrink:0">
+        <polygon points="50,10 85,45 15,45" fill="white" opacity="0.9"/>
+        <rect x="20" y="45" width="60" height="40" fill="white" opacity="0.9"/>
+        <rect x="38" y="65" width="24" height="20" fill="#1B4FBF"/>
+        <rect x="82" y="20" width="8" height="55" rx="4" fill="#F5C518"/>
+        <rect x="94" y="28" width="8" height="47" rx="4" fill="rgba(255,255,255,0.6)"/>
+      </svg>
+    </div>
       <div class="greeting-stats">
         <div class="gs"><div class="gs-val" id="gsProps">—</div><div class="gs-label">عقار</div></div>
         <div class="gs"><div class="gs-val" id="gsLeads">—</div><div class="gs-label">عميل</div></div>
@@ -342,11 +360,15 @@ function filterProps(){
 function propCardHTML(p){
   const wa = generateWAMessage(p);
   const waEncoded = encodeURIComponent(wa);
+  const safeTitle = (p.title_ar||p.title||'').replace(/'/g,"\'").replace(/"/g,'&quot;');
+  const safeDesc  = (p.description_ar||p.description||'').replace(/'/g,"\'").replace(/"/g,'&quot;');
+  const safeArea  = (p.area||'').replace(/'/g,"\'");
   return `
   <div class="prop-card">
     <div class="prop-img" style="background:${p.category==='Commercial'?'linear-gradient(135deg,#f093fb,#f5576c)':p.category==='Short-term Rental'?'linear-gradient(135deg,#4facfe,#00f2fe)':'linear-gradient(135deg,#43e97b,#38f9d7)'}">
       <span style="font-size:52px">${propEmoji(p.type||p.title||'')}</span>
       <div class="prop-badge ${statusClass(p.status)}">${statusLabel(p.status)}</div>
+      <button onclick="openEditModal('${p.id}','${safeTitle}','${safeArea}',${p.price||0},${p.size_sqm||0},${p.bedrooms||0},'${p.status||'available'}','${p.category||'Residential'}','${p.type||'Apartment'}','${safeDesc}')" style="position:absolute;top:10px;left:10px;background:rgba(255,255,255,0.92);border:none;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;color:#1B4FBF;box-shadow:0 2px 8px rgba(0,0,0,0.15)">✏️ تعديل</button>
     </div>
     <div class="prop-body">
       <div class="prop-title">${p.title_ar||p.title||'عقار'}</div>
@@ -365,15 +387,123 @@ function propCardHTML(p){
   </div>`;
 }
 
+// ── EDIT PROPERTY ──────────────────────────────────────────────────────────
+function openEditModal(id,title,area,price,size,beds,status,category,type,desc){
+  const existing = document.getElementById('editModal');
+  if(existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'editModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:#00000080;z-index:500;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch';
+  modal.innerHTML = `
+    <div style="background:white;border-radius:16px;padding:20px;max-width:480px;margin:0 auto;margin-top:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="font-size:18px;font-weight:900;color:#1A1A2E">✏️ تعديل العقار</div>
+        <button onclick="document.getElementById('editModal').remove()" style="background:#F5F7FA;border:none;border-radius:50%;width:34px;height:34px;font-size:16px;cursor:pointer;color:#6B7280">✕</button>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:13px;font-weight:700;display:block;margin-bottom:5px">اسم العقار</label>
+        <input id="eTitle" class="form-input" value="${title}"/>
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:13px;font-weight:700;display:block;margin-bottom:5px">المنطقة</label>
+        <input id="eArea" class="form-input" value="${area}"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div>
+          <label style="font-size:13px;font-weight:700;display:block;margin-bottom:5px">السعر (ج.م) <span style="color:#EF4444">*</span></label>
+          <input id="ePrice" class="form-input" type="number" value="${price}"/>
+        </div>
+        <div>
+          <label style="font-size:13px;font-weight:700;display:block;margin-bottom:5px">المساحة (م²)</label>
+          <input id="eSize" class="form-input" type="number" value="${size||''}"/>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div>
+          <label style="font-size:13px;font-weight:700;display:block;margin-bottom:5px">الغرف</label>
+          <input id="eBeds" class="form-input" type="number" value="${beds||''}"/>
+        </div>
+        <div>
+          <label style="font-size:13px;font-weight:700;display:block;margin-bottom:5px">الحالة <span style="color:#EF4444">*</span></label>
+          <select id="eStatus" class="form-input" style="appearance:none">
+            <option value="available" ${status==='available'?'selected':''}>🟢 متاح</option>
+            <option value="reserved" ${status==='reserved'?'selected':''}>🟡 محجوز</option>
+            <option value="contracted" ${status==='contracted'?'selected':''}>🔵 تحت عقد</option>
+            <option value="completed" ${status==='completed'?'selected':''}>🔴 مباع</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-bottom:20px">
+        <label style="font-size:13px;font-weight:700;display:block;margin-bottom:5px">الوصف</label>
+        <textarea id="eDesc" class="form-input" rows="3" style="resize:none">${desc}</textarea>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button id="saveEditBtn" onclick="saveEdit('${id}')" style="flex:1;background:#1B4FBF;color:white;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif">
+          ✓ حفظ التعديلات
+        </button>
+        <button onclick="document.getElementById('editModal').remove()" style="background:#F5F7FA;color:#6B7280;border:1px solid #E5E7EB;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif">
+          إلغاء
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function saveEdit(id){
+  const title = document.getElementById('eTitle').value.trim();
+  const area  = document.getElementById('eArea').value.trim();
+  const price = parseFloat(document.getElementById('ePrice').value)||0;
+  const size  = parseInt(document.getElementById('eSize').value)||null;
+  const beds  = parseInt(document.getElementById('eBeds').value)||null;
+  const status= document.getElementById('eStatus').value;
+  const desc  = document.getElementById('eDesc').value.trim();
+
+  if(!price){ showToast('⚠️ الرجاء إدخال السعر'); return; }
+
+  const btn = document.getElementById('saveEditBtn');
+  btn.disabled = true;
+  btn.textContent = 'جاري الحفظ...';
+
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/properties?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json', 'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
+        title, title_ar:title, area, price,
+        size_sqm:size, bedrooms:beds, status,
+        description:desc, description_ar:desc
+      })
+    });
+    const data = await res.json();
+    if(Array.isArray(data) && data.length > 0){
+      document.getElementById('editModal').remove();
+      showToast('✅ تم تحديث العقار بنجاح!');
+      if(currentTab==='properties') renderProperties();
+      else renderHome();
+    } else { throw new Error(JSON.stringify(data)); }
+  } catch(e){
+    console.error(e);
+    showToast('❌ حدث خطأ، حاول مرة أخرى');
+    btn.disabled = false;
+    btn.textContent = '✓ حفظ التعديلات';
+  }
+}
+
 // ── ADD PROPERTY ───────────────────────────────────────────────────────────
 function renderAddForm(){
   document.getElementById('mainContent').innerHTML = `
   <div class="add-form">
     <div class="form-title">إضافة عقار جديد</div>
     <div class="form-sub">أدخل تفاصيل العقار وسيتم إشعار الفريق تلقائياً</div>
+    <div style="font-size:12px;color:#EF4444;margin-bottom:16px">* الحقول المطلوبة إلزامية</div>
 
     <div class="form-group">
-      <label class="form-label">اسم العقار</label>
+      <label class="form-label">اسم العقار <span style="color:#EF4444">*</span></label>
       <input class="form-input" id="fTitle" placeholder="مثال: شقة في المعادي"/>
     </div>
 
@@ -399,17 +529,17 @@ function renderAddForm(){
     </div>
 
     <div class="form-group">
-      <label class="form-label">المنطقة</label>
+      <label class="form-label">المنطقة <span style="color:#EF4444">*</span></label>
       <input class="form-input" id="fArea" placeholder="مثال: المعادي، القاهرة"/>
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">السعر (ج.م)</label>
+        <label class="form-label">السعر (ج.م) <span style="color:#EF4444">*</span></label>
         <input class="form-input" id="fPrice" type="number" placeholder="0"/>
       </div>
       <div class="form-group">
-        <label class="form-label">المساحة (م²)</label>
+        <label class="form-label">المساحة (م²) <span style="color:#EF4444">*</span></label>
         <input class="form-input" id="fSize" type="number" placeholder="0"/>
       </div>
     </div>
@@ -452,8 +582,34 @@ async function saveProperty(){
   const status= document.getElementById('fStatus').value;
   const desc  = document.getElementById('fDesc').value.trim();
 
-  if(!title){ showToast('⚠️ الرجاء إدخال اسم العقار'); return; }
-  if(!price){ showToast('⚠️ الرجاء إدخال السعر'); return; }
+  if(!title){ 
+    document.getElementById('fTitle').style.borderColor='#EF4444';
+    showToast('⚠️ الرجاء إدخال اسم العقار'); 
+    document.getElementById('fTitle').focus();
+    return; 
+  }
+  if(!area){ 
+    document.getElementById('fArea').style.borderColor='#EF4444';
+    showToast('⚠️ الرجاء إدخال المنطقة'); 
+    document.getElementById('fArea').focus();
+    return; 
+  }
+  if(!price){ 
+    document.getElementById('fPrice').style.borderColor='#EF4444';
+    showToast('⚠️ الرجاء إدخال السعر'); 
+    document.getElementById('fPrice').focus();
+    return; 
+  }
+  if(!size){ 
+    document.getElementById('fSize').style.borderColor='#EF4444';
+    showToast('⚠️ الرجاء إدخال المساحة'); 
+    document.getElementById('fSize').focus();
+    return; 
+  }
+  // Reset border colors
+  ['fTitle','fArea','fPrice','fSize'].forEach(id=>{
+    document.getElementById(id).style.borderColor='';
+  });
 
   const btn = document.getElementById('submitBtn');
   btn.disabled=true;
@@ -470,14 +626,24 @@ async function saveProperty(){
       const prop = data[0];
       const waMsg = generateWAMessage(prop);
       const waEncoded = encodeURIComponent(waMsg);
+      
+      // Manager number (change to Reem's number before going live)
+      const MANAGER_PHONE = '201100668222';
+      const managerLink = `https://wa.me/${MANAGER_PHONE}?text=${waEncoded}`;
+      const generalLink = `https://wa.me/?text=${waEncoded}`;
 
       document.getElementById('waResult').innerHTML=`
         <div class="wa-box">
-          <div class="wa-box-title">✅ تم حفظ العقار! رسالة واتساب جاهزة:</div>
+          <div class="wa-box-title">✅ تم حفظ العقار بنجاح!</div>
           <div class="wa-text">${waMsg}</div>
-          <a href="https://wa.me/?text=${waEncoded}" target="_blank" class="wa-copy" style="display:block;text-align:center;text-decoration:none;padding:10px;background:#25D366;color:white;border-radius:8px;font-weight:700;font-family:'Cairo',sans-serif">
-            📤 إرسال على واتساب
-          </a>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+            <a href="${managerLink}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;background:#1B4FBF;color:white;border-radius:8px;padding:12px;font-weight:700;font-family:'Cairo',sans-serif;font-size:14px">
+              🔔 إشعار المدير فوراً
+            </a>
+            <a href="${generalLink}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;background:#25D366;color:white;border-radius:8px;padding:12px;font-weight:700;font-family:'Cairo',sans-serif;font-size:14px">
+              📤 مشاركة مع العملاء
+            </a>
+          </div>
         </div>`;
       btn.textContent='✓ تم الحفظ!';
       btn.style.background='#22c55e';
@@ -523,7 +689,7 @@ function renderMatch(){
 
     <div class="match-row">
       <div class="form-group">
-        <label class="form-label">المنطقة</label>
+        <label class="form-label">المنطقة <span style="color:#EF4444">*</span></label>
         <input class="form-input" id="mArea" placeholder="مثال: المعادي"/>
       </div>
       <div class="form-group">
