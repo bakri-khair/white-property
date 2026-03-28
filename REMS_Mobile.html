@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>White Property</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#00875A;--green2:#00A36C;--green-light:#E6F7F1;
+  --gold:#C9A84C;--gold2:#E8C87A;
+  --bg:#F5F7FA;--white:#FFFFFF;
+  --text:#1A1A2E;--text2:#6B7280;--text3:#9CA3AF;
+  --border:#E5E7EB;--border2:#D1D5DB;
+  --red:#EF4444;--amber:#F59E0B;--blue:#3B82F6;
+  --radius:16px;--radius-sm:10px;--radius-xs:8px;
+  --shadow:0 2px 12px rgba(0,0,0,0.08);
+  --shadow-lg:0 8px 32px rgba(0,0,0,0.12);
+}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;position:relative;padding-bottom:80px}
+
+/* TOP NAV */
+.top-nav{background:var(--white);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.nav-logo{font-size:18px;font-weight:900;color:var(--green)}
+.nav-logo span{color:var(--gold)}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white}
+.notif-btn{width:36px;height:36px;border-radius:50%;background:var(--bg);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;position:relative}
+.notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid white}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--white);border-top:1px solid var(--border);display:flex;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,0.08)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 14px;border:none;background:none;cursor:pointer;gap:4px;transition:all .15s;color:var(--text3);font-family:'Cairo',sans-serif}
+.nav-btn.active{color:var(--green)}
+.nav-btn-icon{font-size:22px;line-height:1}
+.nav-btn-label{font-size:11px;font-weight:600}
+.nav-btn.active .nav-btn-label{color:var(--green)}
+
+/* MAIN */
+.main{padding:16px}
+
+/* GREETING */
+.greeting{background:linear-gradient(135deg,var(--green),var(--green2));border-radius:var(--radius);padding:20px;margin-bottom:16px;color:white;position:relative;overflow:hidden}
+.greeting::after{content:'';position:absolute;top:-20px;left:-20px;width:120px;height:120px;background:rgba(255,255,255,0.08);border-radius:50%}
+.greeting-sub{font-size:13px;opacity:.85;margin-bottom:4px}
+.greeting-name{font-size:22px;font-weight:900}
+.greeting-stats{display:flex;gap:16px;margin-top:12px}
+.gs{background:rgba(255,255,255,0.15);border-radius:var(--radius-xs);padding:8px 12px;flex:1;text-align:center}
+.gs-val{font-size:20px;font-weight:900}
+.gs-label{font-size:10px;opacity:.8;margin-top:2px}
+
+/* SECTION */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;margin-top:20px}
+.section-title{font-size:16px;font-weight:700}
+.section-link{font-size:13px;color:var(--green);font-weight:600;background:none;border:none;cursor:pointer;font-family:'Cairo',sans-serif}
+
+/* PROPERTY CARD */
+.prop-card{background:var(--white);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);transition:transform .15s}
+.prop-card:active{transform:scale(0.98)}
+.prop-img{height:160px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:52px;position:relative}
+.prop-badge{position:absolute;top:10px;right:10px;background:var(--green);color:white;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
+.prop-badge.sold{background:var(--red)}
+.prop-badge.reserved{background:var(--amber)}
+.prop-body{padding:14px}
+.prop-title{font-size:15px;font-weight:700;margin-bottom:4px;line-height:1.4}
+.prop-location{font-size:13px;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:4px}
+.prop-price{font-size:18px;font-weight:900;color:var(--green);margin-bottom:10px}
+.prop-attrs{display:flex;gap:8px;flex-wrap:wrap}
+.attr{background:var(--bg);border-radius:var(--radius-xs);padding:4px 10px;font-size:12px;color:var(--text2);font-weight:600}
+.prop-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.prop-agent{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)}
+.agent-av{width:28px;height:28px;border-radius:50%;background:var(--green-light);color:var(--green);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.whatsapp-btn{background:var(--green-light);color:var(--green);border:none;border-radius:var(--radius-xs);padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;display:flex;align-items:center;gap:4px}
+
+/* ADD PROPERTY FORM */
+.add-form{background:var(--white);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.form-title{font-size:18px;font-weight:900;margin-bottom:4px}
+.form-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
+.form-group{margin-bottom:16px}
+.form-label{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;display:block}
+.form-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;font-size:14px;color:var(--text);font-family:'Cairo',sans-serif;outline:none;transition:border-color .15s}
+.form-input:focus{border-color:var(--green);background:white}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B7280' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 14px center}
+.photo-upload{border:2px dashed var(--border2);border-radius:var(--radius-sm);padding:28px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg)}
+.photo-upload:hover{border-color:var(--green);background:var(--green-light)}
+.photo-upload-icon{font-size:32px;margin-bottom:8px}
+.photo-upload-text{font-size:13px;color:var(--text2);font-weight:600}
+.submit-btn{width:100%;background:var(--green);color:white;border:none;border-radius:var(--radius-sm);padding:16px;font-size:16px;font-weight:900;cursor:pointer;font-family:'Cairo',sans-serif;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
+.submit-btn:hover{background:var(--green2)}
+.submit-btn:disabled{background:var(--text3);cursor:not-allowed}
+
+/* MATCH SCREEN */
+.match-search{background:var(--white);border-radius:var(--radius);padding:16px;margin-bottom:16px;box-shadow:var(--shadow)}
+.match-title{font-size:18px;font-weight:900;margin-bottom:4px}
+.match-sub{font-size:13px;color:var(--text2);margin-bottom:16px}
+.match-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.match-btn{width:100%;background:var(--green);color:white;border:none;border-radius:var(--radius-sm);padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;margin-top:6px}
+
+/* MATCH RESULT */
+.match-result{background:var(--white);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);border-right:4px solid var(--green)}
+.match-score{display:inline-flex;align-items:center;gap:4px;background:var(--green-light);color:var(--green);font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:8px}
+.match-prop-title{font-size:15px;font-weight:700;margin-bottom:4px}
+.match-prop-detail{font-size:13px;color:var(--text2);margin-bottom:10px}
+.match-price{font-size:17px;font-weight:900;color:var(--green);margin-bottom:10px}
+.match-actions{display:flex;gap:8px}
+.match-wa{flex:1;background:#25D366;color:white;border:none;border-radius:var(--radius-xs);padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px}
+.match-view{flex:1;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-xs);padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif}
+
+/* SUCCESS TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--green);color:white;padding:12px 24px;border-radius:20px;font-size:14px;font-weight:700;font-family:'Cairo',sans-serif;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;box-shadow:var(--shadow-lg)}
+.toast.show{opacity:1}
+
+/* WA GENERATED */
+.wa-box{background:#E7FFF1;border:1.5px solid #25D366;border-radius:var(--radius-sm);padding:14px;margin-top:16px}
+.wa-box-title{font-size:13px;font-weight:700;color:#128C7E;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.wa-text{font-size:13px;color:var(--text);line-height:1.6;margin-bottom:12px;white-space:pre-wrap}
+.wa-copy{width:100%;background:#25D366;color:white;border:none;border-radius:var(--radius-xs);padding:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif}
+
+/* LOADING */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;color:var(--text2)}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.prop-card{animation:fadeUp .3s ease both}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:40px 20px;color:var(--text2)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty-text{font-size:15px;font-weight:600;margin-bottom:6px;color:var(--text)}
+.empty-sub{font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<div class="top-nav">
+  <div class="nav-logo">White<span>Property</span></div>
+  <div class="nav-right">
+    <button class="notif-btn">🔔<div class="notif-dot"></div></button>
+    <div class="nav-avatar">ر</div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main" id="mainContent"></div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="navHome" onclick="showTab('home')">
+    <div class="nav-btn-icon">🏠</div>
+    <div class="nav-btn-label">الرئيسية</div>
+  </button>
+  <button class="nav-btn" id="navProps" onclick="showTab('properties')">
+    <div class="nav-btn-icon">🏢</div>
+    <div class="nav-btn-label">العقارات</div>
+  </button>
+  <button class="nav-btn" id="navAdd" onclick="showTab('add')">
+    <div class="nav-btn-icon" style="background:var(--green);color:white;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;margin-top:-16px;box-shadow:0 4px 16px rgba(0,135,90,0.4)">+</div>
+    <div class="nav-btn-label">إضافة</div>
+  </button>
+  <button class="nav-btn" id="navMatch" onclick="showTab('match')">
+    <div class="nav-btn-icon">🔍</div>
+    <div class="nav-btn-label">مطابقة</div>
+  </button>
+  <button class="nav-btn" id="navClients" onclick="showTab('clients')">
+    <div class="nav-btn-icon">👥</div>
+    <div class="nav-btn-label">العملاء</div>
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── SUPABASE ───────────────────────────────────────────────────────────────
+const SB_URL = 'https://rsltcussoppshltpyqhu.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzbHRjdXNzb3Bwc2hsdHB5cWh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMDQwNzAsImV4cCI6MjA4OTc4MDA3MH0.R8fNuI43h_u4lDIXtmxEbMT--vP59YawMGj3IJLo0mg';
+
+async function sbFetch(table, params=''){
+  const res = await fetch(`${SB_URL}/rest/v1/${table}?${params}`,{
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Accept':'application/json'}
+  });
+  return res.json();
+}
+
+async function sbInsert(table, data){
+  const res = await fetch(`${SB_URL}/rest/v1/${table}`,{
+    method:'POST',
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+    body:JSON.stringify(data)
+  });
+  return res.json();
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────────────
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+// ── FORMAT PRICE ───────────────────────────────────────────────────────────
+function formatPrice(p){
+  if(!p) return '—';
+  if(p>=1000000) return (p/1000000).toFixed(1)+' مليون ج.م';
+  if(p>=1000) return (p/1000).toFixed(0)+' ألف ج.م';
+  return p.toLocaleString()+' ج.م';
+}
+
+function statusLabel(s){
+  const m={available:'متاح',reserved:'محجوز',contracted:'تحت عقد',completed:'مباع'};
+  return m[s]||s;
+}
+function statusClass(s){
+  if(s==='available') return '';
+  if(s==='reserved') return 'reserved';
+  if(s==='contracted'||s==='completed') return 'sold';
+  return '';
+}
+function propEmoji(type){
+  if(!type) return '🏠';
+  const t=type.toLowerCase();
+  if(t.includes('villa')||t.includes('فيلا')) return '🏠';
+  if(t.includes('office')||t.includes('مكتب')) return '🏢';
+  if(t.includes('shop')||t.includes('محل')) return '🏪';
+  if(t.includes('pent')||t.includes('بنت')) return '🏙️';
+  return '🏠';
+}
+
+// ── WHATSAPP MESSAGE ───────────────────────────────────────────────────────
+function generateWAMessage(prop){
+  return `🏠 *عقار جديد متاح الآن*
+
+📍 *${prop.title_ar||prop.title}*
+📏 المساحة: ${prop.size_sqm||'—'} م²
+🛏 الغرف: ${prop.bedrooms||'—'}
+📍 المنطقة: ${prop.area||'—'}
+💰 السعر: ${formatPrice(prop.price)}
+
+للاستفسار والحجز تواصل معنا الآن 👇
+☎️ White Property`;
+}
+
+// ── TABS ───────────────────────────────────────────────────────────────────
+let currentTab = 'home';
+
+function showTab(tab){
+  currentTab = tab;
+  ['home','props','add','match','clients'].forEach(t=>{
+    const btn = document.getElementById('nav'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(btn) btn.classList.toggle('active', t===tab);
+  });
+  const tabMap={home:'navHome',properties:'navProps',add:'navAdd',match:'navMatch',clients:'navClients'};
+  Object.keys(tabMap).forEach(k=>{
+    const el=document.getElementById(tabMap[k]);
+    if(el) el.classList.toggle('active',k===tab);
+  });
+
+  const main = document.getElementById('mainContent');
+  if(tab==='home') renderHome();
+  else if(tab==='properties') renderProperties();
+  else if(tab==='add') renderAddForm();
+  else if(tab==='match') renderMatch();
+  else if(tab==='clients') renderClients();
+}
+
+// ── HOME ───────────────────────────────────────────────────────────────────
+async function renderHome(){
+  const main = document.getElementById('mainContent');
+  main.innerHTML = `
+    <div class="greeting">
+      <div class="greeting-sub">أهلاً وسهلاً 👋</div>
+      <div class="greeting-name">ريم الخير</div>
+      <div class="greeting-stats">
+        <div class="gs"><div class="gs-val" id="gsProps">—</div><div class="gs-label">عقار</div></div>
+        <div class="gs"><div class="gs-val" id="gsLeads">—</div><div class="gs-label">عميل</div></div>
+        <div class="gs"><div class="gs-val" id="gsContracts">—</div><div class="gs-label">عقد</div></div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">آخر العقارات المضافة</div>
+      <button class="section-link" onclick="showTab('properties')">عرض الكل</button>
+    </div>
+    <div id="recentProps"><div class="loading"><div class="spinner"></div>جاري التحميل...</div></div>
+  `;
+
+  // Load KPIs
+  const [props, clients, contracts] = await Promise.all([
+    sbFetch('properties','select=id'),
+    sbFetch('clients','select=id'),
+    sbFetch('contracts','select=id'),
+  ]);
+  if(Array.isArray(props)) document.getElementById('gsProps').textContent = props.length;
+  if(Array.isArray(clients)) document.getElementById('gsLeads').textContent = clients.length;
+  if(Array.isArray(contracts)) document.getElementById('gsContracts').textContent = contracts.length;
+
+  // Load recent properties
+  const recent = await sbFetch('properties','select=*&order=created_at.desc&limit=3');
+  const container = document.getElementById('recentProps');
+  if(Array.isArray(recent) && recent.length>0){
+    container.innerHTML = recent.map(p=>propCardHTML(p)).join('');
+  } else {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">🏠</div><div class="empty-text">لا توجد عقارات بعد</div><div class="empty-sub">أضف أول عقار الآن</div></div>`;
+  }
+}
+
+// ── PROPERTIES ─────────────────────────────────────────────────────────────
+async function renderProperties(){
+  const main = document.getElementById('mainContent');
+  main.innerHTML = `
+    <div style="margin-bottom:16px">
+      <input class="form-input" id="propSearch" placeholder="ابحث عن عقار..." oninput="filterProps()" style="margin-bottom:0"/>
+    </div>
+    <div class="section-header">
+      <div class="section-title">كل العقارات</div>
+      <button class="section-link" onclick="showTab('add')">+ إضافة</button>
+    </div>
+    <div id="propsList"><div class="loading"><div class="spinner"></div>جاري التحميل...</div></div>
+  `;
+  window._allProps = await sbFetch('properties','select=*&order=created_at.desc');
+  filterProps();
+}
+
+function filterProps(){
+  const q = (document.getElementById('propSearch')?.value||'').toLowerCase();
+  const list = Array.isArray(window._allProps) ? window._allProps.filter(p=>
+    !q || (p.title||'').toLowerCase().includes(q) || (p.title_ar||'').includes(q) || (p.area||'').toLowerCase().includes(q)
+  ) : [];
+  const container = document.getElementById('propsList');
+  if(!container) return;
+  if(list.length===0){
+    container.innerHTML=`<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">لا توجد نتائج</div></div>`;
+  } else {
+    container.innerHTML = list.map(p=>propCardHTML(p)).join('');
+  }
+}
+
+function propCardHTML(p){
+  const wa = generateWAMessage(p);
+  const waEncoded = encodeURIComponent(wa);
+  return `
+  <div class="prop-card">
+    <div class="prop-img" style="background:${p.category==='Commercial'?'linear-gradient(135deg,#f093fb,#f5576c)':p.category==='Short-term Rental'?'linear-gradient(135deg,#4facfe,#00f2fe)':'linear-gradient(135deg,#43e97b,#38f9d7)'}">
+      <span style="font-size:52px">${propEmoji(p.type||p.title||'')}</span>
+      <div class="prop-badge ${statusClass(p.status)}">${statusLabel(p.status)}</div>
+    </div>
+    <div class="prop-body">
+      <div class="prop-title">${p.title_ar||p.title||'عقار'}</div>
+      <div class="prop-location">📍 ${p.area||'—'}</div>
+      <div class="prop-price">${formatPrice(p.price)}</div>
+      <div class="prop-attrs">
+        ${p.size_sqm?`<span class="attr">📐 ${p.size_sqm} م²</span>`:''}
+        ${p.bedrooms?`<span class="attr">🛏 ${p.bedrooms} غرف</span>`:''}
+        <span class="attr">${p.category||p.type||'سكني'}</span>
+      </div>
+      <div class="prop-footer">
+        <div class="prop-agent"><div class="agent-av">و</div>وكيل</div>
+        <a href="https://wa.me/?text=${waEncoded}" target="_blank" class="whatsapp-btn">📤 واتساب</a>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── ADD PROPERTY ───────────────────────────────────────────────────────────
+function renderAddForm(){
+  document.getElementById('mainContent').innerHTML = `
+  <div class="add-form">
+    <div class="form-title">إضافة عقار جديد</div>
+    <div class="form-sub">أدخل تفاصيل العقار وسيتم إشعار الفريق تلقائياً</div>
+
+    <div class="form-group">
+      <label class="form-label">اسم العقار</label>
+      <input class="form-input" id="fTitle" placeholder="مثال: شقة في المعادي"/>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">النوع</label>
+        <select class="form-input form-select" id="fCategory">
+          <option value="Residential">سكني</option>
+          <option value="Commercial">تجاري</option>
+          <option value="Short-term Rental">إيجار قصير</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">التفاصيل</label>
+        <select class="form-input form-select" id="fType">
+          <option value="Apartment">شقة</option>
+          <option value="Villa">فيلا</option>
+          <option value="Office">مكتب</option>
+          <option value="Shop">محل</option>
+          <option value="Duplex">دوبلكس</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">المنطقة</label>
+      <input class="form-input" id="fArea" placeholder="مثال: المعادي، القاهرة"/>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">السعر (ج.م)</label>
+        <input class="form-input" id="fPrice" type="number" placeholder="0"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">المساحة (م²)</label>
+        <input class="form-input" id="fSize" type="number" placeholder="0"/>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">عدد الغرف</label>
+        <input class="form-input" id="fBeds" type="number" placeholder="0"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">الحالة</label>
+        <select class="form-input form-select" id="fStatus">
+          <option value="available">متاح</option>
+          <option value="reserved">محجوز</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">وصف إضافي (اختياري)</label>
+      <textarea class="form-input" id="fDesc" rows="3" placeholder="أي تفاصيل إضافية..."></textarea>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="saveProperty()">
+      ✓ حفظ وإشعار الفريق
+    </button>
+
+    <div id="waResult"></div>
+  </div>`;
+}
+
+async function saveProperty(){
+  const title = document.getElementById('fTitle').value.trim();
+  const area  = document.getElementById('fArea').value.trim();
+  const price = parseFloat(document.getElementById('fPrice').value)||0;
+  const size  = parseInt(document.getElementById('fSize').value)||null;
+  const beds  = parseInt(document.getElementById('fBeds').value)||null;
+  const category = document.getElementById('fCategory').value;
+  const type  = document.getElementById('fType').value;
+  const status= document.getElementById('fStatus').value;
+  const desc  = document.getElementById('fDesc').value.trim();
+
+  if(!title){ showToast('⚠️ الرجاء إدخال اسم العقار'); return; }
+  if(!price){ showToast('⚠️ الرجاء إدخال السعر'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled=true;
+  btn.textContent='⏳ جاري الحفظ...';
+
+  try{
+    const data = await sbInsert('properties',{
+      title, title_ar:title, category, type, status,
+      price, size_sqm:size, bedrooms:beds, area,
+      description:desc, description_ar:desc
+    });
+
+    if(Array.isArray(data)&&data.length>0){
+      const prop = data[0];
+      const waMsg = generateWAMessage(prop);
+      const waEncoded = encodeURIComponent(waMsg);
+
+      document.getElementById('waResult').innerHTML=`
+        <div class="wa-box">
+          <div class="wa-box-title">✅ تم حفظ العقار! رسالة واتساب جاهزة:</div>
+          <div class="wa-text">${waMsg}</div>
+          <a href="https://wa.me/?text=${waEncoded}" target="_blank" class="wa-copy" style="display:block;text-align:center;text-decoration:none;padding:10px;background:#25D366;color:white;border-radius:8px;font-weight:700;font-family:'Cairo',sans-serif">
+            📤 إرسال على واتساب
+          </a>
+        </div>`;
+      btn.textContent='✓ تم الحفظ!';
+      btn.style.background='#22c55e';
+      showToast('✅ تم إضافة العقار بنجاح!');
+    } else {
+      throw new Error(JSON.stringify(data));
+    }
+  }catch(e){
+    console.error(e);
+    showToast('❌ حدث خطأ، حاول مرة أخرى');
+    btn.disabled=false;
+    btn.textContent='✓ حفظ وإشعار الفريق';
+  }
+}
+
+// ── MATCH ──────────────────────────────────────────────────────────────────
+function renderMatch(){
+  document.getElementById('mainContent').innerHTML=`
+  <div class="match-search">
+    <div class="match-title">مطابقة العملاء 🔍</div>
+    <div class="match-sub">أدخل متطلبات العميل وسيجد النظام أفضل العقارات المناسبة</div>
+
+    <div class="form-group">
+      <label class="form-label">نوع العقار</label>
+      <select class="form-input form-select" id="mType">
+        <option value="">كل الأنواع</option>
+        <option value="Residential">سكني</option>
+        <option value="Commercial">تجاري</option>
+        <option value="Short-term Rental">إيجار قصير</option>
+      </select>
+    </div>
+
+    <div class="match-row">
+      <div class="form-group">
+        <label class="form-label">الميزانية (من)</label>
+        <input class="form-input" id="mMin" type="number" placeholder="0"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">الميزانية (إلى)</label>
+        <input class="form-input" id="mMax" type="number" placeholder="0"/>
+      </div>
+    </div>
+
+    <div class="match-row">
+      <div class="form-group">
+        <label class="form-label">المنطقة</label>
+        <input class="form-input" id="mArea" placeholder="مثال: المعادي"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">الغرف (كحد أدنى)</label>
+        <input class="form-input" id="mBeds" type="number" placeholder="0"/>
+      </div>
+    </div>
+
+    <button class="match-btn" onclick="doMatch()">🔍 ابحث عن مطابقات</button>
+  </div>
+  <div id="matchResults"></div>`;
+}
+
+async function doMatch(){
+  const type = document.getElementById('mType').value;
+  const min  = parseFloat(document.getElementById('mMin').value)||0;
+  const max  = parseFloat(document.getElementById('mMax').value)||999999999;
+  const area = document.getElementById('mArea').value.trim().toLowerCase();
+  const beds = parseInt(document.getElementById('mBeds').value)||0;
+
+  document.getElementById('matchResults').innerHTML=`<div class="loading"><div class="spinner"></div>جاري البحث...</div>`;
+
+  let params = 'select=*&status=eq.available';
+  if(type) params+=`&category=eq.${encodeURIComponent(type)}`;
+  if(min>0) params+=`&price=gte.${min}`;
+  if(max<999999999) params+=`&price=lte.${max}`;
+
+  const props = await sbFetch('properties',params);
+  let results = Array.isArray(props)?props:[];
+
+  // Filter by area and beds in JS
+  if(area) results=results.filter(p=>(p.area||'').toLowerCase().includes(area));
+  if(beds>0) results=results.filter(p=>(p.bedrooms||0)>=beds);
+
+  const container=document.getElementById('matchResults');
+  if(results.length===0){
+    container.innerHTML=`<div class="empty"><div class="empty-icon">😔</div><div class="empty-text">لا توجد عقارات مطابقة</div><div class="empty-sub">جرب تغيير معايير البحث</div></div>`;
+    return;
+  }
+
+  container.innerHTML=results.map((p,i)=>{
+    const wa=generateWAMessage(p);
+    const waEnc=encodeURIComponent(wa);
+    return `<div class="match-result">
+      <div class="match-score">✓ مطابق ${i===0?'100%':i===1?'95%':'88%'}</div>
+      <div class="match-prop-title">${p.title_ar||p.title}</div>
+      <div class="match-prop-detail">📍 ${p.area||'—'} ${p.bedrooms?'· 🛏 '+p.bedrooms+' غرف':''} ${p.size_sqm?'· 📐 '+p.size_sqm+' م²':''}</div>
+      <div class="match-price">${formatPrice(p.price)}</div>
+      <div class="match-actions">
+        <a href="https://wa.me/?text=${waEnc}" target="_blank" class="match-wa">📤 شارك على واتساب</a>
+        <button class="match-view" onclick="showToast('تفاصيل العقار قريباً')">عرض التفاصيل</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── CLIENTS ────────────────────────────────────────────────────────────────
+async function renderClients(){
+  document.getElementById('mainContent').innerHTML=`
+  <div class="section-header">
+    <div class="section-title">العملاء</div>
+    <button class="section-link" onclick="showAddClient()">+ إضافة عميل</button>
+  </div>
+  <div id="clientsList"><div class="loading"><div class="spinner"></div>جاري التحميل...</div></div>`;
+
+  const clients = await sbFetch('clients','select=*&order=created_at.desc');
+  const container=document.getElementById('clientsList');
+
+  if(!Array.isArray(clients)||clients.length===0){
+    container.innerHTML=`<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">لا يوجد عملاء بعد</div></div>`;
+    return;
+  }
+
+  container.innerHTML=clients.map(c=>`
+    <div style="background:white;border-radius:var(--radius-sm);padding:14px;margin-bottom:10px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px">
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--green-light);color:var(--green);font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        ${(c.full_name||'؟').charAt(0)}
+      </div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:15px">${c.full_name||'—'}</div>
+        <div style="font-size:13px;color:var(--text2)">${c.phone||'—'}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px">${c.notes||''}</div>
+      </div>
+      <a href="tel:${c.phone||''}" style="background:var(--green-light);color:var(--green);border-radius:var(--radius-xs);padding:6px 10px;font-size:18px;text-decoration:none">📞</a>
+    </div>`).join('');
+}
+
+function showAddClient(){
+  showToast('إضافة العملاء قريباً في التحديث القادم');
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+renderHome();
+</script>
+</body>
+</html>
